@@ -386,7 +386,7 @@ Join an existing house using its invite code.
 
 **Headers:** `Authorization: Bearer <token>`
 
-Get all houses the authenticated user belongs to.
+Get all houses the authenticated user belongs to, including complete member lists.
 
 **Responses:**
 
@@ -402,13 +402,41 @@ Get all houses the authenticated user belongs to.
     "address": "123 Main St",
     "description": "A cozy house",
     "inviteCode": "HOUSE123",
+    "imageUrl": "https://example.com/house.jpg",
+    "color": "#10B981",
     "createdAt": "2025-09-06T12:00:00Z",
     "membership": {
       "id": "uuid",
       "displayName": "Johnny",
       "role": "admin",
       "joinedAt": "2025-09-06T12:00:00Z"
-    }
+    },
+    "members": [
+      {
+        "id": "uuid",
+        "displayName": "Johnny",
+        "role": "admin",
+        "joinedAt": "2025-09-06T12:00:00Z",
+        "user": {
+          "id": "uuid",
+          "firstName": "John",
+          "lastName": "Doe",
+          "email": "john@example.com"
+        }
+      },
+      {
+        "id": "uuid2",
+        "displayName": "Sarah",
+        "role": "member",
+        "joinedAt": "2025-09-07T10:00:00Z",
+        "user": {
+          "id": "uuid2",
+          "firstName": "Sarah",
+          "lastName": "Smith",
+          "email": "sarah@example.com"
+        }
+      }
+    ]
   }
 ]
 ```

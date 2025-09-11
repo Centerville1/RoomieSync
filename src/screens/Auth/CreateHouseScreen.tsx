@@ -14,7 +14,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { Button, Input } from "../../components/UI";
 import { useHouse } from "../../context/HouseContext";
 import { RootStackParamList } from "../../types/navigation";
-import { COLORS, VALIDATION } from "../../constants";
+import { COLORS, VALIDATION, NAVIGATION_ROUTES } from "../../constants";
 import { CreateHouseRequest } from "../../types/houses";
 
 type CreateHouseScreenNavigationProp = StackNavigationProp<
@@ -107,11 +107,18 @@ export default function CreateHouseScreen({ navigation }: Props) {
           {
             text: "Continue",
             onPress: () => {
-              // Navigation will be handled by the root navigator
-              // based on the authentication state
+              // Navigate back to the main app - the root navigator will show main stack
+              // since we now have houses
+              navigation.navigate(NAVIGATION_ROUTES.MAIN);
             },
           },
-        ]
+        ],
+        {
+          onDismiss: () => {
+            // Also navigate if user dismisses the alert
+            navigation.navigate(NAVIGATION_ROUTES.MAIN);
+          }
+        }
       );
     } catch (error: any) {
       console.error("Create house error:", error);

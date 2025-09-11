@@ -103,15 +103,46 @@ export default function JoinHouseScreen({ navigation, route }: Props) {
           {
             text: "Continue",
             onPress: () => {
-              // Navigation will be handled by the root navigator
-              // based on the authentication state
+              // Navigate back to the main app - the root navigator will show main stack
+              // since we now have houses
+              navigation.navigate(NAVIGATION_ROUTES.MAIN);
             },
           },
-        ]
+        ],
+        {
+          onDismiss: () => {
+            // Also navigate if user dismisses the alert
+            navigation.navigate(NAVIGATION_ROUTES.MAIN);
+          }
+        }
       );
     } catch (error: any) {
       console.error("Join house error:", error);
 
+      // Handle specific error cases that should show as field errors
+      if (error.response?.status === 409) {
+        const errorMessage = error.response.data.message?.toLowerCase() || "";
+        if (errorMessage.includes("display name")) {
+          // Display name is taken - show as field error, don't show alert
+          setErrors(prev => ({ 
+            ...prev, 
+            displayName: "This display name is already taken in this house. Please choose a different one." 
+          }));
+          return; // Don't show alert, let user try again
+        } else if (errorMessage.includes("already a member")) {
+          Alert.alert("Already a Member", "You are already a member of this house.");
+          return;
+        }
+      } else if (error.response?.status === 404) {
+        // Invalid invite code - show as field error
+        setErrors(prev => ({ 
+          ...prev, 
+          inviteCode: "House not found. Please check the invite code." 
+        }));
+        return;
+      }
+
+      // For other errors, show alert
       let errorMessage = "An error occurred while joining the house";
 
       if (error.response?.data?.message) {
@@ -122,18 +153,6 @@ export default function JoinHouseScreen({ navigation, route }: Props) {
         }
       } else if (error.message) {
         errorMessage = error.message;
-      }
-
-      // Handle specific error cases
-      if (error.response?.status === 404) {
-        errorMessage = "House not found. Please check the invite code.";
-      } else if (error.response?.status === 409) {
-        if (error.response.data.message?.includes("already a member")) {
-          errorMessage = "You are already a member of this house.";
-        } else if (error.response.data.message?.includes("display name")) {
-          errorMessage =
-            "This display name is already taken in this house. Please choose a different one.";
-        }
       }
 
       Alert.alert("Error", errorMessage);

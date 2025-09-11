@@ -13,6 +13,7 @@ export const COLORS = {
   
   // Background colors
   BACKGROUND: '#F9FAFB',
+  BACKGROUND_LIGHT: '#F3F4F6',
   CARD_BACKGROUND: '#FFFFFF',
   OVERLAY: 'rgba(0, 0, 0, 0.5)',
   

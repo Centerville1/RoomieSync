@@ -9,13 +9,23 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 import { Card, Avatar, Button } from '../../components/UI';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS } from '../../constants';
+import { useHouse } from '../../context/HouseContext';
+import { COLORS, NAVIGATION_ROUTES } from '../../constants';
+import { RootStackParamList } from '../../types/navigation';
+
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
+  const { houses } = useHouse();
+  const navigation = useNavigation<NavigationProp>();
+
+
 
   const handleLogout = () => {
     Alert.alert(
@@ -69,7 +79,7 @@ export default function ProfileScreen() {
             size="large"
           />
           <Text style={styles.userName}>
-            {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
+            {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email || 'Loading...'}
           </Text>
           <Text style={styles.userEmail}>
             {user?.email || ''}
@@ -79,31 +89,50 @@ export default function ProfileScreen() {
             title="Edit Profile"
             variant="outline"
             size="small"
-            onPress={() => {}}
+            onPress={() => navigation.navigate(NAVIGATION_ROUTES.EDIT_PROFILE as any)}
             style={styles.editButton}
           />
         </View>
 
         {/* Houses Section */}
         <Card title="🏠 Your Houses" headerColor={COLORS.BALANCE_HEADER}>
-          <ProfileItem
-            icon="home-outline"
-            title="The Squad House"
-            subtitle="3 members • Admin"
-            onPress={() => {}}
-          />
+          {houses.length > 0 ? (
+            houses.map((house, index) => {
+              // Get the user's role from the house membership data
+              const role = house.membership?.role === 'admin' ? 'Admin' : 'Member';
+              
+              // For now, we don't have member count data from this endpoint
+              // We could fetch it separately or the API could include it
+              const subtitle = role;
+              
+              return (
+                <ProfileItem
+                  key={house.id}
+                  icon="home-outline"
+                  title={house.name}
+                  subtitle={subtitle}
+                  onPress={() => {}}
+                  showArrow={index < houses.length - 1}
+                />
+              );
+            })
+          ) : (
+            <View style={styles.noHousesContainer}>
+              <Text style={styles.noHousesText}>You haven't joined any houses yet</Text>
+            </View>
+          )}
           <View style={styles.addHouseContainer}>
             <Button
               title="Join House"
               variant="outline"
               size="small"
-              onPress={() => {}}
+              onPress={() => navigation.navigate(NAVIGATION_ROUTES.JOIN_HOUSE, { inviteCode: undefined })}
               style={styles.houseButton}
             />
             <Button
               title="Create House"
               size="small"
-              onPress={() => {}}
+              onPress={() => navigation.navigate(NAVIGATION_ROUTES.CREATE_HOUSE)}
               style={styles.houseButton}
             />
           </View>
@@ -261,5 +290,14 @@ const styles = StyleSheet.create({
   },
   signOutButton: {
     marginTop: 16,
+  },
+  noHousesContainer: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  noHousesText: {
+    fontSize: 14,
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
   },
 });
