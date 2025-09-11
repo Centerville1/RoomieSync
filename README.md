@@ -54,53 +54,79 @@ src/
 
 ### Installation
 
-1. Install dependencies:
+1. **Install dependencies:**
 ```bash
 npm install
 ```
 
-2. Start the development server:
+2. **Set up environment configuration:**
+```bash
+npm run setup-env
+```
+
+3. **Start the development server:**
 ```bash
 npm start
 ```
 
-3. Run on device/simulator:
+4. **Run on device/simulator:**
 ```bash
-# iOS
+# iOS Simulator
 npm run ios
 
-# Android  
+# Android Device/Emulator
 npm run android
 
-# Web
+# Web Browser
 npm run web
+
+# Physical devices (Android/iOS) via tunnel
+npm run dev:tunnel
 ```
 
 ## Configuration
 
 ### Environment Setup
 
+#### Quick Setup (Recommended)
+
+Run the automated environment setup:
+
+```bash
+npm run setup-env
+```
+
+This command will:
+- 🔍 Automatically detect your computer's IP address
+- 📝 Create `.env.local` with the correct configuration  
+- ✅ Configure the app to work on both iOS simulator and Android devices
+- 🚀 Get you ready to develop immediately
+
+#### Manual Setup
+
+If you prefer to configure manually:
+
 1. **Copy the example environment file:**
 ```bash
 cp .env.example .env.local
 ```
 
-2. **Update `.env.local` with your settings:**
-```bash
-# For local development with physical devices
-EXPO_PUBLIC_API_BASE_URL=http://YOUR_COMPUTER_IP:3001
-
-# For iOS simulator only
-EXPO_PUBLIC_API_BASE_URL=http://localhost:3001
-```
-
-3. **Get your computer's IP address:**
+2. **Get your computer's IP address:**
 ```bash
 # macOS/Linux
 ifconfig | grep "inet " | grep -v 127.0.0.1
 
-# Windows
+# Windows  
 ipconfig
+```
+
+3. **Update `.env.local` with your settings:**
+```bash
+# For local development with physical devices (Android/iOS via Expo Go)
+EXPO_PUBLIC_API_BASE_URL=http://YOUR_COMPUTER_IP:3001
+
+# For iOS simulator only (if you don't need Android device support)
+EXPO_PUBLIC_API_BASE_URL=http://localhost:3001
 ```
 
 ### Environment Files
@@ -110,6 +136,13 @@ ipconfig
 - `.env.production` - Production config (gitignored)
 
 **Important:** Never commit `.env.local` or `.env.production` as they may contain secrets in the future.
+
+### Network Requirements
+
+**For Physical Devices (Android/iOS via Expo Go):**
+- 📶 Your computer and mobile device **must be on the same WiFi network**
+- 🏠 The network IP configuration (set by `npm run setup-env`) only works when both devices share the same local network
+- 🌐 If on different networks, use tunnel mode: `npm run dev:tunnel` (slower but works across networks)
 
 ### App Configuration
 

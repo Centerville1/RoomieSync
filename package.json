@@ -6,7 +6,9 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "setup-env": "bash scripts/setup-env.sh",
+    "dev:tunnel": "expo start --tunnel"
   },
   "dependencies": {
     "@expo/ngrok": "^4.1.3",
