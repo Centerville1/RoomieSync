@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 import { Card, Avatar, Button } from '../../components/UI';
@@ -52,6 +52,15 @@ export default function HomeScreen() {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Refresh data when screen comes into focus (e.g., returning from settings)
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        loadData();
+      }
+    }, [user])
+  );
 
   const loadData = async () => {
     if (!user) return;
