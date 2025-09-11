@@ -7,12 +7,15 @@ export type RootStackParamList = {
   Register: undefined;
   JoinHouse: { inviteCode?: string };
   CreateHouse: undefined;
+  HouseSelection: undefined;
+  HouseSettings: undefined;
 };
 
 export type MainTabParamList = {
   Home: undefined;
   ShareCost: { selectedItems?: string[] };
   Profile: undefined;
+  HouseSettings: undefined;
 };
 
 export type ShareCostStackParamList = {

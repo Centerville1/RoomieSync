@@ -67,8 +67,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const user = await authService.getStoredUser();
       
       if (token && user) {
-        dispatch({ type: 'SET_TOKEN', payload: token });
-        dispatch({ type: 'SET_USER', payload: user });
+        // Validate token by trying to fetch profile
+        try {
+          const currentUser = await authService.getProfile();
+          dispatch({ type: 'SET_TOKEN', payload: token });
+          dispatch({ type: 'SET_USER', payload: currentUser });
+        } catch (profileError) {
+          // Token is invalid, clear auth data
+          await authService.logout();
+          dispatch({ type: 'RESET_AUTH' });
+        }
+      } else {
+        dispatch({ type: 'RESET_AUTH' });
       }
     } catch (error) {
       console.error('Error checking auth status:', error);

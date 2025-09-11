@@ -4,6 +4,7 @@ import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { HouseProvider } from './src/context/HouseContext';
 import RootNavigator from './src/navigation/RootNavigator';
 import { COLORS } from './src/constants';
 
@@ -30,7 +31,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <AppContent />
+        <HouseProvider>
+          <AppContent />
+        </HouseProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

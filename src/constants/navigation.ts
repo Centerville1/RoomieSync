@@ -6,11 +6,13 @@ export const NAVIGATION_ROUTES = {
   REGISTER: 'Register',
   JOIN_HOUSE: 'JoinHouse',
   CREATE_HOUSE: 'CreateHouse',
+  HOUSE_SELECTION: 'HouseSelection',
   
   // Main tab routes
   HOME: 'Home',
   SHARE_COST: 'ShareCost',
   PROFILE: 'Profile',
+  HOUSE_SETTINGS: 'HouseSettings',
   
   // Share cost stack routes
   SHARE_COST_HOME: 'ShareCostHome',
