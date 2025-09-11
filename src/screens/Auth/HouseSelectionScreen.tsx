@@ -30,16 +30,6 @@ export default function HouseSelectionScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Temporary logout button for testing */}
-      <View>
-        <Button
-          title="🚪 Logout"
-          onPress={handleLogout}
-          variant="outline"
-          style={styles.debugButton}
-        />
-      </View>
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -102,6 +92,13 @@ export default function HouseSelectionScreen({ navigation }: Props) {
               profile settings.
             </Text>
           </View>
+          <View>
+            <Button
+              title="🚪 Logout"
+              onPress={handleLogout}
+              style={styles.logoutButton}
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -113,9 +110,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.BACKGROUND,
   },
-  debugButton: {
+  logoutButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
+    marginTop: 20,
+    backgroundColor: COLORS.ERROR,
   },
   scrollView: {
     flex: 1,
