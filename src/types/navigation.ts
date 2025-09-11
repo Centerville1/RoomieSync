@@ -7,6 +7,7 @@ export type RootStackParamList = {
   Register: undefined;
   JoinHouse: { inviteCode?: string };
   CreateHouse: undefined;
+  HouseSelection: undefined;
 };
 
 export type MainTabParamList = {

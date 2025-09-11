@@ -6,6 +6,7 @@ export const NAVIGATION_ROUTES = {
   REGISTER: 'Register',
   JOIN_HOUSE: 'JoinHouse',
   CREATE_HOUSE: 'CreateHouse',
+  HOUSE_SELECTION: 'HouseSelection',
   
   // Main tab routes
   HOME: 'Home',

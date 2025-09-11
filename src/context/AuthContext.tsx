@@ -66,9 +66,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = await authService.getStoredToken();
       const user = await authService.getStoredUser();
       
+      console.log('Auth check - Token exists:', !!token);
+      console.log('Auth check - User exists:', !!user);
+      
       if (token && user) {
-        dispatch({ type: 'SET_TOKEN', payload: token });
-        dispatch({ type: 'SET_USER', payload: user });
+        // Validate token by trying to fetch profile
+        try {
+          const currentUser = await authService.getProfile();
+          dispatch({ type: 'SET_TOKEN', payload: token });
+          dispatch({ type: 'SET_USER', payload: currentUser });
+          console.log('Auth check - Token valid, user authenticated');
+        } catch (profileError) {
+          console.log('Auth check - Token invalid, clearing auth');
+          // Token is invalid, clear auth data
+          await authService.logout();
+          dispatch({ type: 'RESET_AUTH' });
+        }
+      } else {
+        console.log('Auth check - No token or user, not authenticated');
+        dispatch({ type: 'RESET_AUTH' });
       }
     } catch (error) {
       console.error('Error checking auth status:', error);
