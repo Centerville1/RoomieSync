@@ -12,6 +12,7 @@ export const NAVIGATION_ROUTES = {
   HOME: 'Home',
   SHARE_COST: 'ShareCost',
   PROFILE: 'Profile',
+  HOUSE_SETTINGS: 'HouseSettings',
   
   // Share cost stack routes
   SHARE_COST_HOME: 'ShareCostHome',

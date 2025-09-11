@@ -5,6 +5,7 @@ import { View, ActivityIndicator } from 'react-native';
 
 import AuthNavigator from './AuthNavigator';
 import MainTabNavigator from './MainTabNavigator';
+import HouseSettingsScreen from '../screens/Settings/HouseSettingsScreen';
 import { useAuth } from '../context/AuthContext';
 import { useHouse } from '../context/HouseContext';
 import { RootStackParamList } from '../types/navigation';
@@ -38,10 +39,20 @@ export default function RootNavigator() {
     <NavigationContainer key={`${shouldShowMain ? 'main' : 'auth'}-${forceRender}`}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {shouldShowMain ? (
-          <Stack.Screen 
-            name={NAVIGATION_ROUTES.MAIN} 
-            component={MainTabNavigator} 
-          />
+          <>
+            <Stack.Screen 
+              name={NAVIGATION_ROUTES.MAIN} 
+              component={MainTabNavigator} 
+            />
+            <Stack.Screen 
+              name={NAVIGATION_ROUTES.HOUSE_SETTINGS}
+              component={HouseSettingsScreen}
+              options={{
+                presentation: 'modal',
+                headerShown: false,
+              }}
+            />
+          </>
         ) : (
           <Stack.Screen 
             name={NAVIGATION_ROUTES.AUTH} 

@@ -6,137 +6,163 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 import { Card, Avatar, Button } from '../../components/UI';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS } from '../../constants';
+import { COLORS, NAVIGATION_ROUTES } from '../../constants';
+import { RootStackParamList } from '../../types/navigation';
 import { House } from '../../types/houses';
 import { Balance } from '../../types/expenses';
 import { ShoppingItem } from '../../types/shopping';
+import { houseService } from '../../services/houseService';
+import { balanceService } from '../../services/balanceService';
+import { shoppingService } from '../../services/shoppingService';
+import { expenseService } from '../../services/expenseService';
+import { paymentService } from '../../services/paymentService';
+
+interface ActivityItem {
+  id: string;
+  type: 'expense' | 'payment' | 'shopping';
+  description: string;
+  amount?: number;
+  user: string;
+  time: string;
+}
+
+type HouseSettingsNavigationProp = StackNavigationProp<RootStackParamList, 'HouseSettings'>;
 
 export default function HomeScreen() {
   const { user } = useAuth();
+  const navigation = useNavigation<HouseSettingsNavigationProp>();
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [currentHouse, setCurrentHouse] = useState<House | null>(null);
   const [balances, setBalances] = useState<Balance[]>([]);
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data for demo
   useEffect(() => {
-    loadMockData();
+    loadData();
   }, []);
 
-  const loadMockData = () => {
-    // Mock house data
-    setCurrentHouse({
-      id: '1',
-      name: 'The Squad House',
-      address: '123 Main St',
-      inviteCode: 'SQUAD123',
-      color: '#10B981',
-      imageUrl: undefined,
-      isActive: true,
-      createdAt: '2025-01-01',
-      updatedAt: '2025-01-01',
-      members: [
-        { 
-          id: '1', 
-          displayName: 'You', 
-          role: 'admin', 
-          isActive: true, 
-          joinedAt: '2025-01-01', 
-          updatedAt: '2025-01-01',
-          user: user!
-        },
-        { 
-          id: '2', 
-          displayName: 'Alex', 
-          role: 'member', 
-          isActive: true, 
-          joinedAt: '2025-01-01', 
-          updatedAt: '2025-01-01' 
-        },
-        { 
-          id: '3', 
-          displayName: 'Sam', 
-          role: 'member', 
-          isActive: true, 
-          joinedAt: '2025-01-01', 
-          updatedAt: '2025-01-01' 
-        },
-      ]
-    });
+  const loadData = async () => {
+    if (!user) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Get current house from storage or user's houses
+      let house = await houseService.getStoredCurrentHouse();
+      
+      if (!house) {
+        const houses = await houseService.getUserHouses();
+        if (houses.length > 0) {
+          house = houses[0];
+          await houseService.setCurrentHouse(house);
+        }
+      }
+      
+      if (!house) {
+        setCurrentHouse(null);
+        return;
+      }
+      
+      // Load all data concurrently, including detailed house info with members
+      const [houseDetailsData, balancesData, shoppingData, expensesData, paymentsData] = await Promise.allSettled([
+        houseService.getHouseDetails(house.id),
+        balanceService.getBalancesByHouseId(house.id),
+        shoppingService.getShoppingItemsByHouseId(house.id),
+        expenseService.getExpensesByHouseId(house.id),
+        paymentService.getPaymentsByHouseId(house.id)
+      ]);
+      
+      // Set house details with full member information
+      if (houseDetailsData.status === 'fulfilled') {
+        const houseDetails = houseDetailsData.value;
+        setCurrentHouse(houseDetails);
+        // Update stored house with latest details
+        await houseService.setCurrentHouse(houseDetails);
+      } else {
+        setCurrentHouse(house); // fallback to basic house data
+      }
+      
+      // Set balances
+      if (balancesData.status === 'fulfilled') {
+        setBalances(balancesData.value);
+      }
+      
+      // Set shopping items (filter out purchased ones for the home screen)
+      if (shoppingData.status === 'fulfilled') {
+        const activeItems = shoppingData.value.filter(item => !item.purchasedAt);
+        setShoppingItems(activeItems);
+      }
+      
+      // Generate recent activity from expenses and payments
+      const activity: ActivityItem[] = [];
+      
+      if (expensesData.status === 'fulfilled') {
+        expensesData.value.slice(0, 3).forEach(expense => {
+          activity.push({
+            id: `expense-${expense.id}`,
+            type: 'expense',
+            description: expense.description,
+            amount: expense.amount,
+            user: expense.paidBy.firstName || 'Unknown',
+            time: formatRelativeTime(expense.createdAt)
+          });
+        });
+      }
+      
+      if (paymentsData.status === 'fulfilled') {
+        paymentsData.value.slice(0, 2).forEach(payment => {
+          activity.push({
+            id: `payment-${payment.id}`,
+            type: 'payment',
+            description: payment.memo || 'Payment',
+            amount: payment.amount,
+            user: payment.fromUser.firstName || 'Unknown',
+            time: formatRelativeTime(payment.createdAt)
+          });
+        });
+      }
+      
+      // Sort by most recent and take top 5 (simple sort by creation order for now)
+      activity.reverse();
+      setRecentActivity(activity.slice(0, 5));
+      
+    } catch (err) {
+      console.error('Error loading home screen data:', err);
+      setError('Failed to load data. Please try refreshing.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // Mock balance data
-    setBalances([
-      {
-        id: '1',
-        amount: 45.50,
-        fromUser: { id: '2', firstName: 'Alex', lastName: 'Johnson' } as any,
-        toUser: user!,
-        house: {} as any,
-        createdAt: '2025-01-01',
-        updatedAt: '2025-01-01',
-      },
-      {
-        id: '2',
-        amount: 23.75,
-        fromUser: user!,
-        toUser: { id: '3', firstName: 'Sam', lastName: 'Wilson' } as any,
-        house: {} as any,
-        createdAt: '2025-01-01',
-        updatedAt: '2025-01-01',
-      },
-    ]);
-
-    // Mock shopping items
-    setShoppingItems([
-      {
-        id: '1',
-        name: 'Milk',
-        quantity: 2,
-        notes: '2% milk',
-        isRecurring: true,
-        recurringInterval: 7,
-        createdAt: '2025-01-01',
-        updatedAt: '2025-01-01',
-      },
-      {
-        id: '2',
-        name: 'Bread',
-        quantity: 1,
-        isRecurring: false,
-        createdAt: '2025-01-01',
-        updatedAt: '2025-01-01',
-      },
-      {
-        id: '3',
-        name: 'Eggs',
-        quantity: 12,
-        isRecurring: true,
-        recurringInterval: 14,
-        createdAt: '2025-01-01',
-        updatedAt: '2025-01-01',
-      },
-    ]);
-
-    // Mock recent activity
-    setRecentActivity([
-      { id: '1', type: 'expense', description: 'Grocery shopping', amount: 87.50, user: 'Alex', time: '2 hours ago' },
-      { id: '2', type: 'payment', description: 'Rent payment', amount: 1200.00, user: 'Sam', time: '1 day ago' },
-      { id: '3', type: 'shopping', description: 'Added milk to shopping list', user: 'You', time: '2 days ago' },
-    ]);
+  const formatRelativeTime = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Less than an hour ago';
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // TODO: Refresh data from API
-    setTimeout(() => setRefreshing(false), 1000);
+    await loadData();
+    setRefreshing(false);
   };
 
   const formatAmount = (amount: number) => {
@@ -151,6 +177,30 @@ export default function HomeScreen() {
       default: return 'time-outline';
     }
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.PRIMARY} />
+          <Text style={styles.loadingText}>Loading your home...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Ionicons name="warning-outline" size={48} color={COLORS.ERROR} />
+          <Text style={styles.errorTitle}>Something went wrong</Text>
+          <Text style={styles.errorSubtitle}>{error}</Text>
+          <Button title="Try Again" onPress={loadData} style={styles.retryButton} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!currentHouse) {
     return (
@@ -187,7 +237,10 @@ export default function HomeScreen() {
             </View>
           </View>
           
-          <TouchableOpacity style={styles.settingsButton}>
+          <TouchableOpacity 
+            style={styles.settingsButton}
+            onPress={() => navigation.navigate(NAVIGATION_ROUTES.HOUSE_SETTINGS)}
+          >
             <Ionicons name="settings-outline" size={24} color={COLORS.TEXT_WHITE} />
           </TouchableOpacity>
         </View>
@@ -358,6 +411,40 @@ const styles = StyleSheet.create({
   emptyButton: {
     marginTop: 24,
     minWidth: 200,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: COLORS.TEXT_SECONDARY,
+    marginTop: 16,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: COLORS.TEXT_PRIMARY,
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  errorSubtitle: {
+    fontSize: 16,
+    color: COLORS.TEXT_SECONDARY,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  retryButton: {
+    marginTop: 24,
+    minWidth: 150,
   },
   emptyCardText: {
     fontSize: 16,
