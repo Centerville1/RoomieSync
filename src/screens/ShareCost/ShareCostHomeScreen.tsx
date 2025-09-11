@@ -1,0 +1,61 @@
+import React from 'react';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { Button } from '../../components/UI';
+import { COLORS } from '../../constants';
+
+export default function ShareCostHomeScreen({ navigation }: any) {
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Share the Cost</Text>
+        <Text style={styles.subtitle}>Split expenses with your roommates</Text>
+        
+        <View style={styles.options}>
+          <Button
+            title="Split Shopping Receipt"
+            onPress={() => navigation.navigate('ShoppingCostSplit')}
+            style={styles.optionButton}
+          />
+          
+          <Button
+            title="Add Manual Expense"
+            onPress={() => navigation.navigate('ManualExpense')}
+            variant="outline"
+            style={styles.optionButton}
+          />
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.BACKGROUND,
+  },
+  content: {
+    flex: 1,
+    padding: 24,
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: COLORS.TEXT_PRIMARY,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
+    marginBottom: 48,
+  },
+  options: {
+    gap: 16,
+  },
+  optionButton: {
+    minHeight: 60,
+  },
+});
