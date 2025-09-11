@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,10 +23,40 @@ type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
-  const { houses } = useHouse();
+  const { houses, currentHouse, switchToHouse } = useHouse();
   const navigation = useNavigation<NavigationProp>();
+  const [switchingHouse, setSwitchingHouse] = useState<string | null>(null);
 
 
+
+
+  const handleHouseSwitch = async (houseId: string) => {
+    if (houseId === currentHouse?.id) {
+      // Already on this house, no need to switch
+      return;
+    }
+
+    try {
+      setSwitchingHouse(houseId);
+      const switchedHouse = await switchToHouse(houseId);
+      
+      if (switchedHouse) {
+        // Show success feedback
+        Alert.alert(
+          'House Switched',
+          `Switched to ${switchedHouse.name}`,
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert('Error', 'Failed to switch to the selected house. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error switching house:', error);
+      Alert.alert('Error', 'Failed to switch to the selected house. Please try again.');
+    } finally {
+      setSwitchingHouse(null);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -43,15 +74,23 @@ export default function ProfileScreen() {
     title, 
     subtitle, 
     onPress, 
-    showArrow = true 
+    showArrow = true,
+    rightComponent,
+    disabled = false
   }: {
     icon: string;
     title: string;
     subtitle?: string;
     onPress?: () => void;
     showArrow?: boolean;
+    rightComponent?: React.ReactNode;
+    disabled?: boolean;
   }) => (
-    <TouchableOpacity style={styles.profileItem} onPress={onPress}>
+    <TouchableOpacity 
+      style={[styles.profileItem, disabled && styles.profileItemDisabled]} 
+      onPress={disabled ? undefined : onPress}
+      disabled={disabled}
+    >
       <View style={styles.itemLeft}>
         <View style={styles.iconContainer}>
           <Ionicons name={icon as any} size={20} color={COLORS.PRIMARY} />
@@ -61,9 +100,11 @@ export default function ProfileScreen() {
           {subtitle && <Text style={styles.itemSubtitle}>{subtitle}</Text>}
         </View>
       </View>
-      {showArrow && (
+      {rightComponent ? (
+        rightComponent
+      ) : showArrow ? (
         <Ionicons name="chevron-forward" size={20} color={COLORS.TEXT_LIGHT} />
-      )}
+      ) : null}
     </TouchableOpacity>
   );
 
@@ -97,22 +138,28 @@ export default function ProfileScreen() {
         {/* Houses Section */}
         <Card title="🏠 Your Houses" headerColor={COLORS.BALANCE_HEADER}>
           {houses.length > 0 ? (
-            houses.map((house, index) => {
+            houses.map((house) => {
               // Get the user's role from the house membership data
               const role = house.membership?.role === 'admin' ? 'Admin' : 'Member';
+              const isCurrentHouse = house.id === currentHouse?.id;
+              const isSwitching = switchingHouse === house.id;
               
-              // For now, we don't have member count data from this endpoint
-              // We could fetch it separately or the API could include it
-              const subtitle = role;
+              const subtitle = isCurrentHouse ? `${role} • Current` : role;
               
               return (
                 <ProfileItem
                   key={house.id}
-                  icon="home-outline"
+                  icon={isCurrentHouse ? "checkmark-circle" : "home-outline"}
                   title={house.name}
                   subtitle={subtitle}
-                  onPress={() => {}}
-                  showArrow={index < houses.length - 1}
+                  onPress={() => handleHouseSwitch(house.id)}
+                  showArrow={!isCurrentHouse && !isSwitching}
+                  rightComponent={isSwitching ? (
+                    <ActivityIndicator size="small" color={COLORS.PRIMARY} />
+                  ) : isCurrentHouse ? (
+                    <Ionicons name="checkmark-circle" size={20} color={COLORS.SUCCESS} />
+                  ) : undefined}
+                  disabled={isSwitching}
                 />
               );
             })
@@ -248,6 +295,9 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.BORDER_LIGHT,
+  },
+  profileItemDisabled: {
+    opacity: 0.6,
   },
   itemLeft: {
     flexDirection: 'row',

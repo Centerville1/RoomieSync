@@ -17,6 +17,7 @@ interface HouseContextType extends HouseState {
   updateHouse: (houseId: string, updateData: UpdateHouseRequest) => Promise<House>;
   uploadHouseImage: (houseId: string, imageUri: string) => Promise<House>;
   setCurrentHouse: (house: House) => void;
+  switchToHouse: (houseId: string) => Promise<House | null>;
   clearHouseData: () => Promise<void>;
   refreshHouses: () => Promise<void>;
   checkHouseStatus: () => Promise<void>;
@@ -90,18 +91,22 @@ export function HouseProvider({ children }: { children: React.ReactNode }) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      // Load stored data first for immediate UI feedback
+      // Load stored data first for immediate UI feedback, but only if it has membership data
       const storedHouses = await houseService.getStoredHouses();
       const storedCurrentHouse = await houseService.getStoredCurrentHouse();
       
-      if (storedHouses.length > 0) {
+      // Only use stored houses if they have membership data, otherwise they're incomplete
+      const hasCompleteMembershipData = storedHouses.length > 0 && 
+        storedHouses.every(house => house.membership && house.membership.role);
+      
+      if (hasCompleteMembershipData) {
         dispatch({ type: 'SET_HOUSES', payload: storedHouses });
       }
-      if (storedCurrentHouse) {
+      if (storedCurrentHouse && storedCurrentHouse.membership) {
         dispatch({ type: 'SET_CURRENT_HOUSE', payload: storedCurrentHouse });
       }
       
-      // Then refresh from server
+      // Always refresh from server to ensure we have the latest complete data
       await refreshHouses();
     } catch (error) {
       console.error('Error checking house status:', error);
@@ -234,6 +239,37 @@ export function HouseProvider({ children }: { children: React.ReactNode }) {
     houseService.setCurrentHouse(house);
   };
 
+  const switchToHouse = async (houseId: string): Promise<House | null> => {
+    try {
+      // Find the house in the current houses list
+      const targetHouse = state.houses.find(house => house.id === houseId);
+      
+      if (!targetHouse) {
+        // If house not found in local list, try to get fresh details
+        const houseDetails = await getHouseDetails(houseId);
+        if (houseDetails) {
+          setCurrentHouse(houseDetails);
+          return houseDetails;
+        }
+        return null;
+      }
+      
+      // Get fresh details for the house to ensure we have complete data
+      const houseDetails = await getHouseDetails(houseId);
+      setCurrentHouse(houseDetails);
+      return houseDetails;
+    } catch (error) {
+      console.error('Error switching to house:', error);
+      // Fallback to basic house data if available
+      const targetHouse = state.houses.find(house => house.id === houseId);
+      if (targetHouse) {
+        setCurrentHouse(targetHouse);
+        return targetHouse;
+      }
+      return null;
+    }
+  };
+
   const clearHouseData = async () => {
     try {
       await houseService.clearHouseData();
@@ -264,6 +300,7 @@ export function HouseProvider({ children }: { children: React.ReactNode }) {
     updateHouse,
     uploadHouseImage,
     setCurrentHouse,
+    switchToHouse,
     clearHouseData,
     refreshHouses,
     checkHouseStatus,

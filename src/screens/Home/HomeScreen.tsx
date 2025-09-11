@@ -16,6 +16,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 
 import { Card, Avatar, Button } from '../../components/UI';
 import { useAuth } from '../../context/AuthContext';
+import { useHouse } from '../../context/HouseContext';
 import { COLORS, NAVIGATION_ROUTES } from '../../constants';
 import { RootStackParamList } from '../../types/navigation';
 import { House } from '../../types/houses';
@@ -40,6 +41,7 @@ type HouseSettingsNavigationProp = StackNavigationProp<RootStackParamList, 'Hous
 
 export default function HomeScreen() {
   const { user } = useAuth();
+  const { houses } = useHouse();
   const navigation = useNavigation<HouseSettingsNavigationProp>();
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -223,6 +225,8 @@ export default function HomeScreen() {
     );
   }
 
+  const hasMultipleHouses = houses.length > 1;
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header with house info */}
@@ -231,7 +235,16 @@ export default function HomeScreen() {
         style={styles.header}
       >
         <View style={styles.headerContent}>
-          <View style={styles.houseInfo}>
+          {hasMultipleHouses && (
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => navigation.navigate(NAVIGATION_ROUTES.MULTI_HOUSE_SELECTION)}
+            >
+              <Ionicons name="arrow-back" size={24} color={COLORS.TEXT_WHITE} />
+            </TouchableOpacity>
+          )}
+          
+          <View style={[styles.houseInfo, hasMultipleHouses && styles.houseInfoWithBack]}>
             <Avatar
               name={currentHouse.name}
               imageUrl={currentHouse.imageUrl}
@@ -373,10 +386,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  backButton: {
+    padding: 8,
+    marginRight: 12,
+  },
   houseInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+  },
+  houseInfoWithBack: {
+    marginLeft: 0, // Reset margin when back button is present
   },
   houseDetails: {
     marginLeft: 16,
