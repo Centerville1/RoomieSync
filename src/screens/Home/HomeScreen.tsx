@@ -25,7 +25,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useHouse } from "../../context/HouseContext";
 import { useShoppingSelection } from "../../context/ShoppingSelectionContext";
 import { useUserTheme } from "../../hooks/useUserTheme";
-import { COLORS, NAVIGATION_ROUTES } from "../../constants";
+import { NAVIGATION_ROUTES } from "../../constants";
 import { RootStackParamList, MainTabParamList } from "../../types/navigation";
 import { ShareCostStackParamList } from "../../types/navigation";
 import { House } from "../../types/houses";
@@ -51,8 +51,221 @@ type HomeScreenNavigationProp = CompositeNavigationProp<
   StackNavigationProp<RootStackParamList & ShareCostStackParamList>
 >;
 
+const createDynamicStyles = (COLORS: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.BACKGROUND,
+    },
+    header: {
+      paddingTop: 20,
+      paddingBottom: 30,
+      paddingHorizontal: 20,
+    },
+    headerContent: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    backButton: {
+      padding: 8,
+      marginRight: 12,
+    },
+    houseInfo: {
+      flexDirection: "row",
+      alignItems: "center",
+      flex: 1,
+    },
+    houseInfoWithBack: {
+      marginLeft: 0, // Reset margin when back button is present
+    },
+    houseDetails: {
+      marginLeft: 16,
+      flex: 1,
+    },
+    houseName: {
+      fontSize: 24,
+      fontWeight: "700",
+      color: COLORS.TEXT_WHITE,
+    },
+    memberCount: {
+      fontSize: 16,
+      color: COLORS.TEXT_WHITE + "90",
+      marginTop: 4,
+    },
+    settingsButton: {
+      padding: 8,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 16,
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 32,
+    },
+    emptyTitle: {
+      fontSize: 24,
+      fontWeight: "600",
+      color: COLORS.TEXT_PRIMARY,
+      textAlign: "center",
+    },
+    emptySubtitle: {
+      fontSize: 16,
+      color: COLORS.TEXT_SECONDARY,
+      textAlign: "center",
+      marginTop: 8,
+    },
+    emptyButton: {
+      marginTop: 24,
+      minWidth: 200,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 32,
+    },
+    loadingText: {
+      fontSize: 16,
+      color: COLORS.TEXT_SECONDARY,
+      marginTop: 16,
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 32,
+    },
+    errorTitle: {
+      fontSize: 20,
+      fontWeight: "600",
+      color: COLORS.TEXT_PRIMARY,
+      marginTop: 16,
+      textAlign: "center",
+    },
+    errorSubtitle: {
+      fontSize: 16,
+      color: COLORS.TEXT_SECONDARY,
+      marginTop: 8,
+      textAlign: "center",
+    },
+    retryButton: {
+      marginTop: 24,
+      minWidth: 150,
+    },
+    emptyCardText: {
+      fontSize: 16,
+      color: COLORS.TEXT_SECONDARY,
+      textAlign: "center",
+      fontStyle: "italic",
+    },
+    balanceEmptyState: {
+      alignItems: "center",
+      paddingVertical: 8,
+    },
+    emptyCardSubtext: {
+      fontSize: 14,
+      color: COLORS.TEXT_LIGHT,
+      textAlign: "center",
+      marginTop: 4,
+      marginBottom: 16,
+    },
+    addExpenseButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+      borderWidth: 1,
+      gap: 6,
+    },
+    addExpenseText: {
+      fontSize: 14,
+      fontWeight: "500",
+    },
+    balanceItem: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: COLORS.BORDER_LIGHT,
+    },
+    balanceInfo: {
+      flex: 1,
+    },
+    balanceText: {
+      fontSize: 16,
+      color: COLORS.TEXT_PRIMARY,
+    },
+    balanceAmount: {
+      fontSize: 18,
+      fontWeight: "600",
+      marginTop: 4,
+    },
+    payButton: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 6,
+    },
+    payButtonText: {
+      color: COLORS.TEXT_WHITE,
+      fontWeight: "600",
+    },
+    viewAllButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 12,
+      marginTop: 8,
+      gap: 4,
+    },
+    viewAllText: {
+      fontSize: 16,
+      fontWeight: "600",
+    },
+    activityItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: COLORS.BORDER_LIGHT,
+    },
+    activityIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: COLORS.BACKGROUND,
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: 12,
+    },
+    activityDetails: {
+      flex: 1,
+    },
+    activityDescription: {
+      fontSize: 16,
+      color: COLORS.TEXT_PRIMARY,
+    },
+    activityMeta: {
+      fontSize: 14,
+      color: COLORS.TEXT_SECONDARY,
+      marginTop: 2,
+    },
+    activityAmount: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: COLORS.TEXT_PRIMARY,
+    },
+  });
+
 export default function HomeScreen() {
   const { user } = useAuth();
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
   const { houses } = useHouse();
   const { primaryColor } = useUserTheme();
   const { selectedShoppingItems, setSelectedShoppingItems } =
@@ -420,7 +633,23 @@ export default function HomeScreen() {
         </Card>
 
         {/* Shopping List Card */}
-        <Card title="🛒 Shopping List" headerColor={COLORS.SHOPPING_HEADER}>
+        <Card
+          title="🛒 Shopping List"
+          headerColor={COLORS.SHOPPING_HEADER}
+          headerRight={
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate(NAVIGATION_ROUTES.SHARE_COST, {
+                  screen: NAVIGATION_ROUTES.SHOPPING_LIST,
+                })
+              }
+              style={{ paddingHorizontal: 8, paddingVertical: 4 }}
+              accessibilityLabel="View full shopping list"
+            >
+              <Ionicons name="list" size={22} color={COLORS.TEXT_PRIMARY} />
+            </TouchableOpacity>
+          }
+        >
           <ShoppingListManager
             items={shoppingItems}
             onItemsChange={(items) => setShoppingItems(items)}
@@ -485,213 +714,3 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  header: {
-    paddingTop: 20,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
-  },
-  headerContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  backButton: {
-    padding: 8,
-    marginRight: 12,
-  },
-  houseInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  houseInfoWithBack: {
-    marginLeft: 0, // Reset margin when back button is present
-  },
-  houseDetails: {
-    marginLeft: 16,
-    flex: 1,
-  },
-  houseName: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: COLORS.TEXT_WHITE,
-  },
-  memberCount: {
-    fontSize: 16,
-    color: COLORS.TEXT_WHITE + "90",
-    marginTop: 4,
-  },
-  settingsButton: {
-    padding: 8,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  emptyTitle: {
-    fontSize: 24,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: "center",
-  },
-  emptySubtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    marginTop: 8,
-  },
-  emptyButton: {
-    marginTop: 24,
-    minWidth: 200,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginTop: 16,
-    textAlign: "center",
-  },
-  errorSubtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 8,
-    textAlign: "center",
-  },
-  retryButton: {
-    marginTop: 24,
-    minWidth: 150,
-  },
-  emptyCardText: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    fontStyle: "italic",
-  },
-  balanceEmptyState: {
-    alignItems: "center",
-    paddingVertical: 8,
-  },
-  emptyCardSubtext: {
-    fontSize: 14,
-    color: COLORS.TEXT_LIGHT,
-    textAlign: "center",
-    marginTop: 4,
-    marginBottom: 16,
-  },
-  addExpenseButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    gap: 6,
-  },
-  addExpenseText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  balanceItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
-  },
-  balanceInfo: {
-    flex: 1,
-  },
-  balanceText: {
-    fontSize: 16,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  balanceAmount: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginTop: 4,
-  },
-  payButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  payButtonText: {
-    color: COLORS.TEXT_WHITE,
-    fontWeight: "600",
-  },
-  viewAllButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    marginTop: 8,
-    gap: 4,
-  },
-  viewAllText: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  activityItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
-  },
-  activityIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.BACKGROUND,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  activityDetails: {
-    flex: 1,
-  },
-  activityDescription: {
-    fontSize: 16,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  activityMeta: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 2,
-  },
-  activityAmount: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-  },
-});

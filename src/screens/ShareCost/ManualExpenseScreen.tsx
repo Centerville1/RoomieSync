@@ -17,8 +17,9 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { useFocusEffect } from "@react-navigation/native";
 
 import { Button } from "../../components/UI";
-import { COLORS, NAVIGATION_ROUTES } from "../../constants";
+import { NAVIGATION_ROUTES } from "../../constants";
 import { ShareCostStackParamList } from "../../types/navigation";
+import { useUserTheme } from "../../hooks/useUserTheme";
 import { useHouse } from "../../context/HouseContext";
 import { categoryService } from "../../services/categoryService";
 import { Category } from "../../types/expenses";
@@ -33,10 +34,13 @@ interface Props {
 }
 
 export default function ManualExpenseScreen({ navigation }: Props) {
+  const { COLORS } = useUserTheme();
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
   const { currentHouse } = useHouse();
@@ -52,9 +56,11 @@ export default function ManualExpenseScreen({ navigation }: Props) {
 
     try {
       setLoading(true);
-      const categoriesData = await categoryService.getCategoriesByHouseId(currentHouse.id);
+      const categoriesData = await categoryService.getCategoriesByHouseId(
+        currentHouse.id
+      );
       setCategories(categoriesData);
-      
+
       // Auto-select first category as default
       if (categoriesData.length > 0) {
         setSelectedCategory(categoriesData[0]);
@@ -80,18 +86,27 @@ export default function ManualExpenseScreen({ navigation }: Props) {
 
   const handleContinue = () => {
     if (!description.trim()) {
-      Alert.alert("Missing Description", "Please enter a description for the expense.");
+      Alert.alert(
+        "Missing Description",
+        "Please enter a description for the expense."
+      );
       return;
     }
 
     const expenseAmount = parseFloat(amount);
     if (!expenseAmount || expenseAmount <= 0) {
-      Alert.alert("Invalid Amount", "Please enter a valid amount greater than 0.");
+      Alert.alert(
+        "Invalid Amount",
+        "Please enter a valid amount greater than 0."
+      );
       return;
     }
 
     if (!selectedCategory) {
-      Alert.alert("Missing Category", "Please select a category for the expense.");
+      Alert.alert(
+        "Missing Category",
+        "Please select a category for the expense."
+      );
       return;
     }
 
@@ -170,15 +185,17 @@ export default function ManualExpenseScreen({ navigation }: Props) {
             >
               <View style={styles.categorySelectedContainer}>
                 {selectedCategory && (
-                  <View 
+                  <View
                     style={[
-                      styles.categoryColorDot, 
-                      { backgroundColor: selectedCategory.color }
-                    ]} 
+                      styles.categoryColorDot,
+                      { backgroundColor: selectedCategory.color },
+                    ]}
                   />
                 )}
                 <Text style={styles.categorySelectedText}>
-                  {selectedCategory ? selectedCategory.name : "Select a category"}
+                  {selectedCategory
+                    ? selectedCategory.name
+                    : "Select a category"}
                 </Text>
               </View>
               <Ionicons
@@ -196,17 +213,20 @@ export default function ManualExpenseScreen({ navigation }: Props) {
                     key={category.id}
                     style={[
                       styles.categoryOption,
-                      selectedCategory?.id === category.id && styles.categoryOptionSelected
+                      selectedCategory?.id === category.id &&
+                        styles.categoryOptionSelected,
                     ]}
                     onPress={() => handleCategorySelect(category)}
                   >
-                    <View 
+                    <View
                       style={[
-                        styles.categoryColorDot, 
-                        { backgroundColor: category.color }
-                      ]} 
+                        styles.categoryColorDot,
+                        { backgroundColor: category.color },
+                      ]}
                     />
-                    <Text style={styles.categoryOptionText}>{category.name}</Text>
+                    <Text style={styles.categoryOptionText}>
+                      {category.name}
+                    </Text>
                     {selectedCategory?.id === category.id && (
                       <Ionicons
                         name="checkmark"

@@ -16,8 +16,8 @@ import * as ImagePicker from "expo-image-picker";
 
 import { Card, Avatar, Button } from "../../components/UI";
 import { useAuth } from "../../context/AuthContext";
-import { COLORS } from "../../constants";
 import { RootStackParamList } from "../../types/navigation";
+import { useUserTheme } from "../../hooks/useUserTheme";
 
 const USER_COLORS = [
   "#E76464",
@@ -51,10 +51,127 @@ type EditProfileScreenProps = StackScreenProps<
   "EditProfile"
 >;
 
+const createDynamicStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.BACKGROUND,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 24,
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.BORDER_LIGHT,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+    },
+    imageSection: {
+      alignItems: "center",
+      paddingVertical: 32,
+    },
+    cameraIcon: {
+      position: "absolute",
+      bottom: 0,
+      right: 0,
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 16,
+      width: 32,
+      height: 32,
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 2,
+      borderColor: colors.BACKGROUND,
+    },
+    changePhotoText: {
+      fontSize: 14,
+      color: colors.TEXT_SECONDARY,
+      marginTop: 8,
+    },
+    formGroup: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      marginBottom: 8,
+    },
+    input: {
+      backgroundColor: colors.CARD_BACKGROUND,
+      borderWidth: 1,
+      borderColor: colors.BORDER_LIGHT,
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      fontSize: 16,
+      color: colors.TEXT_PRIMARY,
+    },
+    disabledInput: {
+      backgroundColor: colors.BACKGROUND_LIGHT,
+      color: colors.TEXT_LIGHT,
+    },
+    helperText: {
+      fontSize: 12,
+      color: colors.TEXT_LIGHT,
+      marginTop: 4,
+    },
+    saveSection: {
+      padding: 24,
+      paddingBottom: 40,
+    },
+    sectionDescription: {
+      fontSize: 14,
+      color: colors.TEXT_SECONDARY,
+      marginBottom: 20,
+    },
+    colorGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-around",
+    },
+    colorOption: {
+      borderRadius: 8,
+      justifyContent: "center",
+      alignItems: "center",
+      flexShrink: 0,
+    },
+    selectedColor: {
+      borderWidth: 3,
+      borderColor: colors.TEXT_PRIMARY,
+    },
+    autoSaveContainer: {
+      marginTop: 24,
+      marginBottom: 16,
+      alignItems: "center",
+    },
+    autoSaveIndicator: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.SUCCESS + "20",
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 20,
+    },
+    autoSaveText: {
+      fontSize: 14,
+      color: colors.SUCCESS,
+      marginLeft: 8,
+      fontWeight: "500",
+    },
+  });
+
 export default function EditProfileScreen({
   navigation,
 }: EditProfileScreenProps) {
   const { user, updateProfile, uploadProfileImage } = useAuth();
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
   const [isLoading, setIsLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [formData, setFormData] = useState({
@@ -298,117 +415,3 @@ export default function EditProfileScreen({
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-  },
-  imageSection: {
-    alignItems: "center",
-    paddingVertical: 32,
-  },
-  cameraIcon: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 16,
-    width: 32,
-    height: 32,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: COLORS.BACKGROUND,
-  },
-  changePhotoText: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 8,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER_LIGHT,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  disabledInput: {
-    backgroundColor: COLORS.BACKGROUND_LIGHT,
-    color: COLORS.TEXT_LIGHT,
-  },
-  helperText: {
-    fontSize: 12,
-    color: COLORS.TEXT_LIGHT,
-    marginTop: 4,
-  },
-  saveSection: {
-    padding: 24,
-    paddingBottom: 40,
-  },
-  sectionDescription: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    marginBottom: 20,
-  },
-  colorGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-  },
-  colorOption: {
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    flexShrink: 0,
-  },
-  selectedColor: {
-    borderWidth: 3,
-    borderColor: COLORS.TEXT_PRIMARY,
-  },
-  autoSaveContainer: {
-    marginTop: 24,
-    marginBottom: 16,
-    alignItems: "center",
-  },
-  autoSaveIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.SUCCESS + "20",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  autoSaveText: {
-    fontSize: 14,
-    color: COLORS.SUCCESS,
-    marginLeft: 8,
-    fontWeight: "500",
-  },
-});
