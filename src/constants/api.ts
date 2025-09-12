@@ -26,6 +26,7 @@ export const API_ENDPOINTS = {
   
   // Balance endpoints
   GET_BALANCES_BY_HOUSE_ID: (houseId: string) => `/houses/${houseId}/balances`,
+  GET_USER_BALANCES_BY_HOUSE_ID: (houseId: string) => `/houses/${houseId}/balances/user`,
   
   // Payment endpoints
   POST_CREATE_PAYMENT: (houseId: string) => `/houses/${houseId}/payments`,

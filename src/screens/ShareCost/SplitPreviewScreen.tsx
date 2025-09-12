@@ -45,7 +45,7 @@ interface SelectableMember extends HouseMembership {
 }
 
 export default function SplitPreviewScreen({ navigation, route }: Props) {
-  const { type, amount, description, items, splitBetween } = route.params;
+  const { type, amount, description, items, splitBetween, categoryId: passedCategoryId } = route.params;
   const [members, setMembers] = useState<SelectableMember[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -122,6 +122,12 @@ export default function SplitPreviewScreen({ navigation, route }: Props) {
   const getAppropriateCategory = useCallback(() => {
     if (categories.length === 0) return null;
 
+    // If a specific categoryId was passed (for manual expenses), use that
+    if (passedCategoryId) {
+      const passedCategory = categories.find(cat => cat.id === passedCategoryId);
+      if (passedCategory) return passedCategory;
+    }
+
     if (type === "shopping") {
       // For shopping expenses, look for "Groceries" category first
       const groceryCategory = categories.find(cat => 
@@ -134,7 +140,7 @@ export default function SplitPreviewScreen({ navigation, route }: Props) {
     // Fallback to the first default category or just the first category
     const defaultCategory = categories.find(cat => cat.isDefault);
     return defaultCategory || categories[0];
-  }, [categories, type]);
+  }, [categories, type, passedCategoryId]);
 
   const handleSubmitExpense = async () => {
     if (selectedMembers.length === 0) {

@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "../../constants";
+import { useUserTheme } from "../../hooks/useUserTheme";
 import { CreateShoppingItemRequest } from "../../types/shopping";
 
 interface Props {
@@ -26,6 +27,7 @@ export default function AddShoppingItemForm({
   showExpanded = false,
   autoFocus = false,
 }: Props) {
+  const { primaryColor } = useUserTheme();
   const [isExpanded, setIsExpanded] = useState(showExpanded);
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("1");
@@ -33,6 +35,8 @@ export default function AddShoppingItemForm({
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringInterval, setRecurringInterval] = useState("7");
   const [loading, setLoading] = useState(false);
+
+  const { COLORS } = useUserTheme();
 
   const handleSubmit = async () => {
     if (!name.trim()) {
@@ -134,7 +138,7 @@ export default function AddShoppingItemForm({
         style={styles.addButton}
         onPress={() => setIsExpanded(true)}
       >
-        <Ionicons name="add" size={20} color={COLORS.PRIMARY} />
+        <Ionicons name="add" size={20} color={primaryColor} />
         <Text style={styles.addButtonText}>{placeholder}</Text>
       </TouchableOpacity>
     );
@@ -180,7 +184,7 @@ export default function AddShoppingItemForm({
         >
           <View style={styles.checkbox}>
             {isRecurring ? (
-              <Ionicons name="checkbox" size={20} color={COLORS.PRIMARY} />
+              <Ionicons name="checkbox" size={20} color={primaryColor} />
             ) : (
               <Ionicons
                 name="square-outline"
@@ -219,7 +223,7 @@ export default function AddShoppingItemForm({
         )}
 
         <TouchableOpacity
-          style={[styles.actionButton, styles.addButtonAction]}
+          style={[styles.actionButton, { backgroundColor: primaryColor }]}
           onPress={handleSubmit}
           disabled={loading || !name.trim()}
         >
@@ -245,7 +249,6 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   container: {
-    paddingVertical: 16,
     paddingHorizontal: 4,
     backgroundColor: COLORS.CARD_BACKGROUND,
     borderRadius: 8,
@@ -297,9 +300,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.BACKGROUND,
     borderWidth: 1,
     borderColor: COLORS.BORDER,
-  },
-  addButtonAction: {
-    backgroundColor: COLORS.PRIMARY,
   },
   cancelText: {
     fontSize: 14,

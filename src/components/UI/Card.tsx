@@ -2,12 +2,18 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { CardProps } from '../../types/ui';
 import { COLORS } from '../../constants';
+import { getContrastingTextColor } from '../../utils/colorUtils';
 
 export default function Card({ title, headerColor, children, style }: CardProps) {
+  // Determine text color based on background contrast
+  const textColor = headerColor 
+    ? getContrastingTextColor(headerColor) 
+    : COLORS.TEXT_PRIMARY;
+
   return (
     <View style={[styles.container, style]}>
       <View style={[styles.header, { backgroundColor: headerColor }]}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={[styles.title, { color: textColor }]}>{title}</Text>
       </View>
       <View style={styles.content}>
         {children}

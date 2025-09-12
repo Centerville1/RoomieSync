@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,6 +19,33 @@ import { useAuth } from "../../context/AuthContext";
 import { COLORS } from "../../constants";
 import { RootStackParamList } from "../../types/navigation";
 
+const USER_COLORS = [
+  "#E76464",
+  "#E55555",
+  "#E24444",
+  "#DF3131",
+  "#E4783F",
+  "#F1B347",
+  "#EDC54B",
+  "#EAD84E",
+  "#BBCF58",
+  "#5BBE6C",
+  "#5BB383",
+  "#5AA799",
+  "#5A9BAF",
+  "#598FC5",
+  "#5E72E4",
+  "#7071E3",
+  "#826FE2",
+  "#A56BDF",
+  "#9552D7",
+  "#8439CE",
+  "#9C3AC8",
+  "#B33BC1",
+  "#CB3CBA",
+  "#D53776",
+];
+
 type EditProfileScreenProps = StackScreenProps<
   RootStackParamList,
   "EditProfile"
@@ -28,11 +56,23 @@ export default function EditProfileScreen({
 }: EditProfileScreenProps) {
   const { user, updateProfile, uploadProfileImage } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
   const [formData, setFormData] = useState({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
     phoneNumber: user?.phoneNumber || "",
+    color: user?.color || COLORS.PRIMARY,
   });
+
+  const NUM_COLUMNS = 4;
+  const GAP = 8;
+
+  const { width } = useWindowDimensions();
+  const horizontalPadding = 16;
+  const totalGaps = GAP * (NUM_COLUMNS + 1);
+  const itemSize = Math.floor(
+    (width - horizontalPadding * 2 - totalGaps) / NUM_COLUMNS
+  );
 
   useEffect(() => {
     if (user) {
@@ -40,14 +80,21 @@ export default function EditProfileScreen({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
         phoneNumber: user.phoneNumber || "",
+        color: user.color || COLORS.PRIMARY,
       });
     }
   }, [user]);
+
+  const handleColorSelect = (color: string) => {
+    setFormData((prev) => ({ ...prev, color }));
+    setHasChanges(true);
+  };
 
   const handleSave = async () => {
     try {
       setIsLoading(true);
       await updateProfile(formData);
+      setHasChanges(false);
       Alert.alert("Success", "Profile updated successfully", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
@@ -56,6 +103,20 @@ export default function EditProfileScreen({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleBack = async () => {
+    if (hasChanges) {
+      try {
+        setIsLoading(true);
+        await updateProfile(formData);
+      } catch (error) {
+        console.error("Error auto-saving profile:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    navigation.goBack();
   };
 
   const handleImagePicker = async () => {
@@ -93,7 +154,7 @@ export default function EditProfileScreen({
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={handleBack}>
           <Ionicons name="chevron-back" size={24} color={COLORS.TEXT_PRIMARY} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Profile</Text>
@@ -107,7 +168,7 @@ export default function EditProfileScreen({
             <Avatar
               name={user ? `${user.firstName} ${user.lastName}` : "User"}
               imageUrl={user?.profileImageUrl}
-              color={user?.color}
+              color={formData.color}
               size="large"
             />
             <View style={styles.cameraIcon}>
@@ -118,18 +179,16 @@ export default function EditProfileScreen({
         </View>
 
         {/* Form Fields */}
-        <Card
-          title="Personal Information"
-          headerColor={user?.color || COLORS.PRIMARY}
-        >
+        <Card title="Personal Information" headerColor={formData.color}>
           <View style={styles.formGroup}>
             <Text style={styles.label}>First Name</Text>
             <TextInput
               style={styles.input}
               value={formData.firstName}
-              onChangeText={(text) =>
-                setFormData((prev) => ({ ...prev, firstName: text }))
-              }
+              onChangeText={(text) => {
+                setFormData((prev) => ({ ...prev, firstName: text }));
+                setHasChanges(true);
+              }}
               placeholder="Enter your first name"
               placeholderTextColor={COLORS.TEXT_LIGHT}
             />
@@ -140,9 +199,10 @@ export default function EditProfileScreen({
             <TextInput
               style={styles.input}
               value={formData.lastName}
-              onChangeText={(text) =>
-                setFormData((prev) => ({ ...prev, lastName: text }))
-              }
+              onChangeText={(text) => {
+                setFormData((prev) => ({ ...prev, lastName: text }));
+                setHasChanges(true);
+              }}
               placeholder="Enter your last name"
               placeholderTextColor={COLORS.TEXT_LIGHT}
             />
@@ -153,9 +213,10 @@ export default function EditProfileScreen({
             <TextInput
               style={styles.input}
               value={formData.phoneNumber}
-              onChangeText={(text) =>
-                setFormData((prev) => ({ ...prev, phoneNumber: text }))
-              }
+              onChangeText={(text) => {
+                setFormData((prev) => ({ ...prev, phoneNumber: text }));
+                setHasChanges(true);
+              }}
               placeholder="Enter your phone number"
               placeholderTextColor={COLORS.TEXT_LIGHT}
               keyboardType="phone-pad"
@@ -174,6 +235,56 @@ export default function EditProfileScreen({
             <Text style={styles.helperText}>Email cannot be changed</Text>
           </View>
         </Card>
+
+        {/* Color Picker Section */}
+        <Card title="🎨 Profile Color" headerColor={formData.color}>
+          <Text style={styles.sectionDescription}>
+            Choose a color that represents you. This will be used throughout the
+            app.
+          </Text>
+          <View style={styles.colorGrid}>
+            {USER_COLORS.map((color) => (
+              <TouchableOpacity
+                key={color}
+                style={[
+                  styles.colorOption,
+                  {
+                    width: itemSize,
+                    height: itemSize,
+                    margin: GAP / 2,
+                    backgroundColor: color,
+                  },
+                  formData.color === color && styles.selectedColor,
+                ]}
+                onPress={() => handleColorSelect(color)}
+              >
+                {formData.color === color && (
+                  <Ionicons
+                    name="checkmark"
+                    size={20}
+                    color={COLORS.TEXT_WHITE}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Card>
+
+        {/* Auto-save indicator */}
+        {hasChanges && (
+          <View style={styles.autoSaveContainer}>
+            <View style={styles.autoSaveIndicator}>
+              <Ionicons
+                name="checkmark-circle"
+                size={16}
+                color={COLORS.SUCCESS}
+              />
+              <Text style={styles.autoSaveText}>
+                Changes will be saved automatically
+              </Text>
+            </View>
+          </View>
+        )}
 
         <View style={styles.saveSection}>
           <Button
@@ -260,5 +371,44 @@ const styles = StyleSheet.create({
   saveSection: {
     padding: 24,
     paddingBottom: 40,
+  },
+  sectionDescription: {
+    fontSize: 14,
+    color: COLORS.TEXT_SECONDARY,
+    marginBottom: 20,
+  },
+  colorGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+  },
+  colorOption: {
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    flexShrink: 0,
+  },
+  selectedColor: {
+    borderWidth: 3,
+    borderColor: COLORS.TEXT_PRIMARY,
+  },
+  autoSaveContainer: {
+    marginTop: 24,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  autoSaveIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.SUCCESS + "20",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  autoSaveText: {
+    fontSize: 14,
+    color: COLORS.SUCCESS,
+    marginLeft: 8,
+    fontWeight: "500",
   },
 });

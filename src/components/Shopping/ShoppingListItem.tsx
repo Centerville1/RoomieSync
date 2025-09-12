@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants';
+import { useUserTheme } from '../../hooks/useUserTheme';
 import { ShoppingItem, UpdateShoppingItemRequest } from '../../types/shopping';
 
 interface Props {
@@ -34,6 +35,7 @@ export default function ShoppingListItem({
   isSelected = false,
   onToggleSelect
 }: Props) {
+  const { primaryColor } = useUserTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(item.name);
   const [editedQuantity, setEditedQuantity] = useState(item.quantity.toString());
@@ -147,7 +149,7 @@ export default function ShoppingListItem({
           >
             <View style={styles.editCheckbox}>
               {editedIsRecurring ? (
-                <Ionicons name="checkbox" size={16} color={COLORS.PRIMARY} />
+                <Ionicons name="checkbox" size={16} color={primaryColor} />
               ) : (
                 <Ionicons name="square-outline" size={16} color={COLORS.TEXT_SECONDARY} />
               )}
@@ -181,7 +183,7 @@ export default function ShoppingListItem({
           </TouchableOpacity>
           
           <TouchableOpacity
-            style={[styles.actionButton, styles.saveButton]}
+            style={[styles.actionButton, { backgroundColor: primaryColor }]}
             onPress={handleSave}
             disabled={loading}
           >
@@ -204,7 +206,7 @@ export default function ShoppingListItem({
           <Ionicons 
             name={isSelected ? "checkbox" : "square-outline"} 
             size={24} 
-            color={isSelected ? COLORS.PRIMARY : COLORS.TEXT_SECONDARY} 
+            color={isSelected ? primaryColor : COLORS.TEXT_SECONDARY} 
           />
         </TouchableOpacity>
       ) : (
@@ -226,16 +228,16 @@ export default function ShoppingListItem({
           <View style={styles.itemTitleRow}>
             <Text style={styles.itemName}>{item.name}</Text>
             {item.isRecurring && (
-              <View style={styles.recurringBadge}>
-                <Ionicons name="refresh" size={12} color={COLORS.PRIMARY} />
-                <Text style={styles.recurringText}>
+              <View style={[styles.recurringBadge, { backgroundColor: primaryColor + '15' }]}>
+                <Ionicons name="refresh" size={12} color={primaryColor} />
+                <Text style={[styles.recurringText, { color: primaryColor }]}>
                   Repeats {item.recurringInterval}d after purchase
                 </Text>
               </View>
             )}
           </View>
           {item.assignedTo && (
-            <Text style={styles.assignedTo}>
+            <Text style={[styles.assignedTo, { color: primaryColor, backgroundColor: primaryColor + '15' }]}>
               @{item.assignedTo.firstName}
             </Text>
           )}
@@ -314,7 +316,6 @@ const styles = StyleSheet.create({
   recurringBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.PRIMARY + '15',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 12,
@@ -323,13 +324,10 @@ const styles = StyleSheet.create({
   },
   recurringText: {
     fontSize: 10,
-    color: COLORS.PRIMARY,
     fontWeight: '600',
   },
   assignedTo: {
     fontSize: 12,
-    color: COLORS.PRIMARY,
-    backgroundColor: COLORS.PRIMARY + '15',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 8,
@@ -409,9 +407,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.BACKGROUND,
     borderWidth: 1,
     borderColor: COLORS.BORDER,
-  },
-  saveButton: {
-    backgroundColor: COLORS.PRIMARY,
   },
   cancelText: {
     fontSize: 14,

@@ -12,13 +12,11 @@
       "resizeMode": "contain",
       "backgroundColor": "#FF6B35"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.roomiesync.app",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to take photos of receipts and profile pictures.",
         "NSPhotoLibraryUsageDescription": "This app accesses your photo library to select profile pictures and receipt images."
@@ -46,7 +44,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos to let you share them with your roommates.",
+          "photosPermission": "The app accesses your photos for profile and house photos.",
           "cameraPermission": "The app accesses your camera to let you take photos of receipts."
         }
       ],

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants';
+import { useUserTheme } from '../../hooks/useUserTheme';
 
 interface InputProps {
   label?: string;
@@ -38,6 +39,7 @@ export default function Input({
   onRightIconPress,
   style,
 }: InputProps) {
+  const { primaryColor } = useUserTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(!secureTextEntry);
 
@@ -54,7 +56,7 @@ export default function Input({
       
       <View style={[
         styles.inputContainer,
-        isFocused && styles.focused,
+        isFocused && { borderColor: primaryColor, borderWidth: 2 },
         error && styles.error,
         disabled && styles.disabled,
       ]}>
@@ -138,10 +140,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.CARD_BACKGROUND,
     paddingHorizontal: 12,
     minHeight: 44,
-  },
-  focused: {
-    borderColor: COLORS.PRIMARY,
-    borderWidth: 2,
   },
   error: {
     borderColor: COLORS.ERROR,

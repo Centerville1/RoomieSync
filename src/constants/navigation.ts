@@ -24,6 +24,7 @@ export const NAVIGATION_ROUTES = {
   SHOPPING_COST_SPLIT: "ShoppingCostSplit",
   MANUAL_EXPENSE: "ManualExpense",
   SPLIT_PREVIEW: "SplitPreview",
+  PAYMENT: "Payment",
 } as const;
 
 export const TAB_BAR_CONFIG = {

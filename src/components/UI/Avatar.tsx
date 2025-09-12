@@ -7,6 +7,8 @@ interface AvatarProps {
   name: string;
   size?: 'small' | 'medium' | 'large';
   color?: string;
+  borderColor?: string;
+  borderWidth?: number;
   style?: any;
 }
 
@@ -15,6 +17,8 @@ export default function Avatar({
   name, 
   size = 'medium', 
   color = COLORS.DEFAULT_USER_COLOR,
+  borderColor,
+  borderWidth = 2,
   style 
 }: AvatarProps) {
   const getInitials = (name: string) => {
@@ -48,8 +52,18 @@ export default function Avatar({
     }
   };
 
+  const getBorderStyle = () => {
+    if (borderColor) {
+      return {
+        borderColor,
+        borderWidth,
+      };
+    }
+    return {};
+  };
+
   return (
-    <View style={[styles.container, getSizeStyle(), { backgroundColor: color }, style]}>
+    <View style={[styles.container, getSizeStyle(), { backgroundColor: color }, getBorderStyle(), style]}>
       {imageUrl ? (
         <Image
           source={{ uri: imageUrl }}

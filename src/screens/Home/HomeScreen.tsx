@@ -24,14 +24,12 @@ import { ShoppingListManager } from "../../components/Shopping";
 import { useAuth } from "../../context/AuthContext";
 import { useHouse } from "../../context/HouseContext";
 import { useShoppingSelection } from "../../context/ShoppingSelectionContext";
+import { useUserTheme } from "../../hooks/useUserTheme";
 import { COLORS, NAVIGATION_ROUTES } from "../../constants";
-import {
-  RootStackParamList,
-  MainTabParamList,
-  ShareCostStackParamList,
-} from "../../types/navigation";
+import { RootStackParamList, MainTabParamList } from "../../types/navigation";
+import { ShareCostStackParamList } from "../../types/navigation";
 import { House } from "../../types/houses";
-import { Balance } from "../../types/expenses";
+import { UserBalance } from "../../types/expenses";
 import { ShoppingItem } from "../../types/shopping";
 import { houseService } from "../../services/houseService";
 import { balanceService } from "../../services/balanceService";
@@ -50,19 +48,20 @@ interface ActivityItem {
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<MainTabParamList, "Home">,
-  StackNavigationProp<RootStackParamList>
+  StackNavigationProp<RootStackParamList & ShareCostStackParamList>
 >;
 
 export default function HomeScreen() {
   const { user } = useAuth();
   const { houses } = useHouse();
+  const { primaryColor } = useUserTheme();
   const { selectedShoppingItems, setSelectedShoppingItems } =
     useShoppingSelection();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentHouse, setCurrentHouse] = useState<House | null>(null);
-  const [balances, setBalances] = useState<Balance[]>([]);
+  const [userBalances, setUserBalances] = useState<UserBalance[]>([]);
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -115,7 +114,7 @@ export default function HomeScreen() {
         paymentsData,
       ] = await Promise.allSettled([
         houseService.getHouseDetails(house.id),
-        balanceService.getBalancesByHouseId(house.id),
+        balanceService.getUserBalancesByHouseId(house.id),
         shoppingService.getShoppingItemsByHouseId(house.id),
         expenseService.getExpensesByHouseId(house.id),
         paymentService.getPaymentsByHouseId(house.id),
@@ -140,12 +139,9 @@ export default function HomeScreen() {
         setCurrentHouse(house); // fallback to basic house data
       }
 
-      // Set balances
+      // Set user balances
       if (balancesData.status === "fulfilled") {
-        const filteredBalances = balancesData.value.filter(
-          (b) => b.fromUser.id === user.id || b.toUser.id === user.id
-        );
-        setBalances(filteredBalances);
+        setUserBalances(balancesData.value);
       }
 
       // Set shopping items (filter out purchased ones for the home screen)
@@ -243,7 +239,7 @@ export default function HomeScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.PRIMARY} />
+          <ActivityIndicator size="large" color={primaryColor} />
           <Text style={styles.loadingText}>Loading your home...</Text>
         </View>
       </SafeAreaView>
@@ -357,38 +353,42 @@ export default function HomeScreen() {
       >
         {/* Balances Card */}
         <Card title="💰 Balances" headerColor={COLORS.BALANCE_HEADER}>
-          {balances.length === 0 ? (
+          {userBalances.length === 0 ? (
             <View style={styles.balanceEmptyState}>
               <Text style={styles.emptyCardText}>All settled up! 🎉</Text>
               <Text style={styles.emptyCardSubtext}>
                 Create expenses to track who owes what
               </Text>
               <TouchableOpacity
-                style={styles.addExpenseButton}
+                style={[styles.addExpenseButton, { borderColor: primaryColor }]}
                 onPress={() =>
-                  navigation.navigate(NAVIGATION_ROUTES.SHARE_COST, {})
+                  navigation.navigate(NAVIGATION_ROUTES.SHARE_COST, {
+                    screen: NAVIGATION_ROUTES.SHARE_COST_HOME,
+                  })
                 }
               >
-                <Ionicons name="add" size={16} color={COLORS.PRIMARY} />
-                <Text style={styles.addExpenseText}>Add Expense</Text>
+                <Ionicons name="add" size={16} color={primaryColor} />
+                <Text style={[styles.addExpenseText, { color: primaryColor }]}>
+                  Add Expense
+                </Text>
               </TouchableOpacity>
             </View>
           ) : (
             <>
-              {balances.map((balance) => (
+              {userBalances.map((balance) => (
                 <View key={balance.id} style={styles.balanceItem}>
                   <View style={styles.balanceInfo}>
                     <Text style={styles.balanceText}>
-                      {balance.fromUser.id === user?.id
-                        ? `You owe ${balance.toUser.firstName}`
-                        : `${balance.fromUser.firstName} owes you`}
+                      {balance.type === "owes"
+                        ? `You owe ${balance.otherUser.firstName}`
+                        : `${balance.otherUser.firstName} owes you`}
                     </Text>
                     <Text
                       style={[
                         styles.balanceAmount,
                         {
                           color:
-                            balance.fromUser.id === user?.id
+                            balance.type === "owes"
                               ? COLORS.ERROR
                               : COLORS.SUCCESS,
                         },
@@ -397,11 +397,22 @@ export default function HomeScreen() {
                       {formatAmount(balance.amount)}
                     </Text>
                   </View>
-                  <TouchableOpacity style={styles.payButton}>
-                    <Text style={styles.payButtonText}>
-                      {balance.fromUser.id === user?.id ? "Pay" : "Remind"}
-                    </Text>
-                  </TouchableOpacity>
+                  {balance.type === "owes" && (
+                    <TouchableOpacity
+                      style={[
+                        styles.payButton,
+                        { backgroundColor: primaryColor },
+                      ]}
+                      onPress={() =>
+                        navigation.navigate(NAVIGATION_ROUTES.SHARE_COST, {
+                          screen: NAVIGATION_ROUTES.PAYMENT,
+                          params: { userId: balance.otherUser.id },
+                        })
+                      }
+                    >
+                      <Text style={styles.payButtonText}>Pay</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               ))}
             </>
@@ -429,14 +440,10 @@ export default function HomeScreen() {
                 })
               }
             >
-              <Text style={styles.viewAllText}>
+              <Text style={[styles.viewAllText, { color: primaryColor }]}>
                 View all {shoppingItems.length} items
               </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={16}
-                color={COLORS.PRIMARY}
-              />
+              <Ionicons name="chevron-forward" size={16} color={primaryColor} />
             </TouchableOpacity>
           )}
         </Card>
@@ -607,12 +614,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.PRIMARY,
     gap: 6,
   },
   addExpenseText: {
     fontSize: 14,
-    color: COLORS.PRIMARY,
     fontWeight: "500",
   },
   balanceItem: {
@@ -638,7 +643,6 @@ const styles = StyleSheet.create({
   payButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: COLORS.PRIMARY,
     borderRadius: 6,
   },
   payButtonText: {
@@ -655,7 +659,6 @@ const styles = StyleSheet.create({
   },
   viewAllText: {
     fontSize: 16,
-    color: COLORS.PRIMARY,
     fontWeight: "600",
   },
   activityItem: {

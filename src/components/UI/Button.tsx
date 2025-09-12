@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { COLORS } from '../../constants';
+import { useUserTheme } from '../../hooks/useUserTheme';
 
 interface ButtonProps {
   title: string;
@@ -21,11 +22,17 @@ export default function Button({
   loading = false,
   style,
 }: ButtonProps) {
+  const { primaryColor, contrastingTextColor } = useUserTheme();
+  
   const getButtonStyle = () => {
     const baseStyle = [styles.button, styles[size] as any];
     
     if (disabled || loading) {
       baseStyle.push(styles.disabled);
+    } else if (variant === 'primary') {
+      baseStyle.push({ backgroundColor: primaryColor, borderColor: primaryColor });
+    } else if (variant === 'outline') {
+      baseStyle.push({ backgroundColor: 'transparent', borderColor: primaryColor });
     } else {
       baseStyle.push(styles[variant] as any);
     }
@@ -37,7 +44,9 @@ export default function Button({
     const baseStyle = [styles.text, styles[`${size}Text` as keyof typeof styles] as any];
     
     if (variant === 'outline') {
-      baseStyle.push(styles.outlineText);
+      baseStyle.push({ color: primaryColor });
+    } else if (variant === 'primary') {
+      baseStyle.push({ color: contrastingTextColor });
     } else {
       baseStyle.push(styles.primaryText);
     }
@@ -53,7 +62,7 @@ export default function Button({
       activeOpacity={0.8}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'outline' ? COLORS.PRIMARY : COLORS.TEXT_WHITE} />
+        <ActivityIndicator color={variant === 'outline' ? primaryColor : (variant === 'primary' ? contrastingTextColor : COLORS.TEXT_WHITE)} />
       ) : (
         <Text style={getTextStyle()}>{title}</Text>
       )}
