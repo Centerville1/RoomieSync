@@ -1,5 +1,5 @@
 import api from './api';
-import { Expense } from '../types/expenses';
+import { Expense, CreateExpenseRequest } from '../types/expenses';
 import { API_ENDPOINTS } from '../constants';
 
 export const expenseService = {
@@ -8,7 +8,7 @@ export const expenseService = {
     return response.data;
   },
 
-  async createExpense(houseId: string, expense: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>): Promise<Expense> {
+  async createExpense(houseId: string, expense: CreateExpenseRequest): Promise<Expense> {
     const response = await api.post<Expense>(API_ENDPOINTS.POST_CREATE_EXPENSE(houseId), expense);
     return response.data;
   },

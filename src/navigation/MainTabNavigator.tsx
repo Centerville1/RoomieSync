@@ -8,6 +8,7 @@ import ShareCostNavigator from './ShareCostNavigator';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 import { MainTabParamList } from '../types/navigation';
 import { COLORS, NAVIGATION_ROUTES, TAB_BAR_CONFIG } from '../constants';
+import { ShoppingSelectionProvider } from '../context/ShoppingSelectionContext';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -25,59 +26,71 @@ const CustomTabBarButton = ({ children, onPress }: any) => (
 
 export default function MainTabNavigator() {
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: TAB_BAR_CONFIG.ACTIVE_TINT_COLOR,
-        tabBarInactiveTintColor: TAB_BAR_CONFIG.INACTIVE_TINT_COLOR,
-        tabBarStyle: {
-          backgroundColor: TAB_BAR_CONFIG.BACKGROUND_COLOR,
-          borderTopColor: TAB_BAR_CONFIG.BORDER_COLOR,
-          borderTopWidth: 1,
-          height: 90,
-          paddingTop: 10,
-          paddingBottom: 30,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-        },
-      }}
-    >
-      <Tab.Screen
-        name={NAVIGATION_ROUTES.HOME}
-        component={HomeScreen}
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
+    <ShoppingSelectionProvider>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: TAB_BAR_CONFIG.ACTIVE_TINT_COLOR,
+          tabBarInactiveTintColor: TAB_BAR_CONFIG.INACTIVE_TINT_COLOR,
+          tabBarStyle: {
+            backgroundColor: TAB_BAR_CONFIG.BACKGROUND_COLOR,
+            borderTopColor: TAB_BAR_CONFIG.BORDER_COLOR,
+            borderTopWidth: 1,
+            height: 90,
+            paddingTop: 10,
+            paddingBottom: 30,
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '600',
+          },
         }}
-      />
-      
-      <Tab.Screen
-        name={NAVIGATION_ROUTES.SHARE_COST}
-        component={ShareCostNavigator}
-        options={{
-          tabBarLabel: 'Share Cost',
-          tabBarButton: (props) => <CustomTabBarButton {...props} />,
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="add" size={28} color={COLORS.TEXT_WHITE} />
-          ),
-        }}
-      />
-      
-      <Tab.Screen
-        name={NAVIGATION_ROUTES.PROFILE}
-        component={ProfileScreen}
-        options={{
-          tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+      >
+        <Tab.Screen
+          name={NAVIGATION_ROUTES.HOME}
+          component={HomeScreen}
+          options={{
+            tabBarLabel: 'Home',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="home" size={size} color={color} />
+            ),
+          }}
+        />
+        
+        <Tab.Screen
+          name={NAVIGATION_ROUTES.SHARE_COST}
+          component={ShareCostNavigator}
+          options={({ navigation }) => ({
+            tabBarLabel: 'Share Cost',
+            tabBarButton: (props) => (
+              <CustomTabBarButton 
+                {...props} 
+                onPress={() => {
+                  // Navigate to the ShareCost tab and reset its stack
+                  navigation.navigate(NAVIGATION_ROUTES.SHARE_COST, {
+                    screen: NAVIGATION_ROUTES.SHARE_COST_HOME,
+                  });
+                }}
+              />
+            ),
+            tabBarIcon: () => (
+              <Ionicons name="add" size={28} color={COLORS.TEXT_WHITE} />
+            ),
+          })}
+        />
+        
+        <Tab.Screen
+          name={NAVIGATION_ROUTES.PROFILE}
+          component={ProfileScreen}
+          options={{
+            tabBarLabel: 'Profile',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person" size={size} color={color} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    </ShoppingSelectionProvider>
   );
 }
 

@@ -24,6 +24,7 @@ export const COLORS = {
   TEXT_WHITE: '#FFFFFF',
   
   // Border colors
+  BORDER: '#D1D5DB',
   BORDER_LIGHT: '#E5E7EB',
   BORDER_MEDIUM: '#D1D5DB',
   

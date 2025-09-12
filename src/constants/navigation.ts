@@ -16,6 +16,10 @@ export const NAVIGATION_ROUTES = {
   HOUSE_SETTINGS: 'HouseSettings',
   EDIT_PROFILE: 'EditProfile',
   
+  // Shopping routes
+  SHOPPING_LIST: 'ShoppingList',
+  BATCH_PURCHASE: 'BatchPurchase',
+  
   // Share cost stack routes
   SHARE_COST_HOME: 'ShareCostHome',
   SHOPPING_COST_SPLIT: 'ShoppingCostSplit',

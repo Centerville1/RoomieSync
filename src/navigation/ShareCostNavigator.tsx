@@ -5,6 +5,7 @@ import ShareCostHomeScreen from '../screens/ShareCost/ShareCostHomeScreen';
 import ShoppingCostSplitScreen from '../screens/ShareCost/ShoppingCostSplitScreen';
 import ManualExpenseScreen from '../screens/ShareCost/ManualExpenseScreen';
 import SplitPreviewScreen from '../screens/ShareCost/SplitPreviewScreen';
+import { ShoppingListScreen, BatchPurchaseScreen } from '../screens/Shopping';
 import { ShareCostStackParamList } from '../types/navigation';
 import { NAVIGATION_ROUTES } from '../constants';
 
@@ -45,6 +46,16 @@ export default function ShareCostNavigator() {
         name={NAVIGATION_ROUTES.SPLIT_PREVIEW}
         component={SplitPreviewScreen}
         options={{ title: 'Split Preview' }}
+      />
+      <Stack.Screen
+        name={NAVIGATION_ROUTES.SHOPPING_LIST}
+        component={ShoppingListScreen}
+        options={{ title: 'Shopping List' }}
+      />
+      <Stack.Screen
+        name={NAVIGATION_ROUTES.BATCH_PURCHASE}
+        component={BatchPurchaseScreen}
+        options={{ title: 'Batch Purchase' }}
       />
     </Stack.Navigator>
   );

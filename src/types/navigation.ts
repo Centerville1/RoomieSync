@@ -15,7 +15,7 @@ export type RootStackParamList = {
 
 export type MainTabParamList = {
   Home: undefined;
-  ShareCost: { selectedItems?: string[] };
+  ShareCost: { selectedItems?: string[] } | { screen: keyof ShareCostStackParamList; params?: any };
   Profile: undefined;
   HouseSettings: undefined;
 };
@@ -31,4 +31,6 @@ export type ShareCostStackParamList = {
     items?: ShoppingItem[];
     splitBetween: string[];
   };
+  ShoppingList: undefined;
+  BatchPurchase: { selectedItems?: string[] };
 };

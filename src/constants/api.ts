@@ -31,6 +31,12 @@ export const API_ENDPOINTS = {
   POST_CREATE_PAYMENT: (houseId: string) => `/houses/${houseId}/payments`,
   GET_PAYMENTS_BY_HOUSE_ID: (houseId: string) => `/houses/${houseId}/payments`,
   
+  // Category endpoints
+  GET_CATEGORIES_BY_HOUSE_ID: (houseId: string) => `/houses/${houseId}/categories`,
+  POST_CREATE_CATEGORY: (houseId: string) => `/houses/${houseId}/categories`,
+  PUT_UPDATE_CATEGORY: (houseId: string, categoryId: string) => `/houses/${houseId}/categories/${categoryId}`,
+  DELETE_CATEGORY: (houseId: string, categoryId: string) => `/houses/${houseId}/categories/${categoryId}`,
+  
   // Shopping endpoints
   GET_SHOPPING_LIST_BY_HOUSE_ID: (houseId: string) => `/houses/${houseId}/shopping-list`,
   GET_SHOPPING_ITEMS_BY_HOUSE_ID: (houseId: string) => `/houses/${houseId}/shopping-list/items`,

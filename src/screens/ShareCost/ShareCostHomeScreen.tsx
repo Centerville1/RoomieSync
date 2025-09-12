@@ -2,9 +2,19 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../components/UI';
+import { useShoppingSelection } from '../../context/ShoppingSelectionContext';
 import { COLORS } from '../../constants';
 
 export default function ShareCostHomeScreen({ navigation }: any) {
+  const { selectedShoppingItems } = useShoppingSelection();
+
+  // No automatic redirects - let user choose their action
+
+  const handleShoppingReceiptPress = () => {
+    // Always go to split screen - users can select items there
+    navigation.navigate('ShoppingCostSplit');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -13,8 +23,10 @@ export default function ShareCostHomeScreen({ navigation }: any) {
         
         <View style={styles.options}>
           <Button
-            title="Split Shopping Receipt"
-            onPress={() => navigation.navigate('ShoppingCostSplit')}
+            title={selectedShoppingItems.length > 0 
+              ? `Split Shopping Receipt (${selectedShoppingItems.length} items)` 
+              : "Split Shopping Receipt"}
+            onPress={handleShoppingReceiptPress}
             style={styles.optionButton}
           />
           

@@ -25,4 +25,9 @@ export const shoppingService = {
   async deleteShoppingItem(houseId: string, itemId: string): Promise<void> {
     await api.delete(API_ENDPOINTS.DELETE_SHOPPING_ITEM_BY_ID(houseId, itemId));
   },
+
+  async batchPurchaseItems(houseId: string, itemIds: string[]): Promise<ShoppingItem[]> {
+    const response = await api.post<ShoppingItem[]>(API_ENDPOINTS.POST_BATCH_PURCHASE_ITEMS(houseId), { itemIds });
+    return response.data;
+  },
 };
