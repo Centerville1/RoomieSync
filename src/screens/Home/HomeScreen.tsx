@@ -51,11 +51,11 @@ type HomeScreenNavigationProp = CompositeNavigationProp<
   StackNavigationProp<RootStackParamList & ShareCostStackParamList>
 >;
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
     },
     header: {
       paddingTop: 20,
@@ -86,11 +86,11 @@ const createDynamicStyles = (COLORS: any) =>
     houseName: {
       fontSize: 24,
       fontWeight: "700",
-      color: COLORS.TEXT_WHITE,
+      color: colors.TEXT_WHITE,
     },
     memberCount: {
       fontSize: 16,
-      color: COLORS.TEXT_WHITE + "90",
+      color: colors.TEXT_WHITE + "90",
       marginTop: 4,
     },
     settingsButton: {
@@ -109,12 +109,12 @@ const createDynamicStyles = (COLORS: any) =>
     emptyTitle: {
       fontSize: 24,
       fontWeight: "600",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       textAlign: "center",
     },
     emptySubtitle: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       textAlign: "center",
       marginTop: 8,
     },
@@ -130,7 +130,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     loadingText: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       marginTop: 16,
     },
     errorContainer: {
@@ -142,13 +142,13 @@ const createDynamicStyles = (COLORS: any) =>
     errorTitle: {
       fontSize: 20,
       fontWeight: "600",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       marginTop: 16,
       textAlign: "center",
     },
     errorSubtitle: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       marginTop: 8,
       textAlign: "center",
     },
@@ -158,7 +158,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     emptyCardText: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       textAlign: "center",
       fontStyle: "italic",
     },
@@ -168,7 +168,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     emptyCardSubtext: {
       fontSize: 14,
-      color: COLORS.TEXT_LIGHT,
+      color: colors.TEXT_LIGHT,
       textAlign: "center",
       marginTop: 4,
       marginBottom: 16,
@@ -192,14 +192,14 @@ const createDynamicStyles = (COLORS: any) =>
       alignItems: "center",
       paddingVertical: 12,
       borderBottomWidth: 1,
-      borderBottomColor: COLORS.BORDER_LIGHT,
+      borderBottomColor: colors.BORDER_LIGHT,
     },
     balanceInfo: {
       flex: 1,
     },
     balanceText: {
       fontSize: 16,
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
     },
     balanceAmount: {
       fontSize: 18,
@@ -212,7 +212,7 @@ const createDynamicStyles = (COLORS: any) =>
       borderRadius: 6,
     },
     payButtonText: {
-      color: COLORS.TEXT_WHITE,
+      color: colors.TEXT_WHITE,
       fontWeight: "600",
     },
     viewAllButton: {
@@ -232,13 +232,13 @@ const createDynamicStyles = (COLORS: any) =>
       alignItems: "center",
       paddingVertical: 12,
       borderBottomWidth: 1,
-      borderBottomColor: COLORS.BORDER_LIGHT,
+      borderBottomColor: colors.BORDER_LIGHT,
     },
     activityIcon: {
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
       justifyContent: "center",
       alignItems: "center",
       marginRight: 12,
@@ -248,17 +248,17 @@ const createDynamicStyles = (COLORS: any) =>
     },
     activityDescription: {
       fontSize: 16,
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
     },
     activityMeta: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       marginTop: 2,
     },
     activityAmount: {
       fontSize: 16,
       fontWeight: "600",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
     },
   });
 

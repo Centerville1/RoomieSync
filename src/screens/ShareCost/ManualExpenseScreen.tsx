@@ -33,8 +33,144 @@ interface Props {
   navigation: ManualExpenseScreenNavigationProp;
 }
 
+const createDynamicStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.BACKGROUND,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 20,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 32,
+    },
+    loadingText: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      marginTop: 16,
+    },
+    header: {
+      paddingVertical: 24,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: "700",
+      color: colors.TEXT_PRIMARY,
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      lineHeight: 22,
+    },
+    inputSection: {
+      marginBottom: 24,
+    },
+    inputLabel: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      marginBottom: 8,
+    },
+    textInput: {
+      borderWidth: 2,
+      borderColor: colors.BORDER,
+      borderRadius: 12,
+      padding: 16,
+      fontSize: 16,
+      color: colors.TEXT_PRIMARY,
+      backgroundColor: colors.CARD_BACKGROUND,
+    },
+    amountInputContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 2,
+      borderColor: colors.PRIMARY,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      backgroundColor: colors.CARD_BACKGROUND,
+    },
+    currencySymbol: {
+      fontSize: 20,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      marginRight: 8,
+    },
+    amountInput: {
+      flex: 1,
+      fontSize: 20,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      paddingVertical: 16,
+    },
+    categorySelector: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      borderWidth: 2,
+      borderColor: colors.BORDER,
+      borderRadius: 12,
+      padding: 16,
+      backgroundColor: colors.CARD_BACKGROUND,
+    },
+    categorySelectedContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      flex: 1,
+    },
+    categoryColorDot: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      marginRight: 12,
+    },
+    categorySelectedText: {
+      fontSize: 16,
+      color: colors.TEXT_PRIMARY,
+    },
+    categoryDropdown: {
+      marginTop: 8,
+      backgroundColor: colors.CARD_BACKGROUND,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
+      maxHeight: 200,
+    },
+    categoryOption: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.BORDER,
+    },
+    categoryOptionSelected: {
+      backgroundColor: colors.PRIMARY + "10",
+    },
+    categoryOptionText: {
+      fontSize: 16,
+      color: colors.TEXT_PRIMARY,
+      flex: 1,
+    },
+    categoryCheckmark: {
+      marginLeft: 8,
+    },
+    actions: {
+      paddingBottom: 24,
+      paddingTop: 16,
+    },
+    continueButton: {
+      minHeight: 50,
+    },
+  });
+
 export default function ManualExpenseScreen({ navigation }: Props) {
   const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
@@ -254,137 +390,3 @@ export default function ManualExpenseScreen({ navigation }: Props) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 16,
-  },
-  header: {
-    paddingVertical: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    lineHeight: 22,
-  },
-  inputSection: {
-    marginBottom: 24,
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: 8,
-  },
-  textInput: {
-    borderWidth: 2,
-    borderColor: COLORS.BORDER,
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    color: COLORS.TEXT_PRIMARY,
-    backgroundColor: COLORS.CARD_BACKGROUND,
-  },
-  amountInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: COLORS.PRIMARY,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    backgroundColor: COLORS.CARD_BACKGROUND,
-  },
-  currencySymbol: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginRight: 8,
-  },
-  amountInput: {
-    flex: 1,
-    fontSize: 20,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    paddingVertical: 16,
-  },
-  categorySelector: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderWidth: 2,
-    borderColor: COLORS.BORDER,
-    borderRadius: 12,
-    padding: 16,
-    backgroundColor: COLORS.CARD_BACKGROUND,
-  },
-  categorySelectedContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  categoryColorDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 12,
-  },
-  categorySelectedText: {
-    fontSize: 16,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  categoryDropdown: {
-    marginTop: 8,
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
-    maxHeight: 200,
-  },
-  categoryOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER,
-  },
-  categoryOptionSelected: {
-    backgroundColor: COLORS.PRIMARY + "10",
-  },
-  categoryOptionText: {
-    fontSize: 16,
-    color: COLORS.TEXT_PRIMARY,
-    flex: 1,
-  },
-  categoryCheckmark: {
-    marginLeft: 8,
-  },
-  actions: {
-    paddingBottom: 24,
-    paddingTop: 16,
-  },
-  continueButton: {
-    minHeight: 50,
-  },
-});

@@ -27,11 +27,11 @@ interface Props {
   navigation: RegisterScreenNavigationProp;
 }
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
     },
     content: {
       flex: 1,
@@ -44,13 +44,13 @@ const createDynamicStyles = (COLORS: any) =>
     title: {
       fontSize: 32,
       fontWeight: "700",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       textAlign: "center",
       marginBottom: 8,
     },
     subtitle: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       textAlign: "center",
     },
     form: {
@@ -75,11 +75,11 @@ const createDynamicStyles = (COLORS: any) =>
     },
     footerText: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
     },
     linkText: {
       fontSize: 16,
-      color: COLORS.PRIMARY,
+      color: colors.PRIMARY,
       fontWeight: "600",
     },
   });

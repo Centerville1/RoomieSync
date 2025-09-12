@@ -17,7 +17,7 @@ interface ButtonProps {
   style?: any;
 }
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     button: {
       borderRadius: 8,
@@ -45,24 +45,24 @@ const createDynamicStyles = (COLORS: any) =>
 
     // Variants
     primary: {
-      backgroundColor: COLORS.PRIMARY,
-      borderColor: COLORS.PRIMARY,
+      backgroundColor: colors.PRIMARY,
+      borderColor: colors.PRIMARY,
     },
     secondary: {
-      backgroundColor: COLORS.SECONDARY,
-      borderColor: COLORS.SECONDARY,
+      backgroundColor: colors.SECONDARY,
+      borderColor: colors.SECONDARY,
     },
     outline: {
       backgroundColor: "transparent",
-      borderColor: COLORS.PRIMARY,
+      borderColor: colors.PRIMARY,
     },
     danger: {
-      backgroundColor: COLORS.ERROR,
-      borderColor: COLORS.ERROR,
+      backgroundColor: colors.ERROR,
+      borderColor: colors.ERROR,
     },
     disabled: {
-      backgroundColor: COLORS.TEXT_LIGHT,
-      borderColor: COLORS.TEXT_LIGHT,
+      backgroundColor: colors.TEXT_LIGHT,
+      borderColor: colors.TEXT_LIGHT,
     },
 
     // Text styles
@@ -80,10 +80,10 @@ const createDynamicStyles = (COLORS: any) =>
       fontSize: 18,
     },
     primaryText: {
-      color: COLORS.TEXT_WHITE,
+      color: colors.TEXT_WHITE,
     },
     outlineText: {
-      color: COLORS.PRIMARY,
+      color: colors.PRIMARY,
     },
   });
 

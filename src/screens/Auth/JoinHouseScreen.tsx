@@ -31,11 +31,11 @@ interface Props {
   route: JoinHouseScreenRouteProp;
 }
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
     },
     content: {
       // flex: 1,
@@ -50,13 +50,13 @@ const createDynamicStyles = (COLORS: any) =>
     title: {
       fontSize: 28,
       fontWeight: "700",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       textAlign: "center",
       marginBottom: 8,
     },
     subtitle: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       textAlign: "center",
       lineHeight: 22,
     },
@@ -74,11 +74,11 @@ const createDynamicStyles = (COLORS: any) =>
     dividerLine: {
       flex: 1,
       height: 1,
-      backgroundColor: COLORS.BORDER_LIGHT,
+      backgroundColor: colors.BORDER_LIGHT,
     },
     dividerText: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       paddingHorizontal: 16,
       fontWeight: "500",
     },
@@ -86,21 +86,21 @@ const createDynamicStyles = (COLORS: any) =>
       marginBottom: 24,
     },
     infoBox: {
-      backgroundColor: COLORS.CARD_BACKGROUND,
+      backgroundColor: colors.CARD_BACKGROUND,
       borderRadius: 8,
       padding: 16,
       borderLeftWidth: 4,
-      borderLeftColor: COLORS.PRIMARY,
+      borderLeftColor: colors.PRIMARY,
     },
     infoTitle: {
       fontSize: 16,
       fontWeight: "600",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       marginBottom: 8,
     },
     infoText: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       lineHeight: 20,
     },
   });

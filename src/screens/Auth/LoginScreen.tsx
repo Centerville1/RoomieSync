@@ -26,11 +26,11 @@ interface Props {
   navigation: LoginScreenNavigationProp;
 }
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
     },
     content: {
       flex: 1,

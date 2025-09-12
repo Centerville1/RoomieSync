@@ -28,11 +28,11 @@ interface Props {
   navigation: MultiHouseSelectionScreenNavigationProp;
 }
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
     },
     header: {
       flexDirection: "row",
@@ -40,7 +40,7 @@ const createDynamicStyles = (COLORS: any) =>
       paddingHorizontal: 16,
       paddingVertical: 12,
       borderBottomWidth: 1,
-      borderBottomColor: COLORS.BORDER_LIGHT,
+      borderBottomColor: colors.BORDER_LIGHT,
     },
     backButton: {
       padding: 8,
@@ -49,7 +49,7 @@ const createDynamicStyles = (COLORS: any) =>
     headerTitle: {
       fontSize: 18,
       fontWeight: "600",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       flex: 1,
       textAlign: "center",
     },
@@ -66,7 +66,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     descriptionText: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       textAlign: "center",
       lineHeight: 22,
     },
@@ -78,14 +78,14 @@ const createDynamicStyles = (COLORS: any) =>
       alignItems: "center",
       justifyContent: "space-between",
       padding: 16,
-      backgroundColor: COLORS.CARD_BACKGROUND,
+      backgroundColor: colors.CARD_BACKGROUND,
       borderRadius: 12,
       marginBottom: 12,
       borderWidth: 1,
-      borderColor: COLORS.BORDER_LIGHT,
+      borderColor: colors.BORDER_LIGHT,
     },
     currentHouseItem: {
-      borderColor: COLORS.SUCCESS,
+      borderColor: colors.SUCCESS,
       borderWidth: 4,
     },
     houseLeft: {
@@ -105,11 +105,11 @@ const createDynamicStyles = (COLORS: any) =>
     houseName: {
       fontSize: 18,
       fontWeight: "600",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       flex: 1,
     },
     currentBadge: {
-      backgroundColor: COLORS.SUCCESS,
+      backgroundColor: colors.SUCCESS,
       paddingHorizontal: 8,
       paddingVertical: 2,
       borderRadius: 10,
@@ -118,16 +118,16 @@ const createDynamicStyles = (COLORS: any) =>
     currentBadgeText: {
       fontSize: 12,
       fontWeight: "600",
-      color: COLORS.TEXT_WHITE,
+      color: colors.TEXT_WHITE,
     },
     memberCount: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       marginBottom: 2,
     },
     houseAddress: {
       fontSize: 13,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       fontStyle: "italic",
     },
     houseRight: {
@@ -136,7 +136,7 @@ const createDynamicStyles = (COLORS: any) =>
     addHouseSection: {
       paddingVertical: 24,
       paddingHorizontal: 16,
-      backgroundColor: COLORS.CARD_BACKGROUND,
+      backgroundColor: colors.CARD_BACKGROUND,
       borderRadius: 12,
       marginBottom: 32,
       alignItems: "center",
@@ -144,12 +144,12 @@ const createDynamicStyles = (COLORS: any) =>
     addHouseTitle: {
       fontSize: 18,
       fontWeight: "600",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       marginBottom: 8,
     },
     addHouseDescription: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       textAlign: "center",
       marginBottom: 20,
       lineHeight: 20,

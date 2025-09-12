@@ -27,7 +27,7 @@ interface InputProps {
   style?: any;
 }
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       marginVertical: 8,
@@ -35,30 +35,30 @@ const createDynamicStyles = (COLORS: any) =>
     label: {
       fontSize: 16,
       fontWeight: "600",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       marginBottom: 8,
     },
     inputContainer: {
       flexDirection: "row",
       alignItems: "center",
       borderWidth: 1,
-      borderColor: COLORS.BORDER_LIGHT,
+      borderColor: colors.BORDER_LIGHT,
       borderRadius: 8,
-      backgroundColor: COLORS.CARD_BACKGROUND,
+      backgroundColor: colors.CARD_BACKGROUND,
       paddingHorizontal: 12,
       minHeight: 44,
     },
     error: {
-      borderColor: COLORS.ERROR,
+      borderColor: colors.ERROR,
     },
     disabled: {
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
       opacity: 0.6,
     },
     input: {
       flex: 1,
       fontSize: 16,
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       paddingVertical: 12,
     },
     inputWithLeftIcon: {
@@ -75,7 +75,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     errorText: {
       fontSize: 14,
-      color: COLORS.ERROR,
+      color: colors.ERROR,
       marginTop: 4,
     },
   });

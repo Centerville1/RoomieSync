@@ -26,7 +26,7 @@ interface Props {
   onToggleSelect?: (itemId: string) => void;
 }
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flexDirection: "row",
@@ -34,7 +34,7 @@ const createDynamicStyles = (COLORS: any) =>
       paddingVertical: 12,
       paddingHorizontal: 4,
       borderBottomWidth: 1,
-      borderBottomColor: COLORS.BORDER_LIGHT,
+      borderBottomColor: colors.BORDER_LIGHT,
     },
     purchaseButton: {
       marginRight: 12,
@@ -58,7 +58,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     itemName: {
       fontSize: 16,
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       fontWeight: "500",
       marginBottom: 4,
     },
@@ -86,11 +86,11 @@ const createDynamicStyles = (COLORS: any) =>
     },
     itemQuantity: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
     },
     itemNotes: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       fontStyle: "italic",
       marginTop: 2,
     },
@@ -110,8 +110,8 @@ const createDynamicStyles = (COLORS: any) =>
       paddingVertical: 12,
       paddingHorizontal: 4,
       borderBottomWidth: 1,
-      borderBottomColor: COLORS.BORDER_LIGHT,
-      backgroundColor: COLORS.BACKGROUND + "80",
+      borderBottomColor: colors.BORDER_LIGHT,
+      backgroundColor: colors.BACKGROUND + "80",
     },
     editRow: {
       flexDirection: "row",
@@ -120,13 +120,13 @@ const createDynamicStyles = (COLORS: any) =>
     },
     editInput: {
       borderWidth: 1,
-      borderColor: COLORS.BORDER,
+      borderColor: colors.BORDER,
       borderRadius: 8,
       paddingHorizontal: 12,
       paddingVertical: 8,
-      backgroundColor: COLORS.CARD_BACKGROUND,
+      backgroundColor: colors.CARD_BACKGROUND,
       fontSize: 16,
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
     },
     nameInput: {
       flex: 1,
@@ -153,18 +153,18 @@ const createDynamicStyles = (COLORS: any) =>
       gap: 4,
     },
     cancelButton: {
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
       borderWidth: 1,
-      borderColor: COLORS.BORDER,
+      borderColor: colors.BORDER,
     },
     cancelText: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       fontWeight: "500",
     },
     saveText: {
       fontSize: 14,
-      color: COLORS.TEXT_WHITE,
+      color: colors.TEXT_WHITE,
       fontWeight: "500",
     },
     editRecurringSection: {
@@ -180,7 +180,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     editRecurringLabel: {
       fontSize: 12,
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       fontWeight: "500",
     },
     editIntervalContainer: {
@@ -191,7 +191,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     editIntervalLabel: {
       fontSize: 12,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
     },
     editIntervalInput: {
       width: 50,
@@ -201,7 +201,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     editIntervalUnit: {
       fontSize: 12,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
     },
   });
 

@@ -27,11 +27,11 @@ interface Props {
   navigation: CreateHouseScreenNavigationProp;
 }
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
     },
     content: {
       flex: 1,
@@ -48,13 +48,13 @@ const createDynamicStyles = (COLORS: any) =>
     title: {
       fontSize: 28,
       fontWeight: "700",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       textAlign: "center",
       marginBottom: 8,
     },
     subtitle: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       textAlign: "center",
       lineHeight: 22,
     },
@@ -66,15 +66,15 @@ const createDynamicStyles = (COLORS: any) =>
       marginBottom: 16,
     },
     infoBox: {
-      backgroundColor: COLORS.CARD_BACKGROUND,
+      backgroundColor: colors.CARD_BACKGROUND,
       borderRadius: 8,
       padding: 16,
       borderLeftWidth: 4,
-      borderLeftColor: COLORS.PRIMARY,
+      borderLeftColor: colors.PRIMARY,
     },
     infoText: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       lineHeight: 20,
     },
   });

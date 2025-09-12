@@ -12,7 +12,7 @@ interface AvatarProps {
   style?: any;
 }
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       justifyContent: "center",
@@ -24,7 +24,7 @@ const createDynamicStyles = (COLORS: any) =>
       height: "100%",
     },
     initials: {
-      color: COLORS.TEXT_WHITE,
+      color: colors.TEXT_WHITE,
       fontWeight: "600",
     },
   });

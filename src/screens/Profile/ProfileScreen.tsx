@@ -23,11 +23,11 @@ import Constants from "expo-constants";
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
     },
     header: {
       alignItems: "center",
@@ -37,12 +37,12 @@ const createDynamicStyles = (COLORS: any) =>
     userName: {
       fontSize: 24,
       fontWeight: "700",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       marginTop: 16,
     },
     userEmail: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       marginTop: 4,
     },
     editButton: {
@@ -55,7 +55,7 @@ const createDynamicStyles = (COLORS: any) =>
       justifyContent: "space-between",
       paddingVertical: 16,
       borderBottomWidth: 1,
-      borderBottomColor: COLORS.BORDER_LIGHT,
+      borderBottomColor: colors.BORDER_LIGHT,
     },
     profileItemDisabled: {
       opacity: 0.6,
@@ -79,11 +79,11 @@ const createDynamicStyles = (COLORS: any) =>
     itemTitle: {
       fontSize: 16,
       fontWeight: "600",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
     },
     itemSubtitle: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       marginTop: 2,
     },
     addHouseContainer: {
@@ -107,7 +107,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     noHousesText: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       textAlign: "center",
     },
   });

@@ -19,7 +19,7 @@ interface Props {
   autoFocus?: boolean;
 }
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     addButton: {
       flexDirection: "row",
@@ -30,15 +30,15 @@ const createDynamicStyles = (COLORS: any) =>
     },
     addButtonText: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       fontStyle: "italic",
     },
     container: {
       paddingHorizontal: 4,
-      backgroundColor: COLORS.CARD_BACKGROUND,
+      backgroundColor: colors.CARD_BACKGROUND,
       borderRadius: 8,
       borderWidth: 1,
-      borderColor: COLORS.BORDER_LIGHT,
+      borderColor: colors.BORDER_LIGHT,
       marginVertical: 8,
     },
     inputRow: {
@@ -49,13 +49,13 @@ const createDynamicStyles = (COLORS: any) =>
     },
     input: {
       borderWidth: 1,
-      borderColor: COLORS.BORDER,
+      borderColor: colors.BORDER,
       borderRadius: 8,
       paddingHorizontal: 12,
       paddingVertical: 10,
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
       fontSize: 16,
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
     },
     nameInput: {
       flex: 1,
@@ -82,18 +82,18 @@ const createDynamicStyles = (COLORS: any) =>
       gap: 4,
     },
     cancelButton: {
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
       borderWidth: 1,
-      borderColor: COLORS.BORDER,
+      borderColor: colors.BORDER,
     },
     cancelText: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       fontWeight: "500",
     },
     addText: {
       fontSize: 14,
-      color: COLORS.TEXT_WHITE,
+      color: colors.TEXT_WHITE,
       fontWeight: "500",
     },
     recurringSection: {
@@ -109,7 +109,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     recurringLabel: {
       fontSize: 14,
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       fontWeight: "500",
     },
     intervalContainer: {
@@ -120,7 +120,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     intervalLabel: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
     },
     intervalInput: {
       width: 60,
@@ -128,7 +128,7 @@ const createDynamicStyles = (COLORS: any) =>
     },
     intervalUnit: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
     },
   });
 

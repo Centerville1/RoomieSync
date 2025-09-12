@@ -18,17 +18,17 @@ interface Props {
   navigation: HouseSelectionScreenNavigationProp;
 }
 
-const createDynamicStyles = (COLORS: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.BACKGROUND,
+      backgroundColor: colors.BACKGROUND,
     },
     logoutButton: {
       paddingHorizontal: 12,
       paddingVertical: 6,
       marginTop: 20,
-      backgroundColor: COLORS.ERROR,
+      backgroundColor: colors.ERROR,
     },
     scrollView: {
       flex: 1,
@@ -48,7 +48,7 @@ const createDynamicStyles = (COLORS: any) =>
     iconContainer: {
       width: 80,
       height: 80,
-      backgroundColor: COLORS.PRIMARY,
+      backgroundColor: colors.PRIMARY,
       borderRadius: 40,
       justifyContent: "center",
       alignItems: "center",
@@ -60,13 +60,13 @@ const createDynamicStyles = (COLORS: any) =>
     title: {
       fontSize: 28,
       fontWeight: "700",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       textAlign: "center",
       marginBottom: 12,
     },
     subtitle: {
       fontSize: 16,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       textAlign: "center",
       lineHeight: 22,
     },
@@ -74,12 +74,12 @@ const createDynamicStyles = (COLORS: any) =>
       flex: 1,
     },
     optionCard: {
-      backgroundColor: COLORS.CARD_BACKGROUND,
+      backgroundColor: colors.CARD_BACKGROUND,
       borderRadius: 12,
       padding: 24,
       alignItems: "center",
       borderWidth: 1,
-      borderColor: COLORS.BORDER_LIGHT,
+      borderColor: colors.BORDER_LIGHT,
     },
     optionIcon: {
       fontSize: 32,
@@ -88,13 +88,13 @@ const createDynamicStyles = (COLORS: any) =>
     optionTitle: {
       fontSize: 20,
       fontWeight: "600",
-      color: COLORS.TEXT_PRIMARY,
+      color: colors.TEXT_PRIMARY,
       marginBottom: 8,
       textAlign: "center",
     },
     optionDescription: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       textAlign: "center",
       lineHeight: 20,
       marginBottom: 20,
@@ -110,25 +110,25 @@ const createDynamicStyles = (COLORS: any) =>
     dividerLine: {
       flex: 1,
       height: 1,
-      backgroundColor: COLORS.BORDER_LIGHT,
+      backgroundColor: colors.BORDER_LIGHT,
     },
     dividerText: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       paddingHorizontal: 16,
       fontWeight: "500",
     },
     infoBox: {
-      backgroundColor: COLORS.CARD_BACKGROUND,
+      backgroundColor: colors.CARD_BACKGROUND,
       borderRadius: 8,
       padding: 16,
       borderLeftWidth: 4,
-      borderLeftColor: COLORS.PRIMARY,
+      borderLeftColor: colors.PRIMARY,
       marginTop: 24,
     },
     infoText: {
       fontSize: 14,
-      color: COLORS.TEXT_SECONDARY,
+      color: colors.TEXT_SECONDARY,
       lineHeight: 20,
       textAlign: "center",
     },
