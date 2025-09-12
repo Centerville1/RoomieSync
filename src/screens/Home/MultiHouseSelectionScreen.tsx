@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,20 +7,20 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { Ionicons } from '@expo/vector-icons';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { Ionicons } from "@expo/vector-icons";
 
-import { Button, Avatar } from '../../components/UI';
-import { useHouse } from '../../context/HouseContext';
-import { RootStackParamList } from '../../types/navigation';
-import { COLORS, NAVIGATION_ROUTES } from '../../constants';
-import { House } from '../../types/houses';
+import { Button, Avatar } from "../../components/UI";
+import { useHouse } from "../../context/HouseContext";
+import { RootStackParamList } from "../../types/navigation";
+import { COLORS, NAVIGATION_ROUTES } from "../../constants";
+import { House } from "../../types/houses";
 
 type MultiHouseSelectionScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
-  'MultiHouseSelection'
+  "MultiHouseSelection"
 >;
 
 interface Props {
@@ -30,8 +30,6 @@ interface Props {
 export default function MultiHouseSelectionScreen({ navigation }: Props) {
   const { houses, currentHouse, switchToHouse, isLoading } = useHouse();
   const [switchingHouse, setSwitchingHouse] = useState<string | null>(null);
-
-
 
   const handleHouseSelect = async (house: House) => {
     if (house.id === currentHouse?.id) {
@@ -43,16 +41,22 @@ export default function MultiHouseSelectionScreen({ navigation }: Props) {
     try {
       setSwitchingHouse(house.id);
       const switchedHouse = await switchToHouse(house.id);
-      
+
       if (switchedHouse) {
         // Successfully switched, navigate back to home
         navigation.navigate(NAVIGATION_ROUTES.MAIN);
       } else {
-        Alert.alert('Error', 'Failed to switch to the selected house. Please try again.');
+        Alert.alert(
+          "Error",
+          "Failed to switch to the selected house. Please try again."
+        );
       }
     } catch (error) {
-      console.error('Error switching house:', error);
-      Alert.alert('Error', 'Failed to switch to the selected house. Please try again.');
+      console.error("Error switching house:", error);
+      Alert.alert(
+        "Error",
+        "Failed to switch to the selected house. Please try again."
+      );
     } finally {
       setSwitchingHouse(null);
     }
@@ -60,7 +64,7 @@ export default function MultiHouseSelectionScreen({ navigation }: Props) {
 
   const formatMemberCount = (house: House): string => {
     const memberCount = house.members?.length || 0;
-    return `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`;
+    return `${memberCount} ${memberCount === 1 ? "member" : "members"}`;
   };
 
   const isCurrentHouse = (house: House): boolean => {
@@ -74,7 +78,7 @@ export default function MultiHouseSelectionScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
@@ -97,7 +101,8 @@ export default function MultiHouseSelectionScreen({ navigation }: Props) {
               key={house.id}
               style={[
                 styles.houseItem,
-                isCurrentHouse(house) && styles.currentHouseItem
+                { backgroundColor: house.color + "70" },
+                isCurrentHouse(house) && styles.currentHouseItem,
               ]}
               onPress={() => handleHouseSelect(house)}
               disabled={isSwitchingToHouse(house)}
@@ -114,12 +119,13 @@ export default function MultiHouseSelectionScreen({ navigation }: Props) {
                     <Text style={styles.houseName}>{house.name}</Text>
                     {isCurrentHouse(house) && (
                       <View style={styles.currentBadge}>
-                        <Text style={styles.currentBadgeText}>Current</Text>
+                        <Text style={styles.currentBadgeText}>Current ⭐️</Text>
                       </View>
                     )}
                   </View>
                   <Text style={styles.memberCount}>
-                    {house.membership?.role === 'admin' ? 'Admin' : 'Member'} • {formatMemberCount(house)}
+                    {house.membership?.role === "admin" ? "Admin" : "Member"} •{" "}
+                    {formatMemberCount(house)}
                   </Text>
                   {house.address && (
                     <Text style={styles.houseAddress}>{house.address}</Text>
@@ -131,10 +137,18 @@ export default function MultiHouseSelectionScreen({ navigation }: Props) {
                 {isSwitchingToHouse(house) ? (
                   <ActivityIndicator size="small" color={COLORS.PRIMARY} />
                 ) : (
-                  <Ionicons 
-                    name={isCurrentHouse(house) ? "checkmark-circle" : "chevron-forward"} 
-                    size={24} 
-                    color={isCurrentHouse(house) ? COLORS.SUCCESS : COLORS.TEXT_SECONDARY} 
+                  <Ionicons
+                    name={
+                      isCurrentHouse(house)
+                        ? "checkmark-circle"
+                        : "chevron-forward"
+                    }
+                    size={24}
+                    color={
+                      isCurrentHouse(house)
+                        ? COLORS.SUCCESS
+                        : COLORS.TEXT_SECONDARY
+                    }
                   />
                 )}
               </View>
@@ -147,17 +161,23 @@ export default function MultiHouseSelectionScreen({ navigation }: Props) {
           <Text style={styles.addHouseDescription}>
             You can join additional houses or create new ones
           </Text>
-          
+
           <View style={styles.addHouseButtons}>
             <Button
               title="Join House"
               variant="outline"
-              onPress={() => navigation.navigate(NAVIGATION_ROUTES.JOIN_HOUSE, { inviteCode: undefined })}
+              onPress={() =>
+                navigation.navigate(NAVIGATION_ROUTES.JOIN_HOUSE, {
+                  inviteCode: undefined,
+                })
+              }
               style={styles.addHouseButton}
             />
             <Button
               title="Create House"
-              onPress={() => navigation.navigate(NAVIGATION_ROUTES.CREATE_HOUSE)}
+              onPress={() =>
+                navigation.navigate(NAVIGATION_ROUTES.CREATE_HOUSE)
+              }
               style={styles.addHouseButton}
             />
           </View>
@@ -173,8 +193,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.BACKGROUND,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
@@ -186,10 +206,10 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.TEXT_PRIMARY,
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerSpacer: {
     width: 40,
@@ -200,21 +220,21 @@ const styles = StyleSheet.create({
   },
   description: {
     paddingVertical: 24,
-    alignItems: 'center',
+    alignItems: "center",
   },
   descriptionText: {
     fontSize: 16,
     color: COLORS.TEXT_SECONDARY,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 22,
   },
   housesList: {
     marginBottom: 32,
   },
   houseItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: 16,
     backgroundColor: COLORS.CARD_BACKGROUND,
     borderRadius: 12,
@@ -224,26 +244,25 @@ const styles = StyleSheet.create({
   },
   currentHouseItem: {
     borderColor: COLORS.SUCCESS,
-    borderWidth: 2,
-    backgroundColor: COLORS.SUCCESS + '08',
+    borderWidth: 4,
   },
   houseLeft: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   houseDetails: {
     flex: 1,
     marginLeft: 12,
   },
   houseTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 4,
   },
   houseName: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.TEXT_PRIMARY,
     flex: 1,
   },
@@ -256,7 +275,7 @@ const styles = StyleSheet.create({
   },
   currentBadgeText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.TEXT_WHITE,
   },
   memberCount: {
@@ -267,7 +286,7 @@ const styles = StyleSheet.create({
   houseAddress: {
     fontSize: 13,
     color: COLORS.TEXT_SECONDARY,
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
   houseRight: {
     paddingLeft: 12,
@@ -278,25 +297,25 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.CARD_BACKGROUND,
     borderRadius: 12,
     marginBottom: 32,
-    alignItems: 'center',
+    alignItems: "center",
   },
   addHouseTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.TEXT_PRIMARY,
     marginBottom: 8,
   },
   addHouseDescription: {
     fontSize: 14,
     color: COLORS.TEXT_SECONDARY,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 20,
     lineHeight: 20,
   },
   addHouseButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
   },
   addHouseButton: {
     flex: 0.45,

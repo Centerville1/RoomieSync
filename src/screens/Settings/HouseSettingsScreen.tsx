@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,30 +9,45 @@ import {
   ActivityIndicator,
   TextInput,
   Share,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import { useNavigation } from '@react-navigation/native';
-import * as Clipboard from 'expo-clipboard';
+  useWindowDimensions,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import { useNavigation } from "@react-navigation/native";
+import * as Clipboard from "expo-clipboard";
 
-import { Card, Avatar, Button } from '../../components/UI';
-import { COLORS } from '../../constants';
-import { House } from '../../types/houses';
-import { useAuth } from '../../context/AuthContext';
-import { houseService } from '../../services/houseService';
+import { Card, Avatar, Button } from "../../components/UI";
+import { COLORS } from "../../constants";
+import { House } from "../../types/houses";
+import { useAuth } from "../../context/AuthContext";
+import { houseService } from "../../services/houseService";
 
 const HOUSE_COLORS = [
-  '#FF6B35', // Orange
-  '#10B981', // Green
-  '#6366F1', // Indigo
-  '#8B5CF6', // Purple
-  '#EF4444', // Red
-  '#F59E0B', // Amber
-  '#06B6D4', // Cyan
-  '#EC4899', // Pink
-  '#84CC16', // Lime
-  '#F97316', // Orange-red
+  "#E76464",
+  "#E55555",
+  "#E24444",
+  "#DF3131",
+  "#E4783F",
+  "#F1B347",
+  "#EDC54B",
+  "#EAD84E",
+  "#BBCF58",
+  "#5BBE6C",
+  "#5BB383",
+  "#5AA799",
+  "#5A9BAF",
+  "#598FC5",
+  "#5E72E4",
+  "#7071E3",
+  "#826FE2",
+  "#A56BDF",
+  "#9552D7",
+  "#8439CE",
+  "#9C3AC8",
+  "#B33BC1",
+  "#CB3CBA",
+  "#D53776",
 ];
 
 export default function HouseSettingsScreen() {
@@ -42,11 +57,24 @@ export default function HouseSettingsScreen() {
   const [saving, setSaving] = useState(false);
   const [currentHouse, setCurrentHouse] = useState<House | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [houseName, setHouseName] = useState('');
-  const [houseAddress, setHouseAddress] = useState('');
-  const [houseDescription, setHouseDescription] = useState('');
-  const [selectedColor, setSelectedColor] = useState<string>(COLORS.DEFAULT_HOUSE_COLOR);
+  const [houseName, setHouseName] = useState("");
+  const [houseAddress, setHouseAddress] = useState("");
+  const [houseDescription, setHouseDescription] = useState("");
+  const [selectedColor, setSelectedColor] = useState<string>(
+    COLORS.DEFAULT_HOUSE_COLOR
+  );
   const [hasChanges, setHasChanges] = useState(false);
+
+  const ACTUAL_NUM_COLUMNS = 4; // change how many per row you want
+  const NUM_COLUMNS = ACTUAL_NUM_COLUMNS + 1;
+  const GAP = 8; // gap between tiles
+
+  const { width } = useWindowDimensions();
+  const horizontalPadding = 16; // parent padding if you want
+  const totalGaps = GAP * (NUM_COLUMNS + 1);
+  const itemSize = Math.floor(
+    (width - horizontalPadding * 2 - totalGaps) / NUM_COLUMNS
+  );
 
   useEffect(() => {
     loadHouseData();
@@ -59,19 +87,20 @@ export default function HouseSettingsScreen() {
       if (house) {
         setCurrentHouse(house);
         setHouseName(house.name);
-        setHouseAddress(house.address || '');
-        setHouseDescription(house.description || '');
+        setHouseAddress(house.address || "");
+        setHouseDescription(house.description || "");
         setSelectedColor(house.color || COLORS.DEFAULT_HOUSE_COLOR);
-        
+
         // Check if current user is admin
-        const userMembership = house.members?.find(member => member.user?.id === user?.id) || 
-                              house.memberships?.find(member => member.user?.id === user?.id) ||
-                              house.userMembership;
-        setIsAdmin(userMembership?.role === 'admin');
+        const userMembership =
+          house.members?.find((member) => member.user?.id === user?.id) ||
+          house.memberships?.find((member) => member.user?.id === user?.id) ||
+          house.userMembership;
+        setIsAdmin(userMembership?.role === "admin");
       }
     } catch (error) {
-      console.error('Error loading house data:', error);
-      Alert.alert('Error', 'Failed to load house settings');
+      console.error("Error loading house data:", error);
+      Alert.alert("Error", "Failed to load house settings");
     } finally {
       setLoading(false);
     }
@@ -101,14 +130,18 @@ export default function HouseSettingsScreen() {
     if (!currentHouse) return;
 
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Required', 'Please grant camera roll permissions to upload images.');
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Please grant camera roll permissions to upload images."
+        );
         return;
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
+        mediaTypes: ["images"],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -122,21 +155,20 @@ export default function HouseSettingsScreen() {
             result.assets[0].uri
           );
           setCurrentHouse(updatedHouse);
-          Alert.alert('Success', 'House image updated successfully!');
+          Alert.alert("Success", "House image updated successfully!");
         } catch (error) {
-          console.error('Error uploading image:', error);
-          Alert.alert('Error', 'Failed to update house image');
+          console.error("Error uploading image:", error);
+          Alert.alert("Error", "Failed to update house image");
         } finally {
           setSaving(false);
         }
       }
     } catch (error) {
-      console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to pick image');
+      console.error("Error picking image:", error);
+      Alert.alert("Error", "Failed to pick image");
       setSaving(false);
     }
   };
-
 
   const handleBack = async () => {
     if (hasChanges) {
@@ -152,11 +184,13 @@ export default function HouseSettingsScreen() {
           };
           await houseService.updateHouse(currentHouse.id, updateData);
           // Trigger a refresh of the home screen by updating stored house
-          const updatedHouse = await houseService.getHouseDetails(currentHouse.id);
+          const updatedHouse = await houseService.getHouseDetails(
+            currentHouse.id
+          );
           await houseService.setCurrentHouse(updatedHouse);
         }
       } catch (error) {
-        console.error('Error auto-saving house settings:', error);
+        console.error("Error auto-saving house settings:", error);
         // Still navigate back even if save fails
       } finally {
         setSaving(false);
@@ -168,7 +202,7 @@ export default function HouseSettingsScreen() {
   const handleCopyInviteCode = async () => {
     if (currentHouse?.inviteCode) {
       await Clipboard.setStringAsync(currentHouse.inviteCode);
-      Alert.alert('Copied!', 'Invite code copied to clipboard');
+      Alert.alert("Copied!", "Invite code copied to clipboard");
     }
   };
 
@@ -177,10 +211,10 @@ export default function HouseSettingsScreen() {
       try {
         await Share.share({
           message: `Join our house "${currentHouse.name}" on RoomieSync! Use invite code: ${currentHouse.inviteCode}`,
-          title: 'Join My House',
+          title: "Join My House",
         });
       } catch (error) {
-        console.error('Error sharing invite code:', error);
+        console.error("Error sharing invite code:", error);
       }
     }
   };
@@ -221,7 +255,10 @@ export default function HouseSettingsScreen() {
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           {/* House Info (Read-only) */}
-          <Card title="🏠 House Information" headerColor={COLORS.BALANCE_HEADER}>
+          <Card
+            title="🏠 House Information"
+            headerColor={COLORS.BALANCE_HEADER}
+          >
             <View style={styles.profileSection}>
               <Avatar
                 name={currentHouse.name}
@@ -243,7 +280,9 @@ export default function HouseSettingsScreen() {
             {currentHouse.description && (
               <View style={styles.readOnlyField}>
                 <Text style={styles.readOnlyLabel}>Description</Text>
-                <Text style={styles.readOnlyValue}>{currentHouse.description}</Text>
+                <Text style={styles.readOnlyValue}>
+                  {currentHouse.description}
+                </Text>
               </View>
             )}
           </Card>
@@ -255,15 +294,31 @@ export default function HouseSettingsScreen() {
             </Text>
             <View style={styles.inviteCodeContainer}>
               <View style={styles.inviteCodeBox}>
-                <Text style={styles.inviteCodeText}>{currentHouse.inviteCode}</Text>
+                <Text style={styles.inviteCodeText}>
+                  {currentHouse.inviteCode}
+                </Text>
               </View>
               <View style={styles.inviteActions}>
-                <TouchableOpacity style={styles.inviteButton} onPress={handleCopyInviteCode}>
-                  <Ionicons name="copy-outline" size={20} color={COLORS.PRIMARY} />
+                <TouchableOpacity
+                  style={styles.inviteButton}
+                  onPress={handleCopyInviteCode}
+                >
+                  <Ionicons
+                    name="copy-outline"
+                    size={20}
+                    color={COLORS.PRIMARY}
+                  />
                   <Text style={styles.inviteButtonText}>Copy</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.inviteButton} onPress={handleShareInviteCode}>
-                  <Ionicons name="share-outline" size={20} color={COLORS.PRIMARY} />
+                <TouchableOpacity
+                  style={styles.inviteButton}
+                  onPress={handleShareInviteCode}
+                >
+                  <Ionicons
+                    name="share-outline"
+                    size={20}
+                    color={COLORS.PRIMARY}
+                  />
                   <Text style={styles.inviteButtonText}>Share</Text>
                 </TouchableOpacity>
               </View>
@@ -271,7 +326,11 @@ export default function HouseSettingsScreen() {
           </Card>
 
           <View style={styles.adminNote}>
-            <Ionicons name="information-circle-outline" size={20} color={COLORS.TEXT_SECONDARY} />
+            <Ionicons
+              name="information-circle-outline"
+              size={20}
+              color={COLORS.TEXT_SECONDARY}
+            />
             <Text style={styles.adminNoteText}>
               Only house admins can modify house settings
             </Text>
@@ -296,7 +355,10 @@ export default function HouseSettingsScreen() {
         {/* House Profile Section */}
         <Card title="🏠 House Profile" headerColor={COLORS.BALANCE_HEADER}>
           <View style={styles.profileSection}>
-            <TouchableOpacity onPress={handleImagePicker} style={styles.avatarContainer}>
+            <TouchableOpacity
+              onPress={handleImagePicker}
+              style={styles.avatarContainer}
+            >
               <Avatar
                 name={currentHouse.name}
                 imageUrl={currentHouse.imageUrl}
@@ -354,15 +416,31 @@ export default function HouseSettingsScreen() {
           </Text>
           <View style={styles.inviteCodeContainer}>
             <View style={styles.inviteCodeBox}>
-              <Text style={styles.inviteCodeText}>{currentHouse.inviteCode}</Text>
+              <Text style={styles.inviteCodeText}>
+                {currentHouse.inviteCode}
+              </Text>
             </View>
             <View style={styles.inviteActions}>
-              <TouchableOpacity style={styles.inviteButton} onPress={handleCopyInviteCode}>
-                <Ionicons name="copy-outline" size={20} color={COLORS.PRIMARY} />
+              <TouchableOpacity
+                style={styles.inviteButton}
+                onPress={handleCopyInviteCode}
+              >
+                <Ionicons
+                  name="copy-outline"
+                  size={20}
+                  color={COLORS.PRIMARY}
+                />
                 <Text style={styles.inviteButtonText}>Copy</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.inviteButton} onPress={handleShareInviteCode}>
-                <Ionicons name="share-outline" size={20} color={COLORS.PRIMARY} />
+              <TouchableOpacity
+                style={styles.inviteButton}
+                onPress={handleShareInviteCode}
+              >
+                <Ionicons
+                  name="share-outline"
+                  size={20}
+                  color={COLORS.PRIMARY}
+                />
                 <Text style={styles.inviteButtonText}>Share</Text>
               </TouchableOpacity>
             </View>
@@ -372,7 +450,8 @@ export default function HouseSettingsScreen() {
         {/* Color Picker Section */}
         <Card title="🎨 House Color" headerColor={COLORS.ACTIVITY_HEADER}>
           <Text style={styles.sectionDescription}>
-            Choose a color that represents your house. This will be used throughout the app.
+            Choose a color that represents your house. This will be used
+            throughout the app.
           </Text>
           <View style={styles.colorGrid}>
             {HOUSE_COLORS.map((color) => (
@@ -380,13 +459,22 @@ export default function HouseSettingsScreen() {
                 key={color}
                 style={[
                   styles.colorOption,
-                  { backgroundColor: color },
+                  {
+                    width: itemSize,
+                    height: itemSize,
+                    margin: GAP / 2,
+                    backgroundColor: color,
+                  },
                   selectedColor === color && styles.selectedColor,
                 ]}
                 onPress={() => handleColorSelect(color)}
               >
                 {selectedColor === color && (
-                  <Ionicons name="checkmark" size={20} color={COLORS.TEXT_WHITE} />
+                  <Ionicons
+                    name="checkmark"
+                    size={20}
+                    color={COLORS.TEXT_WHITE}
+                  />
                 )}
               </TouchableOpacity>
             ))}
@@ -397,8 +485,14 @@ export default function HouseSettingsScreen() {
         {hasChanges && (
           <View style={styles.autoSaveContainer}>
             <View style={styles.autoSaveIndicator}>
-              <Ionicons name="checkmark-circle" size={16} color={COLORS.SUCCESS} />
-              <Text style={styles.autoSaveText}>Changes will be saved automatically</Text>
+              <Ionicons
+                name="checkmark-circle"
+                size={16}
+                color={COLORS.SUCCESS}
+              />
+              <Text style={styles.autoSaveText}>
+                Changes will be saved automatically
+              </Text>
             </View>
           </View>
         )}
@@ -414,8 +508,8 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 32,
   },
   loadingText: {
@@ -425,8 +519,8 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 32,
   },
   errorText: {
@@ -435,8 +529,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 16,
     backgroundColor: COLORS.CARD_BACKGROUND,
@@ -449,9 +543,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.TEXT_PRIMARY,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerSpacer: {
     width: 40,
@@ -461,22 +555,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   profileSection: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 24,
   },
   avatarContainer: {
-    position: 'relative',
+    position: "relative",
   },
   cameraOverlay: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     right: 0,
     backgroundColor: COLORS.PRIMARY,
     borderRadius: 16,
     width: 32,
     height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 2,
     borderColor: COLORS.CARD_BACKGROUND,
   },
@@ -490,7 +584,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.TEXT_PRIMARY,
     marginBottom: 8,
   },
@@ -514,17 +608,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   colorGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
   },
+
   colorOption: {
-    width: '18%',
-    aspectRatio: 1,
     borderRadius: 8,
-    margin: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
+    flexShrink: 0, // don't let items shrink to fit
   },
   selectedColor: {
     borderWidth: 3,
@@ -533,12 +626,12 @@ const styles = StyleSheet.create({
   autoSaveContainer: {
     marginTop: 24,
     marginBottom: 32,
-    alignItems: 'center',
+    alignItems: "center",
   },
   autoSaveIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.SUCCESS + '20',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.SUCCESS + "20",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -547,14 +640,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.SUCCESS,
     marginLeft: 8,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   readOnlyField: {
     marginBottom: 16,
   },
   readOnlyLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.TEXT_SECONDARY,
     marginBottom: 4,
   },
@@ -574,42 +667,42 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.BACKGROUND,
     borderRadius: 8,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 16,
     borderWidth: 2,
     borderColor: COLORS.PRIMARY,
-    borderStyle: 'dashed',
+    borderStyle: "dashed",
   },
   inviteCodeText: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: COLORS.PRIMARY,
     letterSpacing: 2,
   },
   inviteActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
   inviteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.PRIMARY + '20',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.PRIMARY + "20",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,
     minWidth: 100,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   inviteButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.PRIMARY,
     marginLeft: 8,
   },
   adminNote: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.WARNING + '20',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.WARNING + "20",
     padding: 16,
     borderRadius: 8,
     margin: 16,

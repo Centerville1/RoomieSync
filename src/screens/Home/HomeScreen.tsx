@@ -11,7 +11,11 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useFocusEffect, CompositeNavigationProp } from "@react-navigation/native";
+import {
+  useNavigation,
+  useFocusEffect,
+  CompositeNavigationProp,
+} from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
@@ -21,7 +25,11 @@ import { useAuth } from "../../context/AuthContext";
 import { useHouse } from "../../context/HouseContext";
 import { useShoppingSelection } from "../../context/ShoppingSelectionContext";
 import { COLORS, NAVIGATION_ROUTES } from "../../constants";
-import { RootStackParamList, MainTabParamList, ShareCostStackParamList } from "../../types/navigation";
+import {
+  RootStackParamList,
+  MainTabParamList,
+  ShareCostStackParamList,
+} from "../../types/navigation";
 import { House } from "../../types/houses";
 import { Balance } from "../../types/expenses";
 import { ShoppingItem } from "../../types/shopping";
@@ -134,7 +142,10 @@ export default function HomeScreen() {
 
       // Set balances
       if (balancesData.status === "fulfilled") {
-        setBalances(balancesData.value);
+        const filteredBalances = balancesData.value.filter(
+          (b) => b.fromUser.id === user.id || b.toUser.id === user.id
+        );
+        setBalances(filteredBalances);
       }
 
       // Set shopping items (filter out purchased ones for the home screen)
@@ -154,7 +165,8 @@ export default function HomeScreen() {
             id: `expense-${expense.id}`,
             type: "expense",
             description: expense.description,
-            amount: typeof expense.amount === 'number' ? expense.amount : undefined,
+            amount:
+              typeof expense.amount === "number" ? expense.amount : undefined,
             user: expense.paidBy?.firstName || "Unknown",
             time: formatRelativeTime(expense.createdAt),
           });
@@ -167,7 +179,8 @@ export default function HomeScreen() {
             id: `payment-${payment.id}`,
             type: "payment",
             description: payment.memo || "Payment",
-            amount: typeof payment.amount === 'number' ? payment.amount : undefined,
+            amount:
+              typeof payment.amount === "number" ? payment.amount : undefined,
             user: payment.fromUser?.firstName || "Unknown",
             time: formatRelativeTime(payment.createdAt),
           });
@@ -208,7 +221,7 @@ export default function HomeScreen() {
 
   const formatAmount = (amount: number | undefined) => {
     if (amount === undefined || amount === null || isNaN(amount)) {
-      return '$0.00';
+      return "$0.00";
     }
     return `$${amount.toFixed(2)}`;
   };
@@ -278,7 +291,13 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header with house info */}
       <LinearGradient
-        colors={[currentHouse.color, currentHouse.color + "90"]}
+        colors={[
+          currentHouse.color,
+          currentHouse.color + "AA",
+          currentHouse.color + "70",
+          COLORS.BACKGROUND,
+        ]}
+        locations={[0, 0.7, 0.8, 1]}
         style={styles.header}
       >
         <View style={styles.headerContent}>
@@ -467,7 +486,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 20,
-    paddingBottom: 24,
+    paddingBottom: 30,
     paddingHorizontal: 20,
   },
   headerContent: {

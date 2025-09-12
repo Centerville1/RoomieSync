@@ -34,7 +34,7 @@ export default function ShoppingListScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isSelectable, setIsSelectable] = useState(true);
+  // const [isSelectable, setIsSelectable] = useState(true);
   const { currentHouse } = useHouse();
   const { selectedShoppingItems, setSelectedShoppingItems } =
     useShoppingSelection();
@@ -87,12 +87,12 @@ export default function ShoppingListScreen({ navigation }: Props) {
     setSelectedShoppingItems(newSelection);
   };
 
-  const toggleSelectMode = () => {
-    setIsSelectable(!isSelectable);
-    if (isSelectable) {
-      setSelectedShoppingItems([]);
-    }
-  };
+  // const toggleSelectMode = () => {
+  //   setIsSelectable(!isSelectable);
+  //   if (isSelectable) {
+  //     setSelectedShoppingItems([]);
+  //   }
+  // };
 
   if (loading) {
     return (
@@ -142,35 +142,14 @@ export default function ShoppingListScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color={COLORS.TEXT_PRIMARY} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Shopping List</Text>
-        <View style={styles.headerRight}>
-          {!isSelectable && (
+      {items.length > 0 && (
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Shopping List</Text>
+          <View style={styles.headerRight}>
             <Text style={styles.itemCount}>{items.length} items</Text>
-          )}
-          {isSelectable && (
-            <Text style={styles.selectedCount}>
-              {selectedShoppingItems.length} selected
-            </Text>
-          )}
-          <TouchableOpacity
-            style={styles.toggleButton}
-            onPress={toggleSelectMode}
-          >
-            <Ionicons
-              name={isSelectable ? "close" : "checkmark-circle-outline"}
-              size={24}
-              color={COLORS.PRIMARY}
-            />
-          </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      )}
 
       <View style={styles.content}>
         {items.length === 0 ? (
@@ -191,10 +170,10 @@ export default function ShoppingListScreen({ navigation }: Props) {
           items={items}
           onItemsChange={handleItemsChange}
           showQuantity={true}
-          showAddForm={!isSelectable}
+          showAddForm={true}
           refreshing={refreshing}
           onRefresh={onRefresh}
-          isSelectable={isSelectable}
+          isSelectable={true}
           selectedItems={selectedShoppingItems}
           onSelectionChange={handleSelectionChange}
         />
