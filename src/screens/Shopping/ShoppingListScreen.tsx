@@ -87,12 +87,6 @@ export default function ShoppingListScreen({ navigation }: Props) {
     setSelectedShoppingItems(newSelection);
   };
 
-  const handleBatchPurchase = (selectedItemsData: ShoppingItem[]) => {
-    navigation.navigate(NAVIGATION_ROUTES.BATCH_PURCHASE, {
-      selectedItems: selectedShoppingItems,
-    });
-  };
-
   const toggleSelectMode = () => {
     setIsSelectable(!isSelectable);
     if (isSelectable) {

@@ -96,6 +96,9 @@ export default function HomeScreen() {
       }
 
       // Load all data concurrently, including detailed house info with members
+      console.log("Starting API calls for house:", house.name);
+      const startTime = Date.now();
+
       const [
         houseDetailsData,
         balancesData,
@@ -109,6 +112,15 @@ export default function HomeScreen() {
         expenseService.getExpensesByHouseId(house.id),
         paymentService.getPaymentsByHouseId(house.id),
       ]);
+
+      console.log("API calls completed in:", Date.now() - startTime, "ms");
+      console.log("API results:", {
+        houseDetails: houseDetailsData.status,
+        balances: balancesData.status,
+        shopping: shoppingData.status,
+        expenses: expensesData.status,
+        payments: paymentsData.status,
+      });
 
       // Set house details with full member information
       if (houseDetailsData.status === "fulfilled") {
@@ -196,7 +208,6 @@ export default function HomeScreen() {
 
   const formatAmount = (amount: number | undefined) => {
     if (amount === undefined || amount === null || isNaN(amount)) {
-      console.log('formatAmount: Received invalid amount:', amount);
       return '$0.00';
     }
     return `$${amount.toFixed(2)}`;
