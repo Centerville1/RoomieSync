@@ -14,6 +14,7 @@ export interface House {
   memberships?: HouseMembership[];
   userMembership?: HouseMembership;
   members?: HouseMembership[];
+  membership?: HouseMembership; // Current user's membership in this house
 }
 
 export interface CreateHouseRequest {

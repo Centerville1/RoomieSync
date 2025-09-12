@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,42 +6,84 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+  ActivityIndicator,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 
-import { Card, Avatar, Button } from '../../components/UI';
-import { useAuth } from '../../context/AuthContext';
-import { COLORS } from '../../constants';
+import { Card, Avatar, Button } from "../../components/UI";
+import { useAuth } from "../../context/AuthContext";
+import { useHouse } from "../../context/HouseContext";
+import { COLORS, NAVIGATION_ROUTES } from "../../constants";
+import { RootStackParamList } from "../../types/navigation";
+
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
+  const { houses, currentHouse, switchToHouse } = useHouse();
+  const navigation = useNavigation<NavigationProp>();
+  const [switchingHouse, setSwitchingHouse] = useState<string | null>(null);
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign Out', style: 'destructive', onPress: logout },
-      ]
-    );
+  const handleHouseSwitch = async (houseId: string) => {
+    if (houseId === currentHouse?.id) {
+      // Already on this house, no need to switch
+      return;
+    }
+
+    try {
+      setSwitchingHouse(houseId);
+      const switchedHouse = await switchToHouse(houseId);
+
+      if (!switchedHouse) {
+        // Show error feedback
+        Alert.alert(
+          "Error",
+          "Failed to switch to the selected house. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error switching house:", error);
+      Alert.alert(
+        "Error",
+        "Failed to switch to the selected house. Please try again."
+      );
+    } finally {
+      setSwitchingHouse(null);
+    }
   };
 
-  const ProfileItem = ({ 
-    icon, 
-    title, 
-    subtitle, 
-    onPress, 
-    showArrow = true 
+  const handleLogout = () => {
+    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Sign Out", style: "destructive", onPress: logout },
+    ]);
+  };
+
+  const ProfileItem = ({
+    icon,
+    title,
+    subtitle,
+    onPress,
+    showArrow = true,
+    rightComponent,
+    disabled = false,
   }: {
     icon: string;
     title: string;
     subtitle?: string;
     onPress?: () => void;
     showArrow?: boolean;
+    rightComponent?: React.ReactNode;
+    disabled?: boolean;
   }) => (
-    <TouchableOpacity style={styles.profileItem} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.profileItem, disabled && styles.profileItemDisabled]}
+      onPress={disabled ? undefined : onPress}
+      disabled={disabled}
+    >
       <View style={styles.itemLeft}>
         <View style={styles.iconContainer}>
           <Ionicons name={icon as any} size={20} color={COLORS.PRIMARY} />
@@ -51,9 +93,11 @@ export default function ProfileScreen() {
           {subtitle && <Text style={styles.itemSubtitle}>{subtitle}</Text>}
         </View>
       </View>
-      {showArrow && (
+      {rightComponent ? (
+        rightComponent
+      ) : showArrow ? (
         <Ionicons name="chevron-forward" size={20} color={COLORS.TEXT_LIGHT} />
-      )}
+      ) : null}
     </TouchableOpacity>
   );
 
@@ -63,47 +107,89 @@ export default function ProfileScreen() {
         {/* Profile Header */}
         <View style={styles.header}>
           <Avatar
-            name={user ? `${user.firstName} ${user.lastName}` : 'User'}
+            name={user ? `${user.firstName} ${user.lastName}` : "User"}
             imageUrl={user?.profileImageUrl}
             color={user?.color}
             size="large"
           />
           <Text style={styles.userName}>
-            {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
+            {user?.firstName && user?.lastName
+              ? `${user.firstName} ${user.lastName}`
+              : user?.email || "Loading..."}
           </Text>
-          <Text style={styles.userEmail}>
-            {user?.email || ''}
-          </Text>
-          
+          <Text style={styles.userEmail}>{user?.email || ""}</Text>
+
           <Button
             title="Edit Profile"
             variant="outline"
             size="small"
-            onPress={() => {}}
+            onPress={() =>
+              navigation.navigate(NAVIGATION_ROUTES.EDIT_PROFILE as any)
+            }
             style={styles.editButton}
           />
         </View>
 
         {/* Houses Section */}
         <Card title="🏠 Your Houses" headerColor={COLORS.BALANCE_HEADER}>
-          <ProfileItem
-            icon="home-outline"
-            title="The Squad House"
-            subtitle="3 members • Admin"
-            onPress={() => {}}
-          />
+          {houses.length > 0 ? (
+            houses.map((house) => {
+              // Get the user's role from the house membership data
+              const role =
+                house.membership?.role === "admin" ? "Admin" : "Member";
+              const isCurrentHouse = house.id === currentHouse?.id;
+              const isSwitching = switchingHouse === house.id;
+
+              const subtitle = isCurrentHouse ? `${role} • Current` : role;
+
+              return (
+                <ProfileItem
+                  key={house.id}
+                  icon={isCurrentHouse ? "checkmark-circle" : "home-outline"}
+                  title={house.name}
+                  subtitle={subtitle}
+                  onPress={() => handleHouseSwitch(house.id)}
+                  showArrow={!isCurrentHouse && !isSwitching}
+                  rightComponent={
+                    isSwitching ? (
+                      <ActivityIndicator size="small" color={COLORS.PRIMARY} />
+                    ) : isCurrentHouse ? (
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={20}
+                        color={COLORS.SUCCESS}
+                      />
+                    ) : undefined
+                  }
+                  disabled={isSwitching}
+                />
+              );
+            })
+          ) : (
+            <View style={styles.noHousesContainer}>
+              <Text style={styles.noHousesText}>
+                You haven't joined any houses yet
+              </Text>
+            </View>
+          )}
           <View style={styles.addHouseContainer}>
             <Button
               title="Join House"
               variant="outline"
               size="small"
-              onPress={() => {}}
+              onPress={() =>
+                navigation.navigate(NAVIGATION_ROUTES.JOIN_HOUSE, {
+                  inviteCode: undefined,
+                })
+              }
               style={styles.houseButton}
             />
             <Button
               title="Create House"
               size="small"
-              onPress={() => {}}
+              onPress={() =>
+                navigation.navigate(NAVIGATION_ROUTES.CREATE_HOUSE)
+              }
               style={styles.houseButton}
             />
           </View>
@@ -193,13 +279,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.BACKGROUND,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 32,
     paddingHorizontal: 24,
   },
   userName: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: COLORS.TEXT_PRIMARY,
     marginTop: 16,
   },
@@ -213,25 +299,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   profileItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.BORDER_LIGHT,
   },
+  profileItemDisabled: {
+    opacity: 0.6,
+  },
   itemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   iconContainer: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.PRIMARY + '15',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: COLORS.PRIMARY + "15",
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 12,
   },
   itemContent: {
@@ -239,7 +328,7 @@ const styles = StyleSheet.create({
   },
   itemTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.TEXT_PRIMARY,
   },
   itemSubtitle: {
@@ -248,7 +337,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   addHouseContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
     marginTop: 16,
   },
@@ -261,5 +350,14 @@ const styles = StyleSheet.create({
   },
   signOutButton: {
     marginTop: 16,
+  },
+  noHousesContainer: {
+    paddingVertical: 20,
+    alignItems: "center",
+  },
+  noHousesText: {
+    fontSize: 14,
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: "center",
   },
 });

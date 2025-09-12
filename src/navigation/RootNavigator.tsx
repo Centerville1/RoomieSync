@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigationState } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, ActivityIndicator } from 'react-native';
 
 import AuthNavigator from './AuthNavigator';
 import MainTabNavigator from './MainTabNavigator';
 import HouseSettingsScreen from '../screens/Settings/HouseSettingsScreen';
+import EditProfileScreen from '../screens/Profile/EditProfileScreen';
+import JoinHouseScreen from '../screens/Auth/JoinHouseScreen';
+import CreateHouseScreen from '../screens/Auth/CreateHouseScreen';
+import MultiHouseSelectionScreen from '../screens/Home/MultiHouseSelectionScreen';
 import { useAuth } from '../context/AuthContext';
 import { useHouse } from '../context/HouseContext';
 import { RootStackParamList } from '../types/navigation';
@@ -23,8 +27,9 @@ export default function RootNavigator() {
     setForceRender(prev => prev + 1);
   }, [isAuthenticated]);
   
-  // Show loading while authentication or house data is being checked
-  if (authLoading || houseLoading) {
+  // Show loading while authentication is being checked, but not for house loading
+  // when user is authenticated (they might be on Join/Create house screens)
+  if (authLoading || (!isAuthenticated && houseLoading)) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
@@ -49,6 +54,39 @@ export default function RootNavigator() {
               component={HouseSettingsScreen}
               options={{
                 presentation: 'modal',
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen 
+              name={NAVIGATION_ROUTES.EDIT_PROFILE}
+              component={EditProfileScreen}
+              options={{
+                presentation: 'modal',
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen 
+              name={NAVIGATION_ROUTES.JOIN_HOUSE}
+              component={JoinHouseScreen}
+              options={{
+                presentation: 'modal',
+                headerShown: true,
+                title: 'Join House',
+              }}
+            />
+            <Stack.Screen 
+              name={NAVIGATION_ROUTES.CREATE_HOUSE}
+              component={CreateHouseScreen}
+              options={{
+                presentation: 'modal',
+                headerShown: true,
+                title: 'Create House',
+              }}
+            />
+            <Stack.Screen 
+              name={NAVIGATION_ROUTES.MULTI_HOUSE_SELECTION}
+              component={MultiHouseSelectionScreen}
+              options={{
                 headerShown: false,
               }}
             />

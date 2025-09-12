@@ -73,9 +73,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           dispatch({ type: 'SET_TOKEN', payload: token });
           dispatch({ type: 'SET_USER', payload: currentUser });
         } catch (profileError) {
-          // Token is invalid, clear auth data
-          await authService.logout();
-          dispatch({ type: 'RESET_AUTH' });
+          // Token might be invalid, but let's try the stored user first
+          dispatch({ type: 'SET_TOKEN', payload: token });
+          dispatch({ type: 'SET_USER', payload: user });
         }
       } else {
         dispatch({ type: 'RESET_AUTH' });

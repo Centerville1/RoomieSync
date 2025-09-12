@@ -8,12 +8,14 @@ export type RootStackParamList = {
   JoinHouse: { inviteCode?: string };
   CreateHouse: undefined;
   HouseSelection: undefined;
+  MultiHouseSelection: undefined;
   HouseSettings: undefined;
+  EditProfile: undefined;
 };
 
 export type MainTabParamList = {
   Home: undefined;
-  ShareCost: { selectedItems?: string[] };
+  ShareCost: { selectedItems?: string[] } | { screen: keyof ShareCostStackParamList; params?: any };
   Profile: undefined;
   HouseSettings: undefined;
 };
@@ -29,4 +31,6 @@ export type ShareCostStackParamList = {
     items?: ShoppingItem[];
     splitBetween: string[];
   };
+  ShoppingList: undefined;
+  BatchPurchase: { selectedItems?: string[] };
 };
