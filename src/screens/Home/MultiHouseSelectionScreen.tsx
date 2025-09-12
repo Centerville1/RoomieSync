@@ -15,8 +15,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { Button, Avatar } from "../../components/UI";
 import { useHouse } from "../../context/HouseContext";
 import { RootStackParamList } from "../../types/navigation";
-import { COLORS, NAVIGATION_ROUTES } from "../../constants";
+import { NAVIGATION_ROUTES } from "../../constants";
 import { House } from "../../types/houses";
+import { useUserTheme } from "../../hooks/useUserTheme";
 
 type MultiHouseSelectionScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -27,8 +28,146 @@ interface Props {
   navigation: MultiHouseSelectionScreenNavigationProp;
 }
 
+const createDynamicStyles = (COLORS: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.BACKGROUND,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: COLORS.BORDER_LIGHT,
+    },
+    backButton: {
+      padding: 8,
+      marginLeft: -8,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: COLORS.TEXT_PRIMARY,
+      flex: 1,
+      textAlign: "center",
+    },
+    headerSpacer: {
+      width: 40,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 16,
+    },
+    description: {
+      paddingVertical: 24,
+      alignItems: "center",
+    },
+    descriptionText: {
+      fontSize: 16,
+      color: COLORS.TEXT_SECONDARY,
+      textAlign: "center",
+      lineHeight: 22,
+    },
+    housesList: {
+      marginBottom: 32,
+    },
+    houseItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: 16,
+      backgroundColor: COLORS.CARD_BACKGROUND,
+      borderRadius: 12,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: COLORS.BORDER_LIGHT,
+    },
+    currentHouseItem: {
+      borderColor: COLORS.SUCCESS,
+      borderWidth: 4,
+    },
+    houseLeft: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    houseDetails: {
+      flex: 1,
+      marginLeft: 12,
+    },
+    houseTitleRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 4,
+    },
+    houseName: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: COLORS.TEXT_PRIMARY,
+      flex: 1,
+    },
+    currentBadge: {
+      backgroundColor: COLORS.SUCCESS,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 10,
+      marginLeft: 8,
+    },
+    currentBadgeText: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: COLORS.TEXT_WHITE,
+    },
+    memberCount: {
+      fontSize: 14,
+      color: COLORS.TEXT_SECONDARY,
+      marginBottom: 2,
+    },
+    houseAddress: {
+      fontSize: 13,
+      color: COLORS.TEXT_SECONDARY,
+      fontStyle: "italic",
+    },
+    houseRight: {
+      paddingLeft: 12,
+    },
+    addHouseSection: {
+      paddingVertical: 24,
+      paddingHorizontal: 16,
+      backgroundColor: COLORS.CARD_BACKGROUND,
+      borderRadius: 12,
+      marginBottom: 32,
+      alignItems: "center",
+    },
+    addHouseTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: COLORS.TEXT_PRIMARY,
+      marginBottom: 8,
+    },
+    addHouseDescription: {
+      fontSize: 14,
+      color: COLORS.TEXT_SECONDARY,
+      textAlign: "center",
+      marginBottom: 20,
+      lineHeight: 20,
+    },
+    addHouseButtons: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      width: "100%",
+    },
+    addHouseButton: {
+      flex: 0.45,
+    },
+  });
+
 export default function MultiHouseSelectionScreen({ navigation }: Props) {
   const { houses, currentHouse, switchToHouse, isLoading } = useHouse();
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
   const [switchingHouse, setSwitchingHouse] = useState<string | null>(null);
 
   const handleHouseSelect = async (house: House) => {
@@ -186,138 +325,3 @@ export default function MultiHouseSelectionScreen({ navigation }: Props) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
-  },
-  backButton: {
-    padding: 8,
-    marginLeft: -8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    flex: 1,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  description: {
-    paddingVertical: 24,
-    alignItems: "center",
-  },
-  descriptionText: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  housesList: {
-    marginBottom: 32,
-  },
-  houseItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER_LIGHT,
-  },
-  currentHouseItem: {
-    borderColor: COLORS.SUCCESS,
-    borderWidth: 4,
-  },
-  houseLeft: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  houseDetails: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  houseTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  houseName: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    flex: 1,
-  },
-  currentBadge: {
-    backgroundColor: COLORS.SUCCESS,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    marginLeft: 8,
-  },
-  currentBadgeText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: COLORS.TEXT_WHITE,
-  },
-  memberCount: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    marginBottom: 2,
-  },
-  houseAddress: {
-    fontSize: 13,
-    color: COLORS.TEXT_SECONDARY,
-    fontStyle: "italic",
-  },
-  houseRight: {
-    paddingLeft: 12,
-  },
-  addHouseSection: {
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: 12,
-    marginBottom: 32,
-    alignItems: "center",
-  },
-  addHouseTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: 8,
-  },
-  addHouseDescription: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    marginBottom: 20,
-    lineHeight: 20,
-  },
-  addHouseButtons: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
-  },
-  addHouseButton: {
-    flex: 0.45,
-  },
-});

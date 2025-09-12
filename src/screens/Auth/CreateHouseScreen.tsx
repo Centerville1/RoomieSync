@@ -14,7 +14,8 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { Button, Input } from "../../components/UI";
 import { useHouse } from "../../context/HouseContext";
 import { RootStackParamList } from "../../types/navigation";
-import { COLORS, VALIDATION, NAVIGATION_ROUTES } from "../../constants";
+import { VALIDATION, NAVIGATION_ROUTES } from "../../constants";
+import { useUserTheme } from "../../hooks/useUserTheme";
 import { CreateHouseRequest } from "../../types/houses";
 
 type CreateHouseScreenNavigationProp = StackNavigationProp<
@@ -26,6 +27,58 @@ interface Props {
   navigation: CreateHouseScreenNavigationProp;
 }
 
+const createDynamicStyles = (COLORS: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.BACKGROUND,
+    },
+    content: {
+      flex: 1,
+    },
+    scrollView: {
+      flex: 1,
+      paddingHorizontal: 24,
+      paddingBottom: 32,
+    },
+    header: {
+      paddingVertical: 32,
+      alignItems: "center",
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: "700",
+      color: COLORS.TEXT_PRIMARY,
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: COLORS.TEXT_SECONDARY,
+      textAlign: "center",
+      lineHeight: 22,
+    },
+    form: {
+      paddingBottom: 32,
+    },
+    createButton: {
+      marginTop: 24,
+      marginBottom: 16,
+    },
+    infoBox: {
+      backgroundColor: COLORS.CARD_BACKGROUND,
+      borderRadius: 8,
+      padding: 16,
+      borderLeftWidth: 4,
+      borderLeftColor: COLORS.PRIMARY,
+    },
+    infoText: {
+      fontSize: 14,
+      color: COLORS.TEXT_SECONDARY,
+      lineHeight: 20,
+    },
+  });
+
 export default function CreateHouseScreen({ navigation }: Props) {
   const { createHouse, isLoading } = useHouse();
   const [formData, setFormData] = useState({
@@ -35,6 +88,8 @@ export default function CreateHouseScreen({ navigation }: Props) {
     displayName: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -117,7 +172,7 @@ export default function CreateHouseScreen({ navigation }: Props) {
           onDismiss: () => {
             // Also navigate if user dismisses the alert
             navigation.navigate(NAVIGATION_ROUTES.MAIN);
-          }
+          },
         }
       );
     } catch (error: any) {
@@ -212,54 +267,3 @@ export default function CreateHouseScreen({ navigation }: Props) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  content: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingBottom: 32,
-  },
-  header: {
-    paddingVertical: 32,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  form: {
-    paddingBottom: 32,
-  },
-  createButton: {
-    marginTop: 24,
-    marginBottom: 16,
-  },
-  infoBox: {
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: 8,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.PRIMARY,
-  },
-  infoText: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    lineHeight: 20,
-  },
-});

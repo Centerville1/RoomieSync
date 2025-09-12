@@ -98,7 +98,7 @@ export default function MainTabNavigator() {
               </CustomTabBarButton>
             ),
             tabBarIcon: () => (
-              <Ionicons name="add" size={28} color={COLORS.TEXT_WHITE} />
+              <Ionicons name="add" size={28} color={contrastingTextColor} />
             ),
           })}
         />

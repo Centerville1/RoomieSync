@@ -42,9 +42,9 @@ export const DARK_COLORS = {
   ERROR: "#F87171", // Lighter red
 
   // Card header colors (darker variants)
-  BALANCE_HEADER: "#451A03", // Dark yellow
-  SHOPPING_HEADER: "#064E3B", // Dark green
-  ACTIVITY_HEADER: "#1E3A8A", // Dark blue
+  BALANCE_HEADER: "#b59520ff", // Dark yellow
+  SHOPPING_HEADER: "#109370ff", // Dark green
+  ACTIVITY_HEADER: "#3059c9ff", // Dark blue
 
   // Background colors
   BACKGROUND: "#111827",

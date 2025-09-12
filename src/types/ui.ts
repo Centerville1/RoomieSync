@@ -1,12 +1,13 @@
-import React from 'react';
-import { Balance } from './expenses';
-import { ShoppingItem } from './shopping';
+import React from "react";
+import { Balance } from "./expenses";
+import { ShoppingItem } from "./shopping";
 
 export interface CardProps {
   title: string;
   headerColor: string;
   children: React.ReactNode;
   style?: any;
+  headerRight?: React.ReactNode;
 }
 
 export interface BalanceItemProps {

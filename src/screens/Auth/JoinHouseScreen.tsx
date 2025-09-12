@@ -14,7 +14,8 @@ import { RouteProp } from "@react-navigation/native";
 import { Button, Input } from "../../components/UI";
 import { useHouse } from "../../context/HouseContext";
 import { RootStackParamList } from "../../types/navigation";
-import { COLORS, VALIDATION, NAVIGATION_ROUTES } from "../../constants";
+import { VALIDATION, NAVIGATION_ROUTES } from "../../constants";
+import { useUserTheme } from "../../hooks/useUserTheme";
 import { JoinHouseRequest } from "../../types/houses";
 import { houseService } from "../../services/houseService";
 import { ScrollView } from "react-native-gesture-handler";
@@ -30,6 +31,80 @@ interface Props {
   route: JoinHouseScreenRouteProp;
 }
 
+const createDynamicStyles = (COLORS: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.BACKGROUND,
+    },
+    content: {
+      // flex: 1,
+      paddingHorizontal: 24,
+    },
+    header: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingBottom: 32,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: "700",
+      color: COLORS.TEXT_PRIMARY,
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: COLORS.TEXT_SECONDARY,
+      textAlign: "center",
+      lineHeight: 22,
+    },
+    form: {
+      flex: 2,
+    },
+    joinButton: {
+      marginTop: 24,
+    },
+    divider: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginVertical: 24,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: COLORS.BORDER_LIGHT,
+    },
+    dividerText: {
+      fontSize: 14,
+      color: COLORS.TEXT_SECONDARY,
+      paddingHorizontal: 16,
+      fontWeight: "500",
+    },
+    createButton: {
+      marginBottom: 24,
+    },
+    infoBox: {
+      backgroundColor: COLORS.CARD_BACKGROUND,
+      borderRadius: 8,
+      padding: 16,
+      borderLeftWidth: 4,
+      borderLeftColor: COLORS.PRIMARY,
+    },
+    infoTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: COLORS.TEXT_PRIMARY,
+      marginBottom: 8,
+    },
+    infoText: {
+      fontSize: 14,
+      color: COLORS.TEXT_SECONDARY,
+      lineHeight: 20,
+    },
+  });
+
 export default function JoinHouseScreen({ navigation, route }: Props) {
   const { joinHouse, isLoading } = useHouse();
   const [formData, setFormData] = useState({
@@ -37,6 +112,8 @@ export default function JoinHouseScreen({ navigation, route }: Props) {
     displayName: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
 
   // Pre-fill invite code if provided through navigation params
   useEffect(() => {
@@ -113,7 +190,7 @@ export default function JoinHouseScreen({ navigation, route }: Props) {
           onDismiss: () => {
             // Also navigate if user dismisses the alert
             navigation.navigate(NAVIGATION_ROUTES.MAIN);
-          }
+          },
         }
       );
     } catch (error: any) {
@@ -124,20 +201,24 @@ export default function JoinHouseScreen({ navigation, route }: Props) {
         const errorMessage = error.response.data.message?.toLowerCase() || "";
         if (errorMessage.includes("display name")) {
           // Display name is taken - show as field error, don't show alert
-          setErrors(prev => ({ 
-            ...prev, 
-            displayName: "This display name is already taken in this house. Please choose a different one." 
+          setErrors((prev) => ({
+            ...prev,
+            displayName:
+              "This display name is already taken in this house. Please choose a different one.",
           }));
           return; // Don't show alert, let user try again
         } else if (errorMessage.includes("already a member")) {
-          Alert.alert("Already a Member", "You are already a member of this house.");
+          Alert.alert(
+            "Already a Member",
+            "You are already a member of this house."
+          );
           return;
         }
       } else if (error.response?.status === 404) {
         // Invalid invite code - show as field error
-        setErrors(prev => ({ 
-          ...prev, 
-          inviteCode: "House not found. Please check the invite code." 
+        setErrors((prev) => ({
+          ...prev,
+          inviteCode: "House not found. Please check the invite code.",
         }));
         return;
       }
@@ -237,76 +318,3 @@ export default function JoinHouseScreen({ navigation, route }: Props) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  content: {
-    // flex: 1,
-    paddingHorizontal: 24,
-  },
-  header: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingBottom: 32,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  form: {
-    flex: 2,
-  },
-  joinButton: {
-    marginTop: 24,
-  },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: COLORS.BORDER_LIGHT,
-  },
-  dividerText: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    paddingHorizontal: 16,
-    fontWeight: "500",
-  },
-  createButton: {
-    marginBottom: 24,
-  },
-  infoBox: {
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: 8,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.PRIMARY,
-  },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: 8,
-  },
-  infoText: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    lineHeight: 20,
-  },
-});

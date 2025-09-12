@@ -5,7 +5,8 @@ import { StackNavigationProp } from "@react-navigation/stack";
 
 import { Button } from "../../components/UI";
 import { RootStackParamList } from "../../types/navigation";
-import { COLORS, NAVIGATION_ROUTES } from "../../constants";
+import { NAVIGATION_ROUTES } from "../../constants";
+import { useUserTheme } from "../../hooks/useUserTheme";
 import { useAuth } from "../../context/AuthContext";
 
 type HouseSelectionScreenNavigationProp = StackNavigationProp<
@@ -17,8 +18,126 @@ interface Props {
   navigation: HouseSelectionScreenNavigationProp;
 }
 
+const createDynamicStyles = (COLORS: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.BACKGROUND,
+    },
+    logoutButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      marginTop: 20,
+      backgroundColor: COLORS.ERROR,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      flexGrow: 1,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 24,
+      paddingVertical: 32,
+    },
+    header: {
+      alignItems: "center",
+      marginBottom: 48,
+    },
+    iconContainer: {
+      width: 80,
+      height: 80,
+      backgroundColor: COLORS.PRIMARY,
+      borderRadius: 40,
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 24,
+    },
+    icon: {
+      fontSize: 36,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: "700",
+      color: COLORS.TEXT_PRIMARY,
+      textAlign: "center",
+      marginBottom: 12,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: COLORS.TEXT_SECONDARY,
+      textAlign: "center",
+      lineHeight: 22,
+    },
+    optionsContainer: {
+      flex: 1,
+    },
+    optionCard: {
+      backgroundColor: COLORS.CARD_BACKGROUND,
+      borderRadius: 12,
+      padding: 24,
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: COLORS.BORDER_LIGHT,
+    },
+    optionIcon: {
+      fontSize: 32,
+      marginBottom: 16,
+    },
+    optionTitle: {
+      fontSize: 20,
+      fontWeight: "600",
+      color: COLORS.TEXT_PRIMARY,
+      marginBottom: 8,
+      textAlign: "center",
+    },
+    optionDescription: {
+      fontSize: 14,
+      color: COLORS.TEXT_SECONDARY,
+      textAlign: "center",
+      lineHeight: 20,
+      marginBottom: 20,
+    },
+    optionButton: {
+      minWidth: 140,
+    },
+    divider: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginVertical: 32,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: COLORS.BORDER_LIGHT,
+    },
+    dividerText: {
+      fontSize: 14,
+      color: COLORS.TEXT_SECONDARY,
+      paddingHorizontal: 16,
+      fontWeight: "500",
+    },
+    infoBox: {
+      backgroundColor: COLORS.CARD_BACKGROUND,
+      borderRadius: 8,
+      padding: 16,
+      borderLeftWidth: 4,
+      borderLeftColor: COLORS.PRIMARY,
+      marginTop: 24,
+    },
+    infoText: {
+      fontSize: 14,
+      color: COLORS.TEXT_SECONDARY,
+      lineHeight: 20,
+      textAlign: "center",
+    },
+  });
+
 export default function HouseSelectionScreen({ navigation }: Props) {
   const { logout } = useAuth();
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
 
   const handleLogout = async () => {
     try {
@@ -104,118 +223,3 @@ export default function HouseSelectionScreen({ navigation }: Props) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  logoutButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginTop: 20,
-    backgroundColor: COLORS.ERROR,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: 48,
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  icon: {
-    fontSize: 36,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: "center",
-    marginBottom: 12,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  optionsContainer: {
-    flex: 1,
-  },
-  optionCard: {
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: 12,
-    padding: 24,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: COLORS.BORDER_LIGHT,
-  },
-  optionIcon: {
-    fontSize: 32,
-    marginBottom: 16,
-  },
-  optionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  optionDescription: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 20,
-  },
-  optionButton: {
-    minWidth: 140,
-  },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 32,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: COLORS.BORDER_LIGHT,
-  },
-  dividerText: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    paddingHorizontal: 16,
-    fontWeight: "500",
-  },
-  infoBox: {
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: 8,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.PRIMARY,
-    marginTop: 24,
-  },
-  infoText: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    lineHeight: 20,
-    textAlign: "center",
-  },
-});

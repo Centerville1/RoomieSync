@@ -23,6 +23,95 @@ import Constants from "expo-constants";
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
+const createDynamicStyles = (COLORS: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.BACKGROUND,
+    },
+    header: {
+      alignItems: "center",
+      paddingVertical: 32,
+      paddingHorizontal: 24,
+    },
+    userName: {
+      fontSize: 24,
+      fontWeight: "700",
+      color: COLORS.TEXT_PRIMARY,
+      marginTop: 16,
+    },
+    userEmail: {
+      fontSize: 16,
+      color: COLORS.TEXT_SECONDARY,
+      marginTop: 4,
+    },
+    editButton: {
+      marginTop: 16,
+      paddingHorizontal: 24,
+    },
+    profileItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: COLORS.BORDER_LIGHT,
+    },
+    profileItemDisabled: {
+      opacity: 0.6,
+    },
+    itemLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      flex: 1,
+    },
+    iconContainer: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: 12,
+    },
+    itemContent: {
+      flex: 1,
+    },
+    itemTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: COLORS.TEXT_PRIMARY,
+    },
+    itemSubtitle: {
+      fontSize: 14,
+      color: COLORS.TEXT_SECONDARY,
+      marginTop: 2,
+    },
+    addHouseContainer: {
+      flexDirection: "row",
+      gap: 12,
+      marginTop: 16,
+    },
+    houseButton: {
+      flex: 1,
+    },
+    signOutContainer: {
+      padding: 24,
+      paddingBottom: 40,
+    },
+    signOutButton: {
+      marginTop: 16,
+    },
+    noHousesContainer: {
+      paddingVertical: 20,
+      alignItems: "center",
+    },
+    noHousesText: {
+      fontSize: 14,
+      color: COLORS.TEXT_SECONDARY,
+      textAlign: "center",
+    },
+  });
+
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { houses, currentHouse, switchToHouse } = useHouse();
@@ -34,6 +123,8 @@ export default function ProfileScreen() {
   } = useUserTheme();
   const navigation = useNavigation<NavigationProp>();
   const [switchingHouse, setSwitchingHouse] = useState<string | null>(null);
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
 
   const handleHouseSwitch = async (houseId: string) => {
     if (houseId === currentHouse?.id) {
@@ -270,10 +361,7 @@ export default function ProfileScreen() {
           <ProfileItem
             icon="color-palette-outline"
             title="Theme"
-            disabled // In progress
-            subtitle={
-              "COMING SOON: " + (isDarkMode ? "Dark mode" : "Light mode")
-            }
+            subtitle={isDarkMode ? "Dark mode" : "Light mode"}
             onPress={toggleTheme}
           />
         </Card>
@@ -313,91 +401,3 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  header: {
-    alignItems: "center",
-    paddingVertical: 32,
-    paddingHorizontal: 24,
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: COLORS.TEXT_PRIMARY,
-    marginTop: 16,
-  },
-  userEmail: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 4,
-  },
-  editButton: {
-    marginTop: 16,
-    paddingHorizontal: 24,
-  },
-  profileItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
-  },
-  profileItemDisabled: {
-    opacity: 0.6,
-  },
-  itemLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  itemContent: {
-    flex: 1,
-  },
-  itemTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-  },
-  itemSubtitle: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 2,
-  },
-  addHouseContainer: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 16,
-  },
-  houseButton: {
-    flex: 1,
-  },
-  signOutContainer: {
-    padding: 24,
-    paddingBottom: 40,
-  },
-  signOutButton: {
-    marginTop: 16,
-  },
-  noHousesContainer: {
-    paddingVertical: 20,
-    alignItems: "center",
-  },
-  noHousesText: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-  },
-});
