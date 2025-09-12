@@ -17,7 +17,7 @@ import { Card, Avatar, Button } from "../../components/UI";
 import { useAuth } from "../../context/AuthContext";
 import { useHouse } from "../../context/HouseContext";
 import { useUserTheme } from "../../hooks/useUserTheme";
-import { COLORS, NAVIGATION_ROUTES } from "../../constants";
+import { NAVIGATION_ROUTES } from "../../constants";
 import { RootStackParamList } from "../../types/navigation";
 import Constants from "expo-constants";
 

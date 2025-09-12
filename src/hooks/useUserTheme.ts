@@ -1,6 +1,9 @@
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
-import { getUserPrimaryColor, getContrastingTextColor } from '../utils/colorUtils';
+import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import {
+  getUserPrimaryColor,
+  getContrastingTextColor,
+} from "../utils/colorUtils";
 
 /**
  * Custom hook to get user-themed colors
@@ -8,13 +11,14 @@ import { getUserPrimaryColor, getContrastingTextColor } from '../utils/colorUtil
  * and provides theme-aware colors
  */
 export function useUserTheme() {
+  console.log("In userTheme hook");
   const { user } = useAuth();
   const { colors, isDarkMode, themeMode, toggleTheme } = useTheme();
-  
+
   const primaryColor = getUserPrimaryColor(user?.color, colors.PRIMARY);
   const contrastingTextColor = getContrastingTextColor(primaryColor);
-  
-  return {
+
+  const returnValue = {
     primaryColor,
     contrastingTextColor,
     COLORS: colors,
@@ -23,4 +27,6 @@ export function useUserTheme() {
     toggleTheme,
     user,
   };
+  console.log("useUserTheme return value:", returnValue);
+  return returnValue;
 }

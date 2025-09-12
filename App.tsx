@@ -5,7 +5,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider, useAuth } from "./src/context/AuthContext";
 import { HouseProvider } from "./src/context/HouseContext";
-import { ThemeProvider, useTheme } from "./src/context/ThemeContext";
+import { ThemeProvider } from "./src/context/ThemeContext";
 import RootNavigator from "./src/navigation/RootNavigator";
 import { useUserTheme } from "./src/hooks/useUserTheme";
 

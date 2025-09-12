@@ -7,36 +7,37 @@ import HomeScreen from "../screens/Home/HomeScreen";
 import ShareCostNavigator from "./ShareCostNavigator";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
 import { MainTabParamList } from "../types/navigation";
-import { COLORS, NAVIGATION_ROUTES, TAB_BAR_CONFIG } from "../constants";
+import { NAVIGATION_ROUTES } from "../constants";
 import { ShoppingSelectionProvider } from "../context/ShoppingSelectionContext";
 import { Avatar } from "../components/UI";
 import { useUserTheme } from "../hooks/useUserTheme";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-const CustomTabBarButton = ({ children, onPress, primaryColor, contrastingTextColor }: any) => (
+const CustomTabBarButton = ({ children, onPress, primaryColor }: any) => (
   <TouchableOpacity
     style={styles.customButton}
     onPress={onPress}
     activeOpacity={0.8}
   >
-    <View style={[styles.customButtonInner, { backgroundColor: primaryColor }]}>{children}</View>
+    <View style={[styles.customButtonInner, { backgroundColor: primaryColor }]}>
+      {children}
+    </View>
   </TouchableOpacity>
 );
 
 export default function MainTabNavigator() {
-  const { primaryColor, contrastingTextColor, user } = useUserTheme();
+  // const { primaryColor, contrastingTextColor, user, COLORS } = useUserTheme();
+  const { primaryColor, contrastingTextColor, user, COLORS } = useUserTheme();
 
   return (
     <ShoppingSelectionProvider>
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: TAB_BAR_CONFIG.ACTIVE_TINT_COLOR,
-          tabBarInactiveTintColor: TAB_BAR_CONFIG.INACTIVE_TINT_COLOR,
           tabBarStyle: {
-            backgroundColor: TAB_BAR_CONFIG.BACKGROUND_COLOR,
-            borderTopColor: TAB_BAR_CONFIG.BORDER_COLOR,
+            backgroundColor: COLORS.BACKGROUND,
+            borderTopColor: COLORS.BORDER,
             borderTopWidth: 1,
             height: 90,
             paddingTop: 10,
@@ -57,20 +58,14 @@ export default function MainTabNavigator() {
                 style={{
                   fontSize: 12,
                   fontWeight: "600",
-                  color: focused
-                    ? primaryColor
-                    : TAB_BAR_CONFIG.INACTIVE_TINT_COLOR,
+                  color: primaryColor,
                 }}
               >
                 Home
               </Text>
             ),
             tabBarIcon: ({ focused, size }) => (
-              <Ionicons 
-                name="home" 
-                size={size} 
-                color={focused ? primaryColor : TAB_BAR_CONFIG.INACTIVE_TINT_COLOR} 
-              />
+              <Ionicons name="home" size={size} color={primaryColor} />
             ),
           }}
         />
@@ -93,7 +88,11 @@ export default function MainTabNavigator() {
               >
                 <Ionicons name="add" size={28} color={contrastingTextColor} />
                 <View style={styles.customButtonTextContainer}>
-                  <Text style={[styles.customButtonText, { color: primaryColor }]}>Share the Cost</Text>
+                  <Text
+                    style={[styles.customButtonText, { color: primaryColor }]}
+                  >
+                    Share the Cost
+                  </Text>
                 </View>
               </CustomTabBarButton>
             ),
@@ -113,9 +112,7 @@ export default function MainTabNavigator() {
                   fontSize: 12,
                   marginTop: 4,
                   fontWeight: "600",
-                  color: focused
-                    ? primaryColor
-                    : TAB_BAR_CONFIG.INACTIVE_TINT_COLOR,
+                  color: primaryColor,
                 }}
               >
                 Profile

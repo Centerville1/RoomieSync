@@ -1,3 +1,26 @@
+export type ColorPalette = {
+  PRIMARY: string;
+  SECONDARY: string;
+  SUCCESS: string;
+  WARNING: string;
+  ERROR: string;
+  BALANCE_HEADER: string;
+  SHOPPING_HEADER: string;
+  ACTIVITY_HEADER: string;
+  BACKGROUND: string;
+  BACKGROUND_LIGHT: string;
+  CARD_BACKGROUND: string;
+  OVERLAY: string;
+  TEXT_PRIMARY: string;
+  TEXT_SECONDARY: string;
+  TEXT_LIGHT: string;
+  TEXT_WHITE: string;
+  BORDER: string;
+  BORDER_LIGHT: string;
+  BORDER_MEDIUM: string;
+  DEFAULT_USER_COLOR: string;
+  DEFAULT_HOUSE_COLOR: string;
+};
 import React from "react";
 import { Balance } from "./expenses";
 import { ShoppingItem } from "./shopping";

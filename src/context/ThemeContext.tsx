@@ -1,27 +1,34 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LIGHT_COLORS, DARK_COLORS } from '../constants/colors';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LIGHT_COLORS, DARK_COLORS } from "../constants/colors";
+import type { ColorPalette } from "../types/ui";
 
-export type ThemeMode = 'light' | 'dark';
+export type ThemeMode = "light" | "dark";
 
 interface ThemeContextType {
   isDarkMode: boolean;
   themeMode: ThemeMode;
-  colors: typeof LIGHT_COLORS;
+  colors: ColorPalette;
   toggleTheme: () => void;
   setThemeMode: (mode: ThemeMode) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const THEME_STORAGE_KEY = '@roomiesync_theme';
+const THEME_STORAGE_KEY = "@roomiesync_theme";
 
 interface ThemeProviderProps {
   children: ReactNode;
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('light');
+  const [themeMode, setThemeModeState] = useState<ThemeMode>("light");
 
   useEffect(() => {
     loadThemeFromStorage();
@@ -30,11 +37,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const loadThemeFromStorage = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      if (savedTheme === 'dark' || savedTheme === 'light') {
+      if (savedTheme === "dark" || savedTheme === "light") {
         setThemeModeState(savedTheme);
       }
     } catch (error) {
-      console.error('Error loading theme from storage:', error);
+      console.error("Error loading theme from storage:", error);
     }
   };
 
@@ -42,7 +49,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     try {
       await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
     } catch (error) {
-      console.error('Error saving theme to storage:', error);
+      console.error("Error saving theme to storage:", error);
     }
   };
 
@@ -52,11 +59,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   };
 
   const toggleTheme = () => {
-    const newMode = themeMode === 'light' ? 'dark' : 'light';
+    const newMode = themeMode === "light" ? "dark" : "light";
     setThemeMode(newMode);
   };
 
-  const isDarkMode = themeMode === 'dark';
+  const isDarkMode = themeMode === "dark";
   const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS;
 
   const value: ThemeContextType = {
@@ -68,16 +75,14 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   };
 
   return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 }
 
 export function useTheme(): ThemeContextType {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
 }

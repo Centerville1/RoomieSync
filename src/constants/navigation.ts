@@ -26,10 +26,3 @@ export const NAVIGATION_ROUTES = {
   SPLIT_PREVIEW: "SplitPreview",
   PAYMENT: "Payment",
 } as const;
-
-export const TAB_BAR_CONFIG = {
-  ACTIVE_TINT_COLOR: "#FF6B35",
-  INACTIVE_TINT_COLOR: "#6B7280",
-  BACKGROUND_COLOR: "#FFFFFF",
-  BORDER_COLOR: "#E5E7EB",
-} as const;
