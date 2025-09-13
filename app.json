@@ -1,42 +1,47 @@
 {
   "expo": {
-    "name": "RoomieSync",
+    "name": "RoomieSync Test",
     "slug": "roomiesync",
     "version": "1.0.0",
+    "owner": "cent3rville",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./src/assets/icons/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./src/assets/icons/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#FF6B35"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.roomiesync.app",
       "buildNumber": "2",
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to take photos of receipts and profile pictures.",
-        "NSPhotoLibraryUsageDescription": "This app accesses your photo library to select profile pictures and receipt images."
+        "NSPhotoLibraryUsageDescription": "This app accesses your photo library to select profile pictures and receipt images.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./src/assets/icons/adaptive-icon.png",
         "backgroundColor": "#FF6B35"
       },
       "package": "com.roomiesync.app",
-      "versionCode": 1,
+      "versionCode": 3,
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./src/assets/icons/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
@@ -52,6 +57,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5fe64cc7-9f90-415c-8e66-6e3a06cefe15"
+      }
     }
   }
 }
