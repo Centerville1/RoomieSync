@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "RoomieSync Test",
+    "name": "RoomieSync",
     "slug": "roomiesync",
     "version": "1.0.0",
     "owner": "cent3rville",
@@ -32,7 +32,7 @@
         "backgroundColor": "#FF6B35"
       },
       "package": "com.roomiesync.app",
-      "versionCode": 3,
+      "versionCode": 5,
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",

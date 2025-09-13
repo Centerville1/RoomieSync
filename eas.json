@@ -22,8 +22,16 @@
     },
     "production": {
       "autoIncrement": true,
+      "env": {
+        "NODE_ENV": "production",
+        "EXPO_PUBLIC_API_BASE_URL": "https://roomiesync-api-production.up.railway.app",
+        "EXPO_PUBLIC_API_TIMEOUT": "15000"
+      },
       "ios": {
         "resourceClass": "m-medium"
+      },
+      "android": {
+        "buildType": "apk"
       }
     }
   },
