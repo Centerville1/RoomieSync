@@ -35,8 +35,9 @@ http://localhost:3001
 | **Expenses**       | GET    | `/houses/{houseId}/expenses`                              | Get house expenses                       |
 | **Expenses**       | GET    | `/houses/{houseId}/expenses/{expenseId}`                  | Get expense details                      |
 | **Balances**       | GET    | `/houses/{houseId}/balances`                              | Get house balances                       |
+| **Balances**       | GET    | `/houses/{houseId}/balances/user`                         | Get user balances in house               |
+| **Transactions**   | GET    | `/houses/{houseId}/transactions`                          | Get transactions (expenses + payments)   |
 | **Payments**       | POST   | `/houses/{houseId}/payments`                              | Create payment                           |
-| **Payments**       | GET    | `/houses/{houseId}/payments`                              | Get house payments                       |
 | **Shopping Lists** | GET    | `/houses/{houseId}/shopping-list`                         | Get house shopping list                  |
 | **Shopping Lists** | GET    | `/houses/{houseId}/shopping-list/items`                   | Get shopping list items (with filtering) |
 | **Shopping Lists** | POST   | `/houses/{houseId}/shopping-list/items`                   | Add shopping item                        |
@@ -55,14 +56,12 @@ http://localhost:3001
 - **⚖️ Balance Management** - Automatic calculation of who owes what to whom
 - **💸 Payment Recording** - Record payments between house members with balance updates
 - **📊 Categorization** - Organize expenses by categories
-  <<<<<<< HEAD
 - **🛒 Shopping Lists** - Collaborative shopping lists with recurring items and smart duplicate detection
 - **🔄 Recurring Items** - Auto-regenerating shopping items based on configurable intervals
 - **📝 Batch Operations** - Purchase multiple items at once for efficiency
-- # **🎨 Customization** - User profile images/colors and house images/colors
 - **🎨 Customization** - User profile images/colors and house images/colors with Cloudinary integration
 - **📸 Image Upload** - Secure image uploads with automatic optimization and CDN delivery
-  > > > > > > > main
+- **📈 Transaction History** - Unified view of expenses and payments with filtering and date ranges
 - **📋 Comprehensive API** - Full CRUD operations with detailed error handling
 
 ## Authentication
@@ -738,7 +737,9 @@ Create a new expense and automatically update balances between house members.
     "id": "user-uuid-1",
     "firstName": "John",
     "lastName": "Doe",
-    "email": "john@example.com"
+    "email": "john@example.com",
+    "color": "#6366F1",
+    "displayName": "Johnny"
   },
   "category": {
     "id": "category-uuid",
@@ -782,7 +783,9 @@ Get all expenses for the house, ordered by date (most recent first).
       "id": "user-uuid-1",
       "firstName": "John",
       "lastName": "Doe",
-      "email": "john@example.com"
+      "email": "john@example.com",
+      "color": "#6366F1",
+      "displayName": "Johnny"
     },
     "category": {
       "id": "category-uuid",
@@ -886,7 +889,9 @@ Get IOU balances for the requesting user in a specific house. Shows both debts o
       "id": "user-uuid-2",
       "firstName": "John",
       "lastName": "Doe",
-      "email": "john@example.com"
+      "email": "john@example.com",
+      "color": "#6366F1",
+      "displayName": "Johnny"
     }
   },
   {
@@ -898,7 +903,9 @@ Get IOU balances for the requesting user in a specific house. Shows both debts o
       "id": "user-uuid-3",
       "firstName": "Sarah",
       "lastName": "Wilson",
-      "email": "sarah@example.com"
+      "email": "sarah@example.com",
+      "color": "#EC4899",
+      "displayName": "Sarah"
     }
   }
 ]
@@ -909,6 +916,114 @@ Get IOU balances for the requesting user in a specific house. Shows both debts o
 - `type`: Either "owes" (user owes money to otherUser) or "owed_by" (otherUser owes money to user)
 - `otherUser`: The other party in the balance relationship
 - `amount`: Always positive, representing the absolute amount of the debt
+
+---
+
+## Transaction History Endpoints
+
+### 📈 Get House Transactions
+
+**GET** `/houses/{houseId}/transactions`
+
+**Headers:** `Authorization: Bearer <token>`
+
+Get comprehensive transaction history including both expenses and payments with optional filtering by user, date range, and transaction type.
+
+**Parameters:**
+
+- `houseId` (path): House UUID
+- `userOnly` (query, optional): If true, only return transactions involving the authenticated user (default: false)
+- `startDate` (query, optional): Start date for filtering (YYYY-MM-DD). Defaults to 1 month ago
+- `endDate` (query, optional): End date for filtering (YYYY-MM-DD). Defaults to today
+- `type` (query, optional): Filter by transaction type ('expense' or 'payment')
+
+**Responses:**
+
+- **200 OK**: List of transactions
+- **404 Not Found**: House not found or user is not a member
+
+**Success Response:**
+
+```json
+{
+  "transactions": [
+    {
+      "id": "expense-uuid",
+      "type": "expense",
+      "date": "2025-01-15",
+      "description": "Groceries",
+      "amount": 120.5,
+      "userShare": 60.25,
+      "createdBy": {
+        "id": "user-uuid",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john@example.com",
+        "color": "#6366F1",
+        "displayName": "Johnny"
+      },
+      "splitBetween": [
+        {
+          "id": "user-uuid-1",
+          "firstName": "John",
+          "lastName": "Doe",
+          "email": "john@example.com",
+          "color": "#6366F1",
+          "displayName": "Johnny"
+        },
+        {
+          "id": "user-uuid-2",
+          "firstName": "Alice",
+          "lastName": "Smith",
+          "email": "alice@example.com",
+          "color": "#EC4899",
+          "displayName": "Alice"
+        }
+      ],
+      "category": "Groceries"
+    },
+    {
+      "id": "payment-uuid",
+      "type": "payment",
+      "date": "2025-01-14",
+      "description": "Payment to Alice",
+      "amount": 35.5,
+      "fromUser": {
+        "id": "user-uuid",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john@example.com",
+        "color": "#6366F1",
+        "displayName": "Johnny"
+      },
+      "toUser": {
+        "id": "user-uuid-2",
+        "firstName": "Alice",
+        "lastName": "Smith",
+        "email": "alice@example.com",
+        "color": "#EC4899",
+        "displayName": "Alice"
+      }
+    }
+  ]
+}
+```
+
+**Query Examples:**
+
+```bash
+# Get all transactions for the house
+GET /houses/{houseId}/transactions
+
+# Get only current user's transactions
+GET /houses/{houseId}/transactions?userOnly=true
+
+# Get only expenses from last month
+GET /houses/{houseId}/transactions?type=expense&startDate=2024-12-01&endDate=2024-12-31
+
+# Get user's payments from specific date range
+GET /houses/{houseId}/transactions?userOnly=true&type=payment&startDate=2025-01-01&endDate=2025-01-31
+```
 
 ---
 
@@ -957,60 +1072,19 @@ Record a payment between house members and automatically update balances.
     "id": "user-uuid-1",
     "firstName": "John",
     "lastName": "Doe",
-    "email": "john@example.com"
+    "email": "john@example.com",
+    "color": "#6366F1",
+    "displayName": "Johnny"
   },
   "toUser": {
     "id": "user-uuid-2",
     "firstName": "Alice",
     "lastName": "Smith",
-    "email": "alice@example.com"
+    "email": "alice@example.com",
+    "color": "#EC4899",
+    "displayName": "Alice"
   }
 }
-```
-
-### 💳 Get House Payments
-
-**GET** `/houses/{houseId}/payments`
-
-**Headers:** `Authorization: Bearer <token>`
-
-Get all payments in the house or just payments involving the authenticated user.
-
-**Parameters:**
-
-- `houseId` (path): House UUID
-- `userOnly` (query, optional): If true, only return payments involving the authenticated user
-
-**Responses:**
-
-- **200 OK**: List of payments
-- **404 Not Found**: House not found or user is not a member
-
-**Success Response:**
-
-```json
-[
-  {
-    "id": "payment-uuid",
-    "amount": 125.5,
-    "memo": "Groceries repayment",
-    "paymentDate": "2025-09-06",
-    "createdAt": "2025-09-06T12:00:00Z",
-    "updatedAt": "2025-09-06T12:00:00Z",
-    "fromUser": {
-      "id": "user-uuid-1",
-      "firstName": "John",
-      "lastName": "Doe",
-      "email": "john@example.com"
-    },
-    "toUser": {
-      "id": "user-uuid-2",
-      "firstName": "Alice",
-      "lastName": "Smith",
-      "email": "alice@example.com"
-    }
-  }
-]
 ```
 
 ---
@@ -1062,7 +1136,10 @@ Get the primary shopping list for a house with all items.
       "assignedTo": {
         "id": "user-uuid",
         "firstName": "John",
-        "lastName": "Doe"
+        "lastName": "Doe",
+        "email": "john@example.com",
+        "color": "#3B82F6",
+        "displayName": "Johnny"
       }
     }
   ]
@@ -1252,7 +1329,10 @@ Mark a shopping item as purchased by the authenticated user.
   "purchasedBy": {
     "id": "user-uuid",
     "firstName": "John",
-    "lastName": "Doe"
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "color": "#3B82F6",
+    "displayName": "Johnny"
   }
 }
 ```
@@ -1296,7 +1376,10 @@ Mark multiple shopping items as purchased in one operation.
     "purchasedBy": {
       "id": "user-uuid",
       "firstName": "John",
-      "lastName": "Doe"
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "color": "#3B82F6",
+      "displayName": "Johnny"
     }
   }
 ]
@@ -1363,7 +1446,10 @@ Get recently purchased recurring items with countdown until they return to the s
     "purchasedBy": {
       "id": "user-uuid",
       "firstName": "John",
-      "lastName": "Doe"
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "color": "#3B82F6",
+      "displayName": "Johnny"
     }
   }
 ]
@@ -1401,7 +1487,10 @@ Get all purchased items from the shopping list for historical tracking.
     "purchasedBy": {
       "id": "user-uuid",
       "firstName": "John",
-      "lastName": "Doe"
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "color": "#3B82F6",
+      "displayName": "Johnny"
     },
     "category": {
       "id": "category-uuid",
@@ -1809,17 +1898,23 @@ curl -X POST http://localhost:3001/houses/HOUSE_ID/payments \
   }'
 ```
 
-**Get all house payments:**
+**Get transaction history:**
 
 ```bash
-curl -X GET http://localhost:3001/houses/HOUSE_ID/payments \
+# Get all transactions for the house (default: last month)
+curl -X GET http://localhost:3001/houses/HOUSE_ID/transactions \
   -H "Authorization: Bearer TOKEN"
-```
 
-**Get only user's payments:**
+# Get only user's transactions
+curl -X GET "http://localhost:3001/houses/HOUSE_ID/transactions?userOnly=true" \
+  -H "Authorization: Bearer TOKEN"
 
-```bash
-curl -X GET "http://localhost:3001/houses/HOUSE_ID/payments?userOnly=true" \
+# Get only payments from specific date range
+curl -X GET "http://localhost:3001/houses/HOUSE_ID/transactions?type=payment&startDate=2025-01-01&endDate=2025-01-31" \
+  -H "Authorization: Bearer TOKEN"
+
+# Get user's expenses from last month
+curl -X GET "http://localhost:3001/houses/HOUSE_ID/transactions?userOnly=true&type=expense" \
   -H "Authorization: Bearer TOKEN"
 ```
 
@@ -1999,3 +2094,33 @@ The Swagger UI provides:
 - 📋 Request/response examples
 - 🔐 Built-in authentication
 - 📚 Complete API documentation
+
+---
+
+## Recent API Changes
+
+### Version 2.0 Updates
+
+**🆕 New Transactions Endpoint:**
+
+- Added unified `GET /houses/{houseId}/transactions` endpoint
+- Combines expenses and payments in a single response
+- Supports filtering by user, date range, and transaction type
+- Default date range: 1 month back from current date
+
+**🎨 Enhanced User Objects:**
+
+- All user objects now include `displayName` (house-specific name) and `color`
+- Affects responses from `/balances/user`, `/expenses`, `/payments`, and `/transactions`
+- Provides consistent user representation across all endpoints
+
+**🗑️ Removed Endpoints:**
+
+- Removed `GET /houses/{houseId}/payments?userOnly=true` parameter
+- Use `GET /houses/{houseId}/transactions?userOnly=true&type=payment` instead
+
+**📊 Improved Data Structure:**
+
+- Transaction history shows expense `splitBetween` users with full details
+- Better representation of who participated in each expense
+- Enhanced filtering and sorting capabilities

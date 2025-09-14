@@ -1,7 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Text, Image } from "react-native";
 
 import HomeScreen from "../screens/Home/HomeScreen";
 import ShareCostNavigator from "./ShareCostNavigator";
@@ -58,7 +58,7 @@ export default function MainTabNavigator() {
                 style={{
                   fontSize: 12,
                   fontWeight: "600",
-                  color: primaryColor,
+                  color: focused ? primaryColor : COLORS.TEXT_INACTIVE,
                 }}
               >
                 Home
@@ -86,7 +86,11 @@ export default function MainTabNavigator() {
                   });
                 }}
               >
-                <Ionicons name="add" size={28} color={contrastingTextColor} />
+                <Image
+                  source={require("../assets/icons/icon-nobg.png")}
+                  style={{ width: 50, tintColor: contrastingTextColor }}
+                  resizeMode="contain"
+                />
                 <View style={styles.customButtonTextContainer}>
                   <Text
                     style={[styles.customButtonText, { color: primaryColor }]}
@@ -112,7 +116,7 @@ export default function MainTabNavigator() {
                   fontSize: 12,
                   marginTop: 4,
                   fontWeight: "600",
-                  color: primaryColor,
+                  color: focused ? primaryColor : COLORS.TEXT_INACTIVE,
                 }}
               >
                 Profile

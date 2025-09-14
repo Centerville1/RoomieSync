@@ -22,6 +22,7 @@ export const LIGHT_COLORS = {
   TEXT_SECONDARY: "#6B7280",
   TEXT_LIGHT: "#9CA3AF",
   TEXT_WHITE: "#FFFFFF",
+  TEXT_INACTIVE: "#9CA3AF",
 
   // Border colors
   BORDER: "#D1D5DB",
@@ -57,6 +58,7 @@ export const DARK_COLORS = {
   TEXT_SECONDARY: "#D1D5DB",
   TEXT_LIGHT: "#9CA3AF",
   TEXT_WHITE: "#FFFFFF",
+  TEXT_INACTIVE: "#9CA3AF",
 
   // Border colors
   BORDER: "#4B5563",

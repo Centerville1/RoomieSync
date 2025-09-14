@@ -15,6 +15,7 @@ export type ColorPalette = {
   TEXT_SECONDARY: string;
   TEXT_LIGHT: string;
   TEXT_WHITE: string;
+  TEXT_INACTIVE: string;
   BORDER: string;
   BORDER_LIGHT: string;
   BORDER_MEDIUM: string;

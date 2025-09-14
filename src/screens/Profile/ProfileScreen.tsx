@@ -337,7 +337,7 @@ export default function ProfileScreen() {
           <ProfileItem
             icon="person-outline"
             title="Personal Information"
-            subtitle="Name, email, phone, color"
+            subtitle="Name, email, phone, app colors"
             onPress={() => navigation.navigate(NAVIGATION_ROUTES.EDIT_PROFILE)}
           />
           <ProfileItem

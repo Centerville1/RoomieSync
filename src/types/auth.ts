@@ -6,6 +6,7 @@ export interface User {
   phoneNumber?: string;
   profileImageUrl?: string;
   color: string;
+  displayName?: string; // House-specific display name (included in API responses)
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

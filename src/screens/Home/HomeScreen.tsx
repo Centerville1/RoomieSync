@@ -34,16 +34,20 @@ import { ShoppingItem } from "../../types/shopping";
 import { houseService } from "../../services/houseService";
 import { balanceService } from "../../services/balanceService";
 import { shoppingService } from "../../services/shoppingService";
-import { expenseService } from "../../services/expenseService";
-import { paymentService } from "../../services/paymentService";
+import { transactionService } from "../../services/transactionService";
 
 interface ActivityItem {
   id: string;
   type: "expense" | "payment" | "shopping";
   description: string;
   amount?: number;
+  userShare?: number; // For expenses: amount owed by current user
   user: string;
   time: string;
+  fromUser?: string; // For payments: who paid
+  toUser?: string; // For payments: who received
+  involvesMe: boolean; // Whether current user is involved in this transaction
+  amountColor: "red" | "green" | "white"; // Color for the amount display
 }
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
@@ -319,27 +323,20 @@ export default function HomeScreen() {
       console.log("Starting API calls for house:", house.name);
       const startTime = Date.now();
 
-      const [
-        houseDetailsData,
-        balancesData,
-        shoppingData,
-        expensesData,
-        paymentsData,
-      ] = await Promise.allSettled([
-        houseService.getHouseDetails(house.id),
-        balanceService.getUserBalancesByHouseId(house.id),
-        shoppingService.getShoppingItemsByHouseId(house.id),
-        expenseService.getExpensesByHouseId(house.id),
-        paymentService.getPaymentsByHouseId(house.id),
-      ]);
+      const [houseDetailsData, balancesData, shoppingData, transactionsData] =
+        await Promise.allSettled([
+          houseService.getHouseDetails(house.id),
+          balanceService.getUserBalancesByHouseId(house.id),
+          shoppingService.getShoppingItemsByHouseId(house.id),
+          transactionService.getTransactionsByHouseId(house.id),
+        ]);
 
       console.log("API calls completed in:", Date.now() - startTime, "ms");
       console.log("API results:", {
         houseDetails: houseDetailsData.status,
         balances: balancesData.status,
         shopping: shoppingData.status,
-        expenses: expensesData.status,
-        payments: paymentsData.status,
+        transactions: transactionsData.status,
       });
 
       // Set house details with full member information
@@ -365,40 +362,119 @@ export default function HomeScreen() {
         setShoppingItems(activeItems);
       }
 
-      // Generate recent activity from expenses and payments
+      // Generate recent activity from transactions
       const activity: ActivityItem[] = [];
 
-      if (expensesData.status === "fulfilled") {
-        expensesData.value.slice(0, 3).forEach((expense) => {
-          activity.push({
-            id: `expense-${expense.id}`,
-            type: "expense",
-            description: expense.description,
-            amount:
-              typeof expense.amount === "number" ? expense.amount : undefined,
-            user: expense.paidBy?.firstName || "Unknown",
-            time: formatRelativeTime(expense.createdAt),
+      if (transactionsData.status === "fulfilled") {
+        console.log(
+          "Transaction data:",
+          transactionsData.value.transactions.slice(0, 2)
+        );
+        transactionsData.value.transactions
+          .slice(0, 5)
+          .forEach((transaction) => {
+            if (transaction.type === "expense") {
+              // For expenses: show who it was split with
+              const createdByName =
+                transaction.createdBy?.displayName ||
+                transaction.createdBy?.firstName ||
+                "Unknown";
+              const iCreatedExpense = transaction.createdBy?.id === user?.id;
+              const createdByDisplayName = iCreatedExpense
+                ? "You"
+                : createdByName;
+              const iAmInvolved =
+                transaction.splitBetween?.some((u) => u.id === user?.id) ||
+                false;
+              const myShare = transaction.userShare || 0;
+
+              // Build list of people it was split with (excluding current user for display)
+              const otherParticipants =
+                transaction.splitBetween?.filter((u) => u.id !== user?.id) ||
+                [];
+              const otherNames = otherParticipants.map(
+                (u) => u.displayName || u.firstName || "Unknown"
+              );
+
+              let splitDescription = "";
+              if (otherNames.length === 0) {
+                // Only current user involved
+                splitDescription = iCreatedExpense
+                  ? "You recorded an expense for yourself"
+                  : "They recorded an expense for themselves";
+              } else if (otherNames.length === 1) {
+                splitDescription = otherNames[0];
+              } else if (otherNames.length === 2) {
+                splitDescription = `${otherNames[0]} and ${otherNames[1]}`;
+              } else if (otherNames.length === 3) {
+                splitDescription = `${otherNames[0]}, ${otherNames[1]} and ${otherNames[2]}`;
+              } else {
+                splitDescription = `${otherNames[0]}, ${otherNames[1]} and ${
+                  otherNames.length - 2
+                } others`;
+              }
+
+              console.log("otherParticipants:", otherNames);
+              console.log("splitDescription:", splitDescription);
+              console.log(
+                "Final user string:",
+                `${createdByDisplayName} split with ${splitDescription}`
+              );
+
+              const userDescription =
+                otherNames.length === 0
+                  ? splitDescription // Just the parenthetical message
+                  : `${createdByDisplayName} split with ${splitDescription}`;
+
+              activity.push({
+                id: `expense-${transaction.id}`,
+                type: "expense",
+                description: `Expense: ${transaction.description}`,
+                amount: transaction.amount,
+                userShare: myShare,
+                user: userDescription,
+                time: formatRelativeTime(transaction.date),
+                involvesMe: iAmInvolved,
+                amountColor: iAmInvolved ? "red" : "white",
+              });
+            } else {
+              // For payments: show who paid who with memo
+              const fromName =
+                transaction.fromUser?.displayName ||
+                transaction.fromUser?.firstName ||
+                "Unknown";
+              const toName =
+                transaction.toUser?.displayName ||
+                transaction.toUser?.firstName ||
+                "Unknown";
+              const iAmReceiving = transaction.toUser?.id === user?.id;
+              const iAmPaying = transaction.fromUser?.id === user?.id;
+              const involvesMe = iAmReceiving || iAmPaying;
+
+              const displayFromName = iAmPaying ? "You" : fromName;
+              const displayToName = iAmReceiving ? "you" : toName;
+
+              activity.push({
+                id: `payment-${transaction.id}`,
+                type: "payment",
+                description: `${displayFromName} paid ${displayToName}: ${transaction.description}`,
+                amount: transaction.amount,
+                user: displayFromName,
+                time: formatRelativeTime(transaction.date),
+                fromUser: displayFromName,
+                toUser: displayToName,
+                involvesMe: involvesMe,
+                amountColor: iAmReceiving
+                  ? "green"
+                  : involvesMe
+                  ? "red"
+                  : "white",
+              });
+            }
           });
-        });
       }
 
-      if (paymentsData.status === "fulfilled") {
-        paymentsData.value.slice(0, 2).forEach((payment) => {
-          activity.push({
-            id: `payment-${payment.id}`,
-            type: "payment",
-            description: payment.memo || "Payment",
-            amount:
-              typeof payment.amount === "number" ? payment.amount : undefined,
-            user: payment.fromUser?.firstName || "Unknown",
-            time: formatRelativeTime(payment.createdAt),
-          });
-        });
-      }
-
-      // Sort by most recent and take top 5 (simple sort by creation order for now)
-      activity.reverse();
-      setRecentActivity(activity.slice(0, 5));
+      setRecentActivity(activity);
     } catch (err) {
       console.error("Error loading home screen data:", err);
       setError("Failed to load data. Please try refreshing.");
@@ -697,13 +773,38 @@ export default function HomeScreen() {
                       {activity.description}
                     </Text>
                     <Text style={styles.activityMeta}>
-                      {activity.user} • {activity.time}
+                      {activity.type === "expense" && activity.user
+                        ? `${activity.user} • ${activity.time}`
+                        : activity.time}
                     </Text>
                   </View>
                   {activity.amount && (
-                    <Text style={styles.activityAmount}>
-                      {formatAmount(activity.amount)}
-                    </Text>
+                    <View style={{ alignItems: "flex-end" }}>
+                      <Text
+                        style={[
+                          styles.activityAmount,
+                          {
+                            color:
+                              activity.amountColor === "red"
+                                ? COLORS.ERROR
+                                : activity.amountColor === "green"
+                                ? COLORS.SUCCESS
+                                : COLORS.TEXT_PRIMARY,
+                          },
+                        ]}
+                      >
+                        {activity.type === "expense" &&
+                        activity.involvesMe &&
+                        activity.userShare
+                          ? formatAmount(activity.userShare)
+                          : formatAmount(activity.amount)}
+                      </Text>
+                      {activity.type === "expense" && activity.involvesMe && (
+                        <Text style={[styles.activityMeta, { fontSize: 12 }]}>
+                          of {formatAmount(activity.amount)}
+                        </Text>
+                      )}
+                    </View>
                   )}
                 </View>
               ))}

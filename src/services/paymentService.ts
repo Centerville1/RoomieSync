@@ -1,13 +1,27 @@
 import api from "./api";
 import { Payment } from "../types/payments";
+import { TransactionResponse } from "../types/transactions";
 import { API_ENDPOINTS } from "../constants";
 
 export const paymentService = {
   async getPaymentsByHouseId(houseId: string): Promise<Payment[]> {
-    const response = await api.get<Payment[]>(
-      API_ENDPOINTS.GET_PAYMENTS_BY_HOUSE_ID(houseId)
+    // Use the new transactions endpoint and filter for payments only
+    const response = await api.get<TransactionResponse>(
+      `${API_ENDPOINTS.GET_TRANSACTIONS_BY_HOUSE_ID(houseId)}?type=payment`
     );
-    return response.data;
+
+    // Transform transactions to Payment objects
+    return response.data.transactions.map(transaction => ({
+      id: transaction.id,
+      amount: transaction.amount,
+      memo: transaction.description === 'Payment to ' + transaction.toUser?.displayName ? undefined : transaction.description,
+      paymentDate: transaction.date,
+      createdAt: transaction.date, // Using date as createdAt fallback
+      updatedAt: transaction.date, // Using date as updatedAt fallback
+      fromUser: transaction.fromUser!,
+      toUser: transaction.toUser!,
+      house: {} as any // House object not included in transaction response
+    }));
   },
 
   async createPayment(
