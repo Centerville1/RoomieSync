@@ -2,7 +2,7 @@
   "version": 2,
   "buildCommand": "npx expo export -p web --clear",
   "outputDirectory": "dist",
-  "framework": "other",
+  "framework": "react-router",
   "env": {
     "ENABLE_VC_BUILD": "1",
     "NODE_OPTIONS": "--max_old_space_size=4096"
