@@ -44,7 +44,7 @@ interface SelectableItem extends ShoppingItem {
   isSelected: boolean;
 }
 
-const createstyles = (colors: any) =>
+const createDynamicStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -199,7 +199,7 @@ const createstyles = (colors: any) =>
 
 export default function ShoppingCostSplitScreen({ navigation }: Props) {
   const { COLORS } = useUserTheme();
-  const styles = createstyles(COLORS);
+  const styles = createDynamicStyles(COLORS);
   const [purchasedItems, setPurchasedItems] = useState<SelectableItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalAmount, setTotalAmount] = useState("");

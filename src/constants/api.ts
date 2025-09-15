@@ -40,7 +40,8 @@ export const API_ENDPOINTS = {
   GET_PAYMENTS_BY_HOUSE_ID: (houseId: string) => `/houses/${houseId}/payments`, // Deprecated: use transactions endpoint
 
   // Transaction endpoints (unified expenses + payments)
-  GET_TRANSACTIONS_BY_HOUSE_ID: (houseId: string) => `/houses/${houseId}/transactions`,
+  GET_TRANSACTIONS_BY_HOUSE_ID: (houseId: string) =>
+    `/houses/${houseId}/transactions`,
 
   // Category endpoints
   GET_CATEGORIES_BY_HOUSE_ID: (houseId: string) =>

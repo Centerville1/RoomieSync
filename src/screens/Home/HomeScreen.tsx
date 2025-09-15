@@ -502,7 +502,7 @@ export default function HomeScreen() {
 
     // Handle date-only strings (YYYY-MM-DD) as local dates to avoid timezone issues
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-      const [year, month, day] = dateString.split('-').map(Number);
+      const [year, month, day] = dateString.split("-").map(Number);
       date = new Date(year, month - 1, day); // month is 0-indexed
     } else {
       date = new Date(dateString);
@@ -511,7 +511,11 @@ export default function HomeScreen() {
     const now = new Date();
 
     // For date-only comparisons, compare just the date parts
-    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const dateOnly = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
     const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     const diffInMs = nowOnly.getTime() - dateOnly.getTime();
