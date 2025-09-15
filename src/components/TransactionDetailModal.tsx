@@ -152,6 +152,18 @@ export default function TransactionDetailModal({
   const formatAmount = (amount: number) => `$${amount.toFixed(2)}`;
 
   const formatDateTime = (dateString: string) => {
+    // If the date string is just YYYY-MM-DD format (no time), treat it as a local date
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const [year, month, day] = dateString.split("-").map(Number);
+      const date = new Date(year, month - 1, day); // month is 0-indexed
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+
+    // For date-time strings, parse normally
     const date = new Date(dateString);
     return date.toLocaleString("en-US", {
       year: "numeric",
@@ -252,7 +264,7 @@ export default function TransactionDetailModal({
               {isExpense ? (
                 <>
                   <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Paid by</Text>
+                    <Text style={styles.infoLabel}>Created by</Text>
                     <Text style={styles.infoValue}>
                       {transaction.createdBy?.id === currentUserId
                         ? "You"

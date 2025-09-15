@@ -17,6 +17,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useHouse } from "../../context/HouseContext";
 import { useUserTheme } from "../../hooks/useUserTheme";
 import TransactionDetailModal from "../../components/TransactionDetailModal";
+import TransactionListItem from "../../components/TransactionListItem";
 import { transactionService } from "../../services/transactionService";
 import { Transaction } from "../../types/transactions";
 import { RootStackParamList } from "../../types/navigation";
@@ -148,16 +149,26 @@ export default function TransactionHistoryScreen() {
   };
 
   const formatRelativeTime = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    const diffInDays = Math.floor(diffInHours / 24);
+    let date: Date;
 
-    if (diffInMinutes < 1) return "Just now";
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInHours < 24) return `${diffInHours}h ago`;
+    // Handle date-only strings (YYYY-MM-DD) as local dates to avoid timezone issues
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const [year, month, day] = dateString.split('-').map(Number);
+      date = new Date(year, month - 1, day); // month is 0-indexed
+    } else {
+      date = new Date(dateString);
+    }
+
+    const now = new Date();
+
+    // For date-only comparisons, compare just the date parts
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const diffInMs = nowOnly.getTime() - dateOnly.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInDays === 0) return "Today";
     if (diffInDays === 1) return "Yesterday";
     if (diffInDays < 7) return `${diffInDays}d ago`;
 
@@ -355,55 +366,14 @@ export default function TransactionHistoryScreen() {
   };
 
   const renderActivityItem = ({ item }: { item: ActivityItem }) => (
-    <TouchableOpacity
-      style={styles.activityItem}
+    <TransactionListItem
+      transaction={item.transaction}
+      currentUserId={user?.id}
       onPress={() => {
         setSelectedTransaction(item.transaction);
         setModalVisible(true);
       }}
-    >
-      <View style={styles.activityIcon}>
-        <Ionicons
-          name={getActivityIcon(item.type)}
-          size={20}
-          color={COLORS.TEXT_SECONDARY}
-        />
-      </View>
-      <View style={styles.activityDetails}>
-        <Text style={styles.activityDescription}>{item.description}</Text>
-        <Text style={styles.activityMeta}>
-          {item.type === "expense" && item.user
-            ? `${item.user} • ${item.time}`
-            : item.time}
-        </Text>
-      </View>
-      {item.amount && (
-        <View style={{ alignItems: "flex-end" }}>
-          <Text
-            style={[
-              styles.activityAmount,
-              {
-                color:
-                  item.amountColor === "red"
-                    ? COLORS.ERROR
-                    : item.amountColor === "green"
-                    ? COLORS.SUCCESS
-                    : COLORS.TEXT_PRIMARY,
-              },
-            ]}
-          >
-            {item.type === "expense" && item.involvesMe && item.userShare
-              ? formatAmount(item.userShare)
-              : formatAmount(item.amount)}
-          </Text>
-          {item.type === "expense" && item.involvesMe && (
-            <Text style={[styles.activityMeta, { fontSize: 12 }]}>
-              of {formatAmount(item.amount)}
-            </Text>
-          )}
-        </View>
-      )}
-    </TouchableOpacity>
+    />
   );
 
   const renderFooter = () => {

@@ -21,6 +21,7 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
 import { Card, Avatar, Button } from "../../components/UI";
 import { ShoppingListManager } from "../../components/Shopping";
+import TransactionListItem from "../../components/TransactionListItem";
 import { useAuth } from "../../context/AuthContext";
 import { useHouse } from "../../context/HouseContext";
 import { useShoppingSelection } from "../../context/ShoppingSelectionContext";
@@ -283,7 +284,7 @@ export default function HomeScreen() {
   const [currentHouse, setCurrentHouse] = useState<House | null>(null);
   const [userBalances, setUserBalances] = useState<UserBalance[]>([]);
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
-  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
+  const [recentActivity, setRecentActivity] = useState<Transaction[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
@@ -482,7 +483,12 @@ export default function HomeScreen() {
           });
       }
 
-      setRecentActivity(activity);
+      // Get recent transactions directly
+      let recentTransactions: Transaction[] = [];
+      if (transactionsData.status === "fulfilled") {
+        recentTransactions = transactionsData.value.transactions.slice(0, 5);
+      }
+      setRecentActivity(recentTransactions);
     } catch (err) {
       console.error("Error loading home screen data:", err);
       setError("Failed to load data. Please try refreshing.");
@@ -492,17 +498,27 @@ export default function HomeScreen() {
   };
 
   const formatRelativeTime = (dateString: string): string => {
-    const date = new Date(dateString);
+    let date: Date;
+
+    // Handle date-only strings (YYYY-MM-DD) as local dates to avoid timezone issues
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const [year, month, day] = dateString.split('-').map(Number);
+      date = new Date(year, month - 1, day); // month is 0-indexed
+    } else {
+      date = new Date(dateString);
+    }
+
     const now = new Date();
-    const diffInHours = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
-    );
 
-    if (diffInHours < 1) return "Less than an hour ago";
-    if (diffInHours < 24)
-      return `${diffInHours} hour${diffInHours === 1 ? "" : "s"} ago`;
+    // For date-only comparisons, compare just the date parts
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    const diffInDays = Math.floor(diffInHours / 24);
+    const diffInMs = nowOnly.getTime() - dateOnly.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInDays === 0) return "Today";
+    if (diffInDays === 1) return "Yesterday";
     return `${diffInDays} day${diffInDays === 1 ? "" : "s"} ago`;
   };
 
@@ -783,63 +799,16 @@ export default function HomeScreen() {
             <Text style={styles.emptyCardText}>No recent activity</Text>
           ) : (
             <>
-              {recentActivity.map((activity) => (
-                <TouchableOpacity
-                  key={activity.id}
-                  style={styles.activityItem}
+              {recentActivity.map((transaction) => (
+                <TransactionListItem
+                  key={transaction.id}
+                  transaction={transaction}
+                  currentUserId={user?.id}
                   onPress={() => {
-                    if (activity.transaction) {
-                      setSelectedTransaction(activity.transaction);
-                      setShowTransactionModal(true);
-                    }
+                    setSelectedTransaction(transaction);
+                    setShowTransactionModal(true);
                   }}
-                >
-                  <View style={styles.activityIcon}>
-                    <Ionicons
-                      name={getActivityIcon(activity.type)}
-                      size={20}
-                      color={COLORS.TEXT_SECONDARY}
-                    />
-                  </View>
-                  <View style={styles.activityDetails}>
-                    <Text style={styles.activityDescription}>
-                      {activity.description}
-                    </Text>
-                    <Text style={styles.activityMeta}>
-                      {activity.type === "expense" && activity.user
-                        ? `${activity.user} • ${activity.time}`
-                        : activity.time}
-                    </Text>
-                  </View>
-                  {activity.amount && (
-                    <View style={{ alignItems: "flex-end" }}>
-                      <Text
-                        style={[
-                          styles.activityAmount,
-                          {
-                            color:
-                              activity.amountColor === "red"
-                                ? COLORS.ERROR
-                                : activity.amountColor === "green"
-                                ? COLORS.SUCCESS
-                                : COLORS.TEXT_PRIMARY,
-                          },
-                        ]}
-                      >
-                        {activity.type === "expense" &&
-                        activity.involvesMe &&
-                        activity.userShare
-                          ? formatAmount(activity.userShare)
-                          : formatAmount(activity.amount)}
-                      </Text>
-                      {activity.type === "expense" && activity.involvesMe && (
-                        <Text style={[styles.activityMeta, { fontSize: 12 }]}>
-                          of {formatAmount(activity.amount)}
-                        </Text>
-                      )}
-                    </View>
-                  )}
-                </TouchableOpacity>
+                />
               ))}
             </>
           )}
