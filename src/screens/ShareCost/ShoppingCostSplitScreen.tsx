@@ -359,6 +359,7 @@ export default function ShoppingCostSplitScreen({ navigation }: Props) {
                     value={totalAmount}
                     onChangeText={handleTotalAmountChange}
                     placeholder="0.00"
+                    placeholderTextColor={COLORS.TEXT_INACTIVE}
                     keyboardType="decimal-pad"
                     returnKeyType="done"
                   />

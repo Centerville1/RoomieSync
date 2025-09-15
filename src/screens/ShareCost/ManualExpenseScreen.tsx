@@ -291,6 +291,7 @@ export default function ManualExpenseScreen({ navigation }: Props) {
               value={description}
               onChangeText={setDescription}
               placeholder="e.g., Dinner at restaurant, Uber ride, etc."
+              placeholderTextColor={COLORS.TEXT_INACTIVE}
               returnKeyType="next"
               maxLength={100}
             />
@@ -306,6 +307,7 @@ export default function ManualExpenseScreen({ navigation }: Props) {
                 value={amount}
                 onChangeText={handleAmountChange}
                 placeholder="0.00"
+                placeholderTextColor={COLORS.TEXT_INACTIVE}
                 keyboardType="decimal-pad"
                 returnKeyType="done"
               />
