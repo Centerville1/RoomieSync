@@ -15,6 +15,7 @@ export const NAVIGATION_ROUTES = {
   PROFILE: "Profile",
   HOUSE_SETTINGS: "HouseSettings",
   EDIT_PROFILE: "EditProfile",
+  TRANSACTION_HISTORY: "TransactionHistory",
 
   // Shopping routes
   SHOPPING_LIST: "ShoppingList",

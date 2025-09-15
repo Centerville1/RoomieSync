@@ -10,6 +10,7 @@ import EditProfileScreen from '../screens/Profile/EditProfileScreen';
 import JoinHouseScreen from '../screens/Auth/JoinHouseScreen';
 import CreateHouseScreen from '../screens/Auth/CreateHouseScreen';
 import MultiHouseSelectionScreen from '../screens/Home/MultiHouseSelectionScreen';
+import TransactionHistoryScreen from '../screens/TransactionHistory/TransactionHistoryScreen';
 import { useAuth } from '../context/AuthContext';
 import { useHouse } from '../context/HouseContext';
 import { RootStackParamList } from '../types/navigation';
@@ -83,9 +84,16 @@ export default function RootNavigator() {
                 title: 'Create House',
               }}
             />
-            <Stack.Screen 
+            <Stack.Screen
               name={NAVIGATION_ROUTES.MULTI_HOUSE_SELECTION}
               component={MultiHouseSelectionScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name={NAVIGATION_ROUTES.TRANSACTION_HISTORY}
+              component={TransactionHistoryScreen}
               options={{
                 headerShown: false,
               }}

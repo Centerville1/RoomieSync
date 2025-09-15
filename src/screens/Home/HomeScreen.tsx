@@ -35,6 +35,8 @@ import { houseService } from "../../services/houseService";
 import { balanceService } from "../../services/balanceService";
 import { shoppingService } from "../../services/shoppingService";
 import { transactionService } from "../../services/transactionService";
+import TransactionDetailModal from "../../components/TransactionDetailModal";
+import { Transaction } from "../../types/transactions";
 
 interface ActivityItem {
   id: string;
@@ -48,6 +50,7 @@ interface ActivityItem {
   toUser?: string; // For payments: who received
   involvesMe: boolean; // Whether current user is involved in this transaction
   amountColor: "red" | "green" | "white"; // Color for the amount display
+  transaction?: Transaction; // Reference to original transaction for detail modal
 }
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
@@ -282,6 +285,9 @@ export default function HomeScreen() {
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -436,6 +442,7 @@ export default function HomeScreen() {
                 time: formatRelativeTime(transaction.date),
                 involvesMe: iAmInvolved,
                 amountColor: iAmInvolved ? "red" : "white",
+                transaction: transaction,
               });
             } else {
               // For payments: show who paid who with memo
@@ -469,6 +476,7 @@ export default function HomeScreen() {
                   : involvesMe
                   ? "red"
                   : "white",
+                transaction: transaction,
               });
             }
           });
@@ -754,13 +762,38 @@ export default function HomeScreen() {
         </Card>
 
         {/* Recent Activity Card */}
-        <Card title="📋 Recent Activity" headerColor={COLORS.ACTIVITY_HEADER}>
+        <Card
+          title="📋 Recent Activity"
+          headerColor={COLORS.ACTIVITY_HEADER}
+          headerRight={
+            recentActivity.length > 0 && (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate(NAVIGATION_ROUTES.TRANSACTION_HISTORY)
+                }
+                style={{ paddingHorizontal: 8, paddingVertical: 4 }}
+                accessibilityLabel="View all transactions"
+              >
+                <Ionicons name="list" size={22} color={COLORS.TEXT_PRIMARY} />
+              </TouchableOpacity>
+            )
+          }
+        >
           {recentActivity.length === 0 ? (
             <Text style={styles.emptyCardText}>No recent activity</Text>
           ) : (
             <>
               {recentActivity.map((activity) => (
-                <View key={activity.id} style={styles.activityItem}>
+                <TouchableOpacity
+                  key={activity.id}
+                  style={styles.activityItem}
+                  onPress={() => {
+                    if (activity.transaction) {
+                      setSelectedTransaction(activity.transaction);
+                      setShowTransactionModal(true);
+                    }
+                  }}
+                >
                   <View style={styles.activityIcon}>
                     <Ionicons
                       name={getActivityIcon(activity.type)}
@@ -806,12 +839,22 @@ export default function HomeScreen() {
                       )}
                     </View>
                   )}
-                </View>
+                </TouchableOpacity>
               ))}
             </>
           )}
         </Card>
       </ScrollView>
+
+      <TransactionDetailModal
+        visible={showTransactionModal}
+        transaction={selectedTransaction}
+        onClose={() => {
+          setShowTransactionModal(false);
+          setSelectedTransaction(null);
+        }}
+        currentUserId={user?.id}
+      />
     </SafeAreaView>
   );
 }

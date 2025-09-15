@@ -11,6 +11,7 @@ export type RootStackParamList = {
   MultiHouseSelection: undefined;
   HouseSettings: undefined;
   EditProfile: undefined;
+  TransactionHistory: undefined;
 };
 
 export type MainTabParamList = {
