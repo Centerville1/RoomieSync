@@ -9,7 +9,8 @@
     "web": "expo start --web",
     "setup-env": "bash scripts/setup-env.sh",
     "dev:tunnel": "expo start --tunnel",
-    "build": "npx expo export -p web --clear"
+    "build": "npx expo export -p web --clear",
+    "vercel-build": "npm install && npx expo export -p web --clear"
   },
   "dependencies": {
     "@expo/ngrok": "^4.1.3",
