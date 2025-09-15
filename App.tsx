@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, View, StyleSheet } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { injectIconFontStyles } from "./src/constants/fonts";
 
 import { AuthProvider, useAuth } from "./src/context/AuthContext";
 import { HouseProvider } from "./src/context/HouseContext";
@@ -41,6 +42,10 @@ function AppContent() {
 }
 
 export default function App() {
+  useEffect(() => {
+    injectIconFontStyles();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <ThemeProvider>
