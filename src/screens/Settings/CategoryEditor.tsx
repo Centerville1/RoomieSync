@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { categoryService } from "../../services/categoryService";
 import { Category } from "../../types";
 import { useUserTheme } from "../../hooks/useUserTheme";
+import { CategoryChip } from "../../components/UI";
 interface CategoryEditorProps {
   houseId: string;
 }
@@ -44,6 +45,28 @@ const COLOR_OPTIONS = [
   "#6B7280",
 ];
 
+const ICON_OPTIONS = [
+  { id: "shopping-cart", name: "Shopping Cart", icon: "basket-outline" },
+  { id: "lightbulb", name: "Utilities", icon: "bulb-outline" },
+  { id: "movie", name: "Entertainment", icon: "film-outline" },
+  { id: "car", name: "Transportation", icon: "car-outline" },
+  { id: "home", name: "Household", icon: "home-outline" },
+  { id: "restaurant", name: "Dining", icon: "restaurant-outline" },
+  { id: "medical", name: "Healthcare", icon: "medical-outline" },
+  { id: "fitness", name: "Fitness", icon: "fitness-outline" },
+  { id: "airplane", name: "Travel", icon: "airplane-outline" },
+  { id: "gift", name: "Gifts", icon: "gift-outline" },
+  { id: "phone", name: "Phone", icon: "call-outline" },
+  { id: "wifi", name: "Internet", icon: "wifi-outline" },
+  { id: "game", name: "Gaming", icon: "game-controller-outline" },
+  { id: "music", name: "Music", icon: "musical-notes-outline" },
+  { id: "book", name: "Education", icon: "book-outline" },
+  { id: "pet", name: "Pet Care", icon: "paw-outline" },
+  { id: "garden", name: "Garden", icon: "leaf-outline" },
+  { id: "tool", name: "Tools", icon: "hammer-outline" },
+  { id: "cleaning", name: "Cleaning", icon: "sparkles-outline" },
+];
+
 const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
   const { COLORS } = useUserTheme();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -62,6 +85,10 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
     null
   );
   const [showNewColorPicker, setShowNewColorPicker] = useState(false);
+  const [showIconPickerFor, setShowIconPickerFor] = useState<string | null>(
+    null
+  );
+  const [showNewIconPicker, setShowNewIconPicker] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -141,26 +168,55 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
         Manage categories for organizing expenses and shopping items.
       </Text>
       {/* Add Category */}
-      <View style={styles.inputRow}>
-        {/* Color swatch for new category, click to show picker */}
-        <TouchableOpacity
-          style={[styles.colorSwatch, { backgroundColor: newCategory.color }]}
-          onPress={() => setShowNewColorPicker((v) => !v)}
-          activeOpacity={0.7}
-        />
+      <View style={styles.newCategoryContainer}>
+        <View style={styles.inputRow}>
+          {/* Color swatch for new category, click to show picker */}
+          <TouchableOpacity
+            style={[styles.colorSwatch, { backgroundColor: newCategory.color }]}
+            onPress={() => setShowNewColorPicker((v) => !v)}
+            activeOpacity={0.7}
+          />
+          {/* Icon picker for new category */}
+          <TouchableOpacity
+            style={[styles.iconButton, { borderColor: COLORS.BORDER_LIGHT }]}
+            onPress={() => setShowNewIconPicker((v) => !v)}
+            activeOpacity={0.7}
+          >
+            {newCategory.icon ? (
+              <Ionicons
+                name={ICON_OPTIONS.find(opt => opt.id === newCategory.icon)?.icon as any || "pricetag-outline"}
+                size={16}
+                color={COLORS.TEXT_SECONDARY}
+              />
+            ) : (
+              <Ionicons name="add" size={16} color={COLORS.TEXT_SECONDARY} />
+            )}
+          </TouchableOpacity>
+          <TextInput
+            style={[styles.input, { backgroundColor: COLORS.BACKGROUND, color: COLORS.TEXT_PRIMARY, borderColor: COLORS.BORDER_LIGHT }]}
+            placeholder="New category name"
+            placeholderTextColor={COLORS.TEXT_INACTIVE}
+            value={newCategory.name}
+            onChangeText={(text) => setNewCategory((c) => ({ ...c, name: text }))}
+          />
+          <TouchableOpacity
+            style={[styles.addButton, { backgroundColor: "#FF6B35" + "20" }]}
+            onPress={handleAddCategory}
+            disabled={loading}
+          >
+            <Ionicons name="add" size={20} color="#FF6B35" />
+          </TouchableOpacity>
+        </View>
+        {/* Description input for new category */}
         <TextInput
-          style={[styles.input, { backgroundColor: COLORS.BACKGROUND, color: COLORS.TEXT_PRIMARY, borderColor: COLORS.BORDER_LIGHT }]}
-          placeholder="New category name"
-          value={newCategory.name}
-          onChangeText={(text) => setNewCategory((c) => ({ ...c, name: text }))}
+          style={[styles.descriptionInput, { backgroundColor: COLORS.BACKGROUND, color: COLORS.TEXT_PRIMARY, borderColor: COLORS.BORDER_LIGHT }]}
+          placeholder="Category description (optional)"
+          placeholderTextColor={COLORS.TEXT_INACTIVE}
+          value={newCategory.description}
+          onChangeText={(text) => setNewCategory((c) => ({ ...c, description: text }))}
+          multiline
+          numberOfLines={2}
         />
-        <TouchableOpacity
-          style={[styles.addButton, { backgroundColor: "#FF6B35" + "20" }]}
-          onPress={handleAddCategory}
-          disabled={loading}
-        >
-          <Ionicons name="add" size={20} color="#FF6B35" />
-        </TouchableOpacity>
       </View>
       {/* New Category Color Picker, only visible if swatch clicked */}
       {showNewColorPicker && (
@@ -181,6 +237,39 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
           ))}
         </View>
       )}
+      {/* New Category Icon Picker, only visible if icon button clicked */}
+      {showNewIconPicker && (
+        <View style={styles.iconPickerContainer}>
+          <Text style={[styles.pickerTitle, { color: COLORS.TEXT_PRIMARY }]}>Choose an icon:</Text>
+          <View style={styles.iconPickerRow}>
+            {ICON_OPTIONS.map((iconOption) => (
+              <TouchableOpacity
+                key={iconOption.id}
+                style={[
+                  styles.iconOption,
+                  { backgroundColor: COLORS.BACKGROUND },
+                  newCategory.icon === iconOption.id && [styles.selectedIconOption, { borderColor: COLORS.PRIMARY }],
+                ]}
+                onPress={() => {
+                  setNewCategory((c) => ({ ...c, icon: iconOption.id }));
+                  setShowNewIconPicker(false);
+                }}
+              >
+                <Ionicons
+                  name={iconOption.icon as any}
+                  size={20}
+                  color={newCategory.icon === iconOption.id ? COLORS.PRIMARY : COLORS.TEXT_SECONDARY}
+                />
+                <Text style={[styles.iconOptionText, {
+                  color: newCategory.icon === iconOption.id ? COLORS.PRIMARY : COLORS.TEXT_SECONDARY
+                }]}>
+                  {iconOption.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      )}
       {/* Category List */}
       <FlatList
         data={categories}
@@ -188,124 +277,193 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
         renderItem={({ item }) => (
           <View style={styles.categoryRow}>
             {editingId === item.id ? (
-              <>
-                <View style={styles.editCategoryColumn}>
-                  <View style={styles.categoryRow}>
-                    {/* Color swatch, clickable to show color picker */}
-                    <TouchableOpacity
-                      style={[
-                        styles.colorSwatch,
-                        {
-                          backgroundColor:
-                            editValues[item.id]?.color || item.color,
-                        },
-                      ]}
-                      onPress={() =>
-                        setShowColorPickerFor((prev) =>
-                          prev === item.id ? null : item.id
-                        )
-                      }
-                      activeOpacity={0.7}
-                    />
-                    <TextInput
-                      style={[styles.input, { backgroundColor: COLORS.BACKGROUND, color: COLORS.TEXT_PRIMARY, borderColor: COLORS.BORDER_LIGHT }]}
-                      value={editValues[item.id]?.name ?? item.name}
-                      onChangeText={(text) =>
-                        setEditValues((prev) => ({
-                          ...prev,
-                          [item.id]: { ...prev[item.id], name: text },
-                        }))
-                      }
-                    />
-                    <TouchableOpacity
-                      style={styles.saveButton}
-                      onPress={() => {
-                        setShowColorPickerFor(null);
-                        handleEditCategory(item.id);
-                      }}
-                      disabled={loading}
-                    >
+              <View style={styles.editCategoryColumn}>
+                <View style={styles.editRow}>
+                  {/* Color swatch, clickable to show color picker */}
+                  <TouchableOpacity
+                    style={[
+                      styles.colorSwatch,
+                      {
+                        backgroundColor:
+                          editValues[item.id]?.color || item.color,
+                      },
+                    ]}
+                    onPress={() =>
+                      setShowColorPickerFor((prev) =>
+                        prev === item.id ? null : item.id
+                      )
+                    }
+                    activeOpacity={0.7}
+                  />
+                  {/* Icon picker */}
+                  <TouchableOpacity
+                    style={[styles.iconButton, { borderColor: COLORS.BORDER_LIGHT }]}
+                    onPress={() =>
+                      setShowIconPickerFor((prev) =>
+                        prev === item.id ? null : item.id
+                      )
+                    }
+                    activeOpacity={0.7}
+                  >
+                    {(editValues[item.id]?.icon || item.icon) ? (
                       <Ionicons
-                        name="checkmark"
-                        size={20}
-                        color="#10B981"
+                        name={ICON_OPTIONS.find(opt => opt.id === (editValues[item.id]?.icon || item.icon))?.icon as any || "pricetag-outline"}
+                        size={16}
+                        color={COLORS.TEXT_SECONDARY}
                       />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.cancelButton}
-                      onPress={() => {
-                        setEditingId(null);
-                        setShowColorPickerFor(null);
-                      }}
-                    >
-                      <Ionicons name="close" size={20} color="#EF4444" />
-                    </TouchableOpacity>
+                    ) : (
+                      <Ionicons name="add" size={16} color={COLORS.TEXT_SECONDARY} />
+                    )}
+                  </TouchableOpacity>
+                  <TextInput
+                    style={[styles.input, { backgroundColor: COLORS.BACKGROUND, color: COLORS.TEXT_PRIMARY, borderColor: COLORS.BORDER_LIGHT }]}
+                    value={editValues[item.id]?.name ?? item.name}
+                    placeholderTextColor={COLORS.TEXT_INACTIVE}
+                    onChangeText={(text) =>
+                      setEditValues((prev) => ({
+                        ...prev,
+                        [item.id]: { ...prev[item.id], name: text },
+                      }))
+                    }
+                  />
+                  <TouchableOpacity
+                    style={styles.saveButton}
+                    onPress={() => {
+                      setShowColorPickerFor(null);
+                      setShowIconPickerFor(null);
+                      handleEditCategory(item.id);
+                    }}
+                    disabled={loading}
+                  >
+                    <Ionicons
+                      name="checkmark"
+                      size={20}
+                      color="#10B981"
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => {
+                      setEditingId(null);
+                      setShowColorPickerFor(null);
+                      setShowIconPickerFor(null);
+                    }}
+                  >
+                    <Ionicons name="close" size={20} color="#EF4444" />
+                  </TouchableOpacity>
+                </View>
+                {/* Description input for editing */}
+                <TextInput
+                  style={[styles.descriptionInput, { backgroundColor: COLORS.BACKGROUND, color: COLORS.TEXT_PRIMARY, borderColor: COLORS.BORDER_LIGHT }]}
+                  placeholder="Category description (optional)"
+                  placeholderTextColor={COLORS.TEXT_INACTIVE}
+                  value={editValues[item.id]?.description ?? item.description ?? ""}
+                  onChangeText={(text) =>
+                    setEditValues((prev) => ({
+                      ...prev,
+                      [item.id]: { ...prev[item.id], description: text },
+                    }))
+                  }
+                  multiline
+                  numberOfLines={2}
+                />
+                {/* Color picker for editing, only visible if swatch clicked */}
+                {showColorPickerFor === item.id && (
+                  <View style={styles.colorPickerRow}>
+                    {COLOR_OPTIONS.map((color) => (
+                      <TouchableOpacity
+                        key={color}
+                        style={[
+                          styles.colorSwatch,
+                          { backgroundColor: color },
+                          editValues[item.id]?.color === color &&
+                            styles.selectedSwatch,
+                        ]}
+                        onPress={() => {
+                          setEditValues((prev) => ({
+                            ...prev,
+                            [item.id]: { ...prev[item.id], color },
+                          }));
+                          setShowColorPickerFor(null);
+                        }}
+                      />
+                    ))}
                   </View>
-                  {/* Color picker for editing, only visible if swatch clicked */}
-                  {showColorPickerFor === item.id && (
-                    <View style={styles.colorPickerRow}>
-                      {COLOR_OPTIONS.map((color) => (
+                )}
+                {/* Icon picker for editing */}
+                {showIconPickerFor === item.id && (
+                  <View style={styles.iconPickerContainer}>
+                    <Text style={[styles.pickerTitle, { color: COLORS.TEXT_PRIMARY }]}>Choose an icon:</Text>
+                    <View style={styles.iconPickerRow}>
+                      {ICON_OPTIONS.map((iconOption) => (
                         <TouchableOpacity
-                          key={color}
+                          key={iconOption.id}
                           style={[
-                            styles.colorSwatch,
-                            { backgroundColor: color },
-                            editValues[item.id]?.color === color &&
-                              styles.selectedSwatch,
+                            styles.iconOption,
+                            { backgroundColor: COLORS.BACKGROUND },
+                            (editValues[item.id]?.icon || item.icon) === iconOption.id && [styles.selectedIconOption, { borderColor: COLORS.PRIMARY }],
                           ]}
                           onPress={() => {
                             setEditValues((prev) => ({
                               ...prev,
-                              [item.id]: { ...prev[item.id], color },
+                              [item.id]: { ...prev[item.id], icon: iconOption.id },
                             }));
-                            setShowColorPickerFor(null);
+                            setShowIconPickerFor(null);
                           }}
-                        />
+                        >
+                          <Ionicons
+                            name={iconOption.icon as any}
+                            size={16}
+                            color={(editValues[item.id]?.icon || item.icon) === iconOption.id ? COLORS.PRIMARY : COLORS.TEXT_SECONDARY}
+                          />
+                          <Text style={[styles.iconOptionText, {
+                            color: (editValues[item.id]?.icon || item.icon) === iconOption.id ? COLORS.PRIMARY : COLORS.TEXT_SECONDARY
+                          }]}>
+                            {iconOption.name}
+                          </Text>
+                        </TouchableOpacity>
                       ))}
                     </View>
-                  )}
-                </View>
-              </>
+                  </View>
+                )}
+              </View>
             ) : (
-              <>
-                {/* Color swatch, clickable to show color picker */}
-                <TouchableOpacity
-                  style={[
-                    styles.colorSwatch,
-                    {
-                      backgroundColor: editValues[item.id]?.color || item.color,
-                    },
-                  ]}
-                  activeOpacity={0.7}
-                />
-                <Text style={[styles.categoryName, { color: COLORS.TEXT_PRIMARY }]}>{item.name}</Text>
-                <TouchableOpacity
-                  style={styles.editButton}
-                  onPress={() => {
-                    setEditingId(item.id);
-                    setEditValues((prev) => ({
-                      ...prev,
-                      [item.id]: { name: item.name, color: item.color },
-                    }));
-                  }}
-                >
-                  <Ionicons
-                    name="create-outline"
-                    size={18}
-                    color="#FF6B35"
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => handleDeleteCategory(item.id)}
-                >
-                  <Ionicons
-                    name="trash-outline"
-                    size={18}
-                    color="#EF4444"
-                  />
-                </TouchableOpacity>
-              </>
+              <View style={styles.readOnlyRow}>
+                <CategoryChip category={item} size="medium" showDescription={true} />
+                <View style={styles.categoryActions}>
+                  <TouchableOpacity
+                    style={styles.editButton}
+                    onPress={() => {
+                      setEditingId(item.id);
+                      setEditValues((prev) => ({
+                        ...prev,
+                        [item.id]: {
+                          name: item.name,
+                          color: item.color,
+                          icon: item.icon,
+                          description: item.description
+                        },
+                      }));
+                    }}
+                  >
+                    <Ionicons
+                      name="create-outline"
+                      size={18}
+                      color="#FF6B35"
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => handleDeleteCategory(item.id)}
+                  >
+                    <Ionicons
+                      name="trash-outline"
+                      size={18}
+                      color="#EF4444"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
             )}
           </View>
         )}
@@ -409,6 +567,73 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     textAlign: "center",
     marginTop: 8,
+  },
+  newCategoryContainer: {
+    marginBottom: 16,
+  },
+  descriptionInput: {
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 14,
+    borderWidth: 1,
+    marginTop: 8,
+    textAlignVertical: "top",
+  },
+  iconButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 8,
+  },
+  iconPickerContainer: {
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  pickerTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  iconPickerRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  iconOption: {
+    flexDirection: "column",
+    alignItems: "center",
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "transparent",
+    minWidth: 60,
+  },
+  selectedIconOption: {
+    borderWidth: 2,
+  },
+  iconOptionText: {
+    fontSize: 10,
+    textAlign: "center",
+    marginTop: 4,
+  },
+  editRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  readOnlyRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flex: 1,
+  },
+  categoryActions: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
 

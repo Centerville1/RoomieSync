@@ -254,7 +254,7 @@ export default function TransactionListItem({
       </View>
       <View style={styles.activityDetails}>
         <Text style={styles.activityDescription}>
-          {transaction.type === "expense" ? "Expense" : ""}: {transaction.description}
+          {transaction.type === "expense" ? "Expense" : "Payment"}: {transaction.description}
         </Text>
         <Text style={styles.activityMeta}>
           {transaction.type === "expense" && userDescription

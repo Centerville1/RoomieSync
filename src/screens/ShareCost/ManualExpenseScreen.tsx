@@ -16,7 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useFocusEffect } from "@react-navigation/native";
 
-import { Button } from "../../components/UI";
+import { Button, CategoryChip } from "../../components/UI";
 import { NAVIGATION_ROUTES } from "../../constants";
 import { ShareCostStackParamList } from "../../types/navigation";
 import { useUserTheme } from "../../hooks/useUserTheme";
@@ -119,15 +119,7 @@ const createDynamicStyles = (colors: any) =>
       backgroundColor: colors.CARD_BACKGROUND,
     },
     categorySelectedContainer: {
-      flexDirection: "row",
-      alignItems: "center",
       flex: 1,
-    },
-    categoryColorDot: {
-      width: 12,
-      height: 12,
-      borderRadius: 6,
-      marginRight: 12,
     },
     categorySelectedText: {
       fontSize: 16,
@@ -144,17 +136,13 @@ const createDynamicStyles = (colors: any) =>
     categoryOption: {
       flexDirection: "row",
       alignItems: "center",
+      justifyContent: "space-between",
       padding: 16,
       borderBottomWidth: 1,
       borderBottomColor: colors.BORDER,
     },
     categoryOptionSelected: {
       backgroundColor: colors.PRIMARY + "10",
-    },
-    categoryOptionText: {
-      fontSize: 16,
-      color: colors.TEXT_PRIMARY,
-      flex: 1,
     },
     categoryCheckmark: {
       marginLeft: 8,
@@ -322,19 +310,11 @@ export default function ManualExpenseScreen({ navigation }: Props) {
               onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
             >
               <View style={styles.categorySelectedContainer}>
-                {selectedCategory && (
-                  <View
-                    style={[
-                      styles.categoryColorDot,
-                      { backgroundColor: selectedCategory.color },
-                    ]}
-                  />
+                {selectedCategory ? (
+                  <CategoryChip category={selectedCategory} size="large" showDescription={false} disabled />
+                ) : (
+                  <Text style={styles.categorySelectedText}>Select a category</Text>
                 )}
-                <Text style={styles.categorySelectedText}>
-                  {selectedCategory
-                    ? selectedCategory.name
-                    : "Select a category"}
-                </Text>
               </View>
               <Ionicons
                 name={showCategoryDropdown ? "chevron-up" : "chevron-down"}
@@ -356,15 +336,7 @@ export default function ManualExpenseScreen({ navigation }: Props) {
                     ]}
                     onPress={() => handleCategorySelect(category)}
                   >
-                    <View
-                      style={[
-                        styles.categoryColorDot,
-                        { backgroundColor: category.color },
-                      ]}
-                    />
-                    <Text style={styles.categoryOptionText}>
-                      {category.name}
-                    </Text>
+                    <CategoryChip category={category} size="medium" showDescription={false} disabled />
                     {selectedCategory?.id === category.id && (
                       <Ionicons
                         name="checkmark"

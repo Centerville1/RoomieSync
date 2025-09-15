@@ -107,12 +107,11 @@ const MembersManager: React.FC<MembersManagerProps> = ({
           name={item.displayName || item.user?.firstName || ""}
           size="medium"
         />
-        <Text style={[styles.memberName, { color }]}>
-          {" "}
-          {item.displayName || item.user?.firstName}{" "}
+        <Text style={[styles.memberName, { color: COLORS.TEXT_PRIMARY }]}>
+          {item.displayName || item.user?.firstName}
         </Text>
-        {isSelf && <Text style={{ color: COLORS.BORDER }}> (You) </Text>}
-        <Text style={[styles.role, { color: COLORS.BORDER }]}>
+        {isSelf && <Text style={{ color: COLORS.TEXT_INACTIVE }}> (You) </Text>}
+        <Text style={[styles.role, { color: COLORS.TEXT_INACTIVE }]}>
           {" "}
           {item.role === "admin" ? "Admin" : "Member"}{" "}
         </Text>
@@ -158,7 +157,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({
           contentContainerStyle={{ paddingBottom: 8 }}
         />
         {!isAdmin && (
-          <Text style={{ color: COLORS.BORDER, fontSize: 13, marginTop: 8 }}>
+          <Text style={{ color: COLORS.TEXT_INACTIVE, fontSize: 13, marginTop: 8 }}>
             Only admins can manage members. You can view the list of house
             members here.
           </Text>

@@ -744,7 +744,9 @@ Create a new expense and automatically update balances between house members.
   "category": {
     "id": "category-uuid",
     "name": "Groceries",
-    "color": "#10B981"
+    "description": "Food and household essentials",
+    "color": "#10B981",
+    "icon": "shopping-cart"
   }
 }
 ```
@@ -790,7 +792,9 @@ Get all expenses for the house, ordered by date (most recent first).
     "category": {
       "id": "category-uuid",
       "name": "Groceries",
-      "color": "#10B981"
+      "description": "Food and household essentials",
+      "color": "#10B981",
+      "icon": "shopping-cart"
     }
   }
 ]
@@ -980,7 +984,13 @@ Get comprehensive transaction history including both expenses and payments with 
           "displayName": "Alice"
         }
       ],
-      "category": "Groceries"
+      "category": {
+        "id": "category-uuid",
+        "name": "Groceries",
+        "description": "Food and household essentials",
+        "color": "#10B981",
+        "icon": "shopping-cart"
+      }
     },
     {
       "id": "payment-uuid",
@@ -1131,7 +1141,9 @@ Get the primary shopping list for a house with all items.
       "category": {
         "id": "category-uuid",
         "name": "Groceries",
-        "color": "#6B7280"
+        "description": "Food and household essentials",
+        "color": "#6B7280",
+        "icon": "shopping-cart"
       },
       "assignedTo": {
         "id": "user-uuid",
@@ -1232,7 +1244,10 @@ Add a new item to the shopping list with optional recurring settings and smart d
   "recurringInterval": 14,
   "category": {
     "id": "category-uuid",
-    "name": "Groceries"
+    "name": "Groceries",
+    "description": "Food and household essentials",
+    "color": "#6B7280",
+    "icon": "shopping-cart"
   },
   "assignedTo": null
 }
@@ -1494,7 +1509,10 @@ Get all purchased items from the shopping list for historical tracking.
     },
     "category": {
       "id": "category-uuid",
-      "name": "Groceries"
+      "name": "Groceries",
+      "description": "Food and household essentials",
+      "color": "#6B7280",
+      "icon": "shopping-cart"
     }
   }
 ]
@@ -1637,21 +1655,47 @@ Welcome to RoomieSync API! 🏠
 
 ### Category
 
+Categories are used to organize expenses and shopping items with visual indicators.
+
 ```typescript
 {
   id: string;           // UUID
-  name: string;         // Category name
+  name: string;         // Category name (e.g., "Groceries", "Utilities", "Entertainment")
   description?: string; // Optional description
-  color: string;        // Hex color code (default: #6B7280)
-  icon?: string;        // Optional icon identifier
-  isActive: boolean;    // Category status
-  isDefault: boolean;   // Whether this is a default category
-  sortOrder: number;    // Display order
+  color: string;        // Hex color code for visual distinction (default: #6B7280)
+  icon?: string;        // Optional icon identifier (e.g., "shopping-cart", "lightbulb", "movie")
+  isActive: boolean;    // Category status (inactive categories are hidden)
+  isDefault: boolean;   // Whether this is a default category (cannot be deleted)
+  sortOrder: number;    // Display order (lower numbers appear first)
   createdAt: Date;      // Creation date
   updatedAt: Date;      // Last update date
   house: House;         // House this category belongs to
 }
 ```
+
+**Category Object in API Responses:**
+
+When categories appear in expense, transaction, or shopping list responses, they include:
+
+```json
+{
+  "id": "category-uuid",
+  "name": "Groceries",
+  "description": "Food and household essentials",
+  "color": "#10B981",
+  "icon": "shopping-cart"
+}
+```
+
+**Common Category Examples:**
+
+- **Groceries**: `color: "#10B981"`, `icon: "shopping-cart"`
+- **Utilities**: `color: "#F59E0B"`, `icon: "lightbulb"`
+- **Entertainment**: `color: "#8B5CF6"`, `icon: "movie"`
+- **Transportation**: `color: "#06B6D4"`, `icon: "car"`
+- **Household**: `color: "#EF4444"`, `icon: "home"`
+
+````
 
 ### ShoppingList
 
@@ -1666,7 +1710,7 @@ Welcome to RoomieSync API! 🏠
   primaryForHouse?: House; // If this is primary list for a house
   house?: House;        // If this is secondary list for a house
 }
-```
+````
 
 ### ShoppingItem
 
