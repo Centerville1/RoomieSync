@@ -94,6 +94,13 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
     fetchCategories();
   }, [houseId]);
 
+  const closeAllPickers = () => {
+    setShowColorPickerFor(null);
+    setShowIconPickerFor(null);
+    setShowNewColorPicker(false);
+    setShowNewIconPicker(false);
+  };
+
   const fetchCategories = async () => {
     setLoading(true);
     try {
@@ -173,13 +180,19 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
           {/* Color swatch for new category, click to show picker */}
           <TouchableOpacity
             style={[styles.colorSwatch, { backgroundColor: newCategory.color }]}
-            onPress={() => setShowNewColorPicker((v) => !v)}
+            onPress={() => {
+              closeAllPickers();
+              setShowNewColorPicker(true);
+            }}
             activeOpacity={0.7}
           />
           {/* Icon picker for new category */}
           <TouchableOpacity
             style={[styles.iconButton, { borderColor: COLORS.BORDER_LIGHT }]}
-            onPress={() => setShowNewIconPicker((v) => !v)}
+            onPress={() => {
+              closeAllPickers();
+              setShowNewIconPicker(true);
+            }}
             activeOpacity={0.7}
           >
             {newCategory.icon ? (
@@ -231,7 +244,7 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
               ]}
               onPress={() => {
                 setNewCategory((c) => ({ ...c, color }));
-                setShowNewColorPicker(false);
+                closeAllPickers();
               }}
             />
           ))}
@@ -251,8 +264,12 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
                   newCategory.icon === iconOption.id && [styles.selectedIconOption, { borderColor: COLORS.PRIMARY }],
                 ]}
                 onPress={() => {
-                  setNewCategory((c) => ({ ...c, icon: iconOption.id }));
-                  setShowNewIconPicker(false);
+                  const isCurrentlySelected = newCategory.icon === iconOption.id;
+                  setNewCategory((c) => ({
+                    ...c,
+                    icon: isCurrentlySelected ? "" : iconOption.id
+                  }));
+                  closeAllPickers();
                 }}
               >
                 <Ionicons
@@ -288,21 +305,19 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
                           editValues[item.id]?.color || item.color,
                       },
                     ]}
-                    onPress={() =>
-                      setShowColorPickerFor((prev) =>
-                        prev === item.id ? null : item.id
-                      )
-                    }
+                    onPress={() => {
+                      closeAllPickers();
+                      setShowColorPickerFor(item.id);
+                    }}
                     activeOpacity={0.7}
                   />
                   {/* Icon picker */}
                   <TouchableOpacity
                     style={[styles.iconButton, { borderColor: COLORS.BORDER_LIGHT }]}
-                    onPress={() =>
-                      setShowIconPickerFor((prev) =>
-                        prev === item.id ? null : item.id
-                      )
-                    }
+                    onPress={() => {
+                      closeAllPickers();
+                      setShowIconPickerFor(item.id);
+                    }}
                     activeOpacity={0.7}
                   >
                     {(editValues[item.id]?.icon || item.icon) ? (
@@ -329,8 +344,7 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
                   <TouchableOpacity
                     style={styles.saveButton}
                     onPress={() => {
-                      setShowColorPickerFor(null);
-                      setShowIconPickerFor(null);
+                      closeAllPickers();
                       handleEditCategory(item.id);
                     }}
                     disabled={loading}
@@ -345,8 +359,7 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
                     style={styles.cancelButton}
                     onPress={() => {
                       setEditingId(null);
-                      setShowColorPickerFor(null);
-                      setShowIconPickerFor(null);
+                      closeAllPickers();
                     }}
                   >
                     <Ionicons name="close" size={20} color="#EF4444" />
@@ -384,7 +397,7 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
                             ...prev,
                             [item.id]: { ...prev[item.id], color },
                           }));
-                          setShowColorPickerFor(null);
+                          closeAllPickers();
                         }}
                       />
                     ))}
@@ -404,11 +417,15 @@ const CategoryEditor: React.FC<CategoryEditorProps> = ({ houseId }) => {
                             (editValues[item.id]?.icon || item.icon) === iconOption.id && [styles.selectedIconOption, { borderColor: COLORS.PRIMARY }],
                           ]}
                           onPress={() => {
+                            const isCurrentlySelected = (editValues[item.id]?.icon || item.icon) === iconOption.id;
                             setEditValues((prev) => ({
                               ...prev,
-                              [item.id]: { ...prev[item.id], icon: iconOption.id },
+                              [item.id]: {
+                                ...prev[item.id],
+                                icon: isCurrentlySelected ? "" : iconOption.id
+                              },
                             }));
-                            setShowIconPickerFor(null);
+                            closeAllPickers();
                           }}
                         >
                           <Ionicons

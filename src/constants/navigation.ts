@@ -8,6 +8,8 @@ export const NAVIGATION_ROUTES = {
   CREATE_HOUSE: "CreateHouse",
   HOUSE_SELECTION: "HouseSelection",
   MULTI_HOUSE_SELECTION: "MultiHouseSelection",
+  FORGOT_PASSWORD: "ForgotPassword",
+  RESET_PASSWORD: "ResetPassword",
 
   // Main tab routes
   HOME: "Home",

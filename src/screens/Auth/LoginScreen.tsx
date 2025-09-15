@@ -60,6 +60,15 @@ const createDynamicStyles = (colors: any) =>
     loginButton: {
       marginTop: 24,
     },
+    forgotPasswordContainer: {
+      alignItems: "center",
+      marginTop: 16,
+    },
+    forgotPasswordText: {
+      fontSize: 16,
+      color: "#FF6B35",
+      fontWeight: "600",
+    },
     footer: {
       flexDirection: "row",
       justifyContent: "center",
@@ -119,6 +128,10 @@ export default function LoginScreen({ navigation }: Props) {
     }
   };
 
+  const handleForgotPassword = () => {
+    navigation.navigate(NAVIGATION_ROUTES.FORGOT_PASSWORD);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -159,6 +172,13 @@ export default function LoginScreen({ navigation }: Props) {
             loading={isLoading}
             style={styles.loginButton}
           />
+
+          <TouchableOpacity
+            onPress={handleForgotPassword}
+            style={styles.forgotPasswordContainer}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>Don't have an account? </Text>

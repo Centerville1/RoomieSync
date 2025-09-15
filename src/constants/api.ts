@@ -12,6 +12,9 @@ export const API_ENDPOINTS = {
   GET_PROFILE: "/auth/profile",
   PATCH_PROFILE: "/auth/profile",
   POST_UPLOAD_PROFILE_IMAGE: "/auth/upload-profile-image",
+  POST_FORGOT_PASSWORD: "/auth/forgot-password",
+  GET_VERIFY_RESET_TOKEN: (token: string) => `/auth/reset-password/${token}`,
+  POST_RESET_PASSWORD: "/auth/reset-password",
 
   // House endpoints
   POST_CREATE_HOUSE: "/houses",

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer, useNavigationState } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Linking } from 'react-native';
 
 import AuthNavigator from './AuthNavigator';
 import MainTabNavigator from './MainTabNavigator';
@@ -11,12 +11,26 @@ import JoinHouseScreen from '../screens/Auth/JoinHouseScreen';
 import CreateHouseScreen from '../screens/Auth/CreateHouseScreen';
 import MultiHouseSelectionScreen from '../screens/Home/MultiHouseSelectionScreen';
 import TransactionHistoryScreen from '../screens/TransactionHistory/TransactionHistoryScreen';
+import ForgotPasswordScreen from '../screens/Auth/ForgotPasswordScreen';
+import ResetPasswordScreen from '../screens/Auth/ResetPasswordScreen';
 import { useAuth } from '../context/AuthContext';
 import { useHouse } from '../context/HouseContext';
 import { RootStackParamList } from '../types/navigation';
 import { NAVIGATION_ROUTES } from '../constants';
 
 const Stack = createStackNavigator<RootStackParamList>();
+
+const linking = {
+  prefixes: ['roomiesync://'],
+  config: {
+    screens: {
+      [NAVIGATION_ROUTES.AUTH]: 'auth',
+      [NAVIGATION_ROUTES.MAIN]: 'main',
+      [NAVIGATION_ROUTES.RESET_PASSWORD]: 'reset-password',
+      [NAVIGATION_ROUTES.FORGOT_PASSWORD]: 'forgot-password',
+    },
+  },
+};
 
 export default function RootNavigator() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -42,7 +56,10 @@ export default function RootNavigator() {
   const shouldShowMain = isAuthenticated && houses.length > 0;
   
   return (
-    <NavigationContainer key={`${shouldShowMain ? 'main' : 'auth'}-${forceRender}`}>
+    <NavigationContainer
+      linking={linking}
+      key={`${shouldShowMain ? 'main' : 'auth'}-${forceRender}`}
+    >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {shouldShowMain ? (
           <>
@@ -95,6 +112,22 @@ export default function RootNavigator() {
               name={NAVIGATION_ROUTES.TRANSACTION_HISTORY}
               component={TransactionHistoryScreen}
               options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name={NAVIGATION_ROUTES.FORGOT_PASSWORD}
+              component={ForgotPasswordScreen}
+              options={{
+                presentation: 'modal',
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name={NAVIGATION_ROUTES.RESET_PASSWORD}
+              component={ResetPasswordScreen}
+              options={{
+                presentation: 'modal',
                 headerShown: false,
               }}
             />

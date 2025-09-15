@@ -11,14 +11,13 @@ import {
  * and provides theme-aware colors
  */
 export function useUserTheme() {
-  console.log("In userTheme hook");
   const { user } = useAuth();
   const { colors, isDarkMode, themeMode, toggleTheme } = useTheme();
 
   const primaryColor = getUserPrimaryColor(user?.color, colors.PRIMARY);
   const contrastingTextColor = getContrastingTextColor(primaryColor);
 
-  const returnValue = {
+  return {
     primaryColor,
     contrastingTextColor,
     COLORS: colors,
@@ -27,6 +26,4 @@ export function useUserTheme() {
     toggleTheme,
     user,
   };
-  console.log("useUserTheme return value:", returnValue);
-  return returnValue;
 }

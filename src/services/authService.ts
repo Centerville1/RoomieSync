@@ -79,4 +79,24 @@ export const authService = {
     const userStr = await AsyncStorage.getItem(STORAGE_KEYS.USER);
     return userStr ? JSON.parse(userStr) : null;
   },
+
+  async requestPasswordReset(email: string): Promise<{ message: string }> {
+    const response = await api.post<{ message: string }>(API_ENDPOINTS.POST_FORGOT_PASSWORD, { email });
+    return response.data;
+  },
+
+  async verifyResetToken(token: string): Promise<{ valid: boolean; message: string }> {
+    const response = await api.get<{ valid: boolean; message: string }>(
+      API_ENDPOINTS.GET_VERIFY_RESET_TOKEN(token)
+    );
+    return response.data;
+  },
+
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const response = await api.post<{ message: string }>(API_ENDPOINTS.POST_RESET_PASSWORD, {
+      token,
+      newPassword,
+    });
+    return response.data;
+  },
 };

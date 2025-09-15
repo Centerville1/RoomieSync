@@ -350,9 +350,10 @@ export default function ProfileScreen() {
           <ProfileItem
             icon="lock-closed-outline"
             title="Privacy & Security"
-            subtitle="COMING SOON:Password, two-factor authentication"
-            disabled
-            onPress={() => {}}
+            subtitle="Change password"
+            onPress={() =>
+              navigation.navigate(NAVIGATION_ROUTES.FORGOT_PASSWORD as any)
+            }
           />
         </Card>
 

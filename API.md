@@ -23,6 +23,9 @@ http://localhost:3001
 | **Authentication** | GET    | `/auth/profile`                                           | Get user profile                         |
 | **Authentication** | PATCH  | `/auth/profile`                                           | Update user profile                      |
 | **Authentication** | POST   | `/auth/upload-profile-image`                              | Upload profile image                     |
+| **Authentication** | POST   | `/auth/forgot-password`                                   | Request password reset                   |
+| **Authentication** | GET    | `/auth/reset-password/{token}`                            | Verify password reset token              |
+| **Authentication** | POST   | `/auth/reset-password`                                    | Reset password with token                |
 | **Houses**         | POST   | `/houses`                                                 | Create house                             |
 | **Houses**         | POST   | `/houses/join`                                            | Join house                               |
 | **Houses**         | GET    | `/houses`                                                 | Get user houses                          |
@@ -266,6 +269,141 @@ Upload a profile image and automatically update the user's profileImageUrl. Imag
   "updatedAt": "2025-09-07T14:00:00Z"
 }
 ```
+
+### 🔑 Request Password Reset
+
+**POST** `/auth/forgot-password`
+
+Request a password reset link to be sent to the user's email address. This endpoint always returns success to prevent email enumeration attacks.
+
+**Request Body:**
+
+```json
+{
+  "email": "john@example.com"
+}
+```
+
+**Responses:**
+
+- **200 OK**: Request processed (email sent if account exists)
+- **400 Bad Request**: Invalid email format
+
+**Success Response:**
+
+```json
+{
+  "message": "If an account with that email exists, we have sent you a password reset link."
+}
+```
+
+**Security Features:**
+
+- ⏱️ Rate limited to 3 requests per email per hour
+- 🔒 Always returns success regardless of email existence
+- 📧 15-minute token expiry for security
+- 🚫 Automatic token invalidation after use
+
+### ✅ Verify Password Reset Token
+
+**GET** `/auth/reset-password/{token}`
+
+Verify if a password reset token is valid and not expired. This endpoint is used by the frontend to validate tokens before showing the password reset form.
+
+**Parameters:**
+
+- `token` (path): The reset token from the email link
+
+**Responses:**
+
+- **200 OK**: Token verification result
+
+**Success Response:**
+
+```json
+{
+  "valid": true,
+  "message": "Token is valid"
+}
+```
+
+**Invalid Token Response:**
+
+```json
+{
+  "valid": false,
+  "message": "Invalid or expired token"
+}
+```
+
+### 🔐 Reset Password
+
+**POST** `/auth/reset-password`
+
+Reset the user's password using a valid reset token and new password.
+
+**Request Body:**
+
+```json
+{
+  "token": "abc123def456...",
+  "newPassword": "NewSecurePassword123!"
+}
+```
+
+**Password Requirements:**
+
+- Minimum 8 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one number
+- At least one special character (@$!%\*?&)
+
+**Responses:**
+
+- **200 OK**: Password reset successfully
+- **400 Bad Request**: Invalid token, expired token, or invalid password format
+
+**Success Response:**
+
+```json
+{
+  "message": "Password has been reset successfully"
+}
+```
+
+**Error Responses:**
+
+```json
+{
+  "statusCode": 400,
+  "message": "Invalid or expired reset token",
+  "error": "Bad Request"
+}
+```
+
+```json
+{
+  "statusCode": 400,
+  "message": [
+    "Password must be at least 8 characters long",
+    "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+  ],
+  "error": "Bad Request"
+}
+```
+
+### 🔗 Deep Link Integration
+
+For React Native apps, password reset emails contain deep links that open the app directly:
+
+**Email Link Format:**
+
+```
+roomiesync://reset-password?token=abc123def456...
+```
+
+**Setup Guide:** See `REACT_NATIVE_DEEP_LINKS.md` for complete setup instructions.
 
 ---
 

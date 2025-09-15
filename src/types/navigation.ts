@@ -9,6 +9,8 @@ export type RootStackParamList = {
   CreateHouse: undefined;
   HouseSelection: undefined;
   MultiHouseSelection: undefined;
+  ForgotPassword: undefined;
+  ResetPassword: { token: string };
   HouseSettings: undefined;
   EditProfile: undefined;
   TransactionHistory: undefined;

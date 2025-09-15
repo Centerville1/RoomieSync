@@ -6,6 +6,8 @@ import RegisterScreen from '../screens/Auth/RegisterScreen';
 import JoinHouseScreen from '../screens/Auth/JoinHouseScreen';
 import CreateHouseScreen from '../screens/Auth/CreateHouseScreen';
 import HouseSelectionScreen from '../screens/Auth/HouseSelectionScreen';
+import ForgotPasswordScreen from '../screens/Auth/ForgotPasswordScreen';
+import ResetPasswordScreen from '../screens/Auth/ResetPasswordScreen';
 import { useAuth } from '../context/AuthContext';
 import { useHouse } from '../context/HouseContext';
 import { RootStackParamList } from '../types/navigation';
@@ -61,6 +63,16 @@ export default function AuthNavigator() {
         name={NAVIGATION_ROUTES.CREATE_HOUSE}
         component={CreateHouseScreen}
         options={{ headerShown: true, title: 'Create House' }}
+      />
+      <Stack.Screen
+        name={NAVIGATION_ROUTES.FORGOT_PASSWORD}
+        component={ForgotPasswordScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={NAVIGATION_ROUTES.RESET_PASSWORD}
+        component={ResetPasswordScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
