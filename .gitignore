@@ -32,7 +32,8 @@ yarn-error.*
 # Environment files (keep .env.example for reference)
 .env
 .env*.local
-.env.production
+# Allow production env since it contains public variables
+# .env.production
 
 # typescript
 *.tsbuildinfo
