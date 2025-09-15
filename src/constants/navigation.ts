@@ -8,6 +8,8 @@ export const NAVIGATION_ROUTES = {
   CREATE_HOUSE: "CreateHouse",
   HOUSE_SELECTION: "HouseSelection",
   MULTI_HOUSE_SELECTION: "MultiHouseSelection",
+  FORGOT_PASSWORD: "ForgotPassword",
+  RESET_PASSWORD: "ResetPassword",
 
   // Main tab routes
   HOME: "Home",
@@ -15,6 +17,7 @@ export const NAVIGATION_ROUTES = {
   PROFILE: "Profile",
   HOUSE_SETTINGS: "HouseSettings",
   EDIT_PROFILE: "EditProfile",
+  TRANSACTION_HISTORY: "TransactionHistory",
 
   // Shopping routes
   SHOPPING_LIST: "ShoppingList",
@@ -24,11 +27,5 @@ export const NAVIGATION_ROUTES = {
   SHOPPING_COST_SPLIT: "ShoppingCostSplit",
   MANUAL_EXPENSE: "ManualExpense",
   SPLIT_PREVIEW: "SplitPreview",
-} as const;
-
-export const TAB_BAR_CONFIG = {
-  ACTIVE_TINT_COLOR: "#FF6B35",
-  INACTIVE_TINT_COLOR: "#6B7280",
-  BACKGROUND_COLOR: "#FFFFFF",
-  BORDER_COLOR: "#E5E7EB",
+  PAYMENT: "Payment",
 } as const;

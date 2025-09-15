@@ -1,4 +1,4 @@
-import { ShoppingItem } from './shopping';
+import { ShoppingItem } from "./shopping";
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -9,13 +9,18 @@ export type RootStackParamList = {
   CreateHouse: undefined;
   HouseSelection: undefined;
   MultiHouseSelection: undefined;
+  ForgotPassword: undefined;
+  ResetPassword: { token: string };
   HouseSettings: undefined;
   EditProfile: undefined;
+  TransactionHistory: undefined;
 };
 
 export type MainTabParamList = {
   Home: undefined;
-  ShareCost: { selectedItems?: string[] } | { screen: keyof ShareCostStackParamList; params?: any };
+  ShareCost:
+    | { selectedItems?: string[] }
+    | { screen: keyof ShareCostStackParamList; params?: any };
   Profile: undefined;
   HouseSettings: undefined;
 };
@@ -25,12 +30,14 @@ export type ShareCostStackParamList = {
   ShoppingCostSplit: { items: ShoppingItem[] };
   ManualExpense: undefined;
   SplitPreview: {
-    type: 'shopping' | 'manual';
+    type: "shopping" | "manual";
     amount: number;
     description: string;
     items?: ShoppingItem[];
     splitBetween: string[];
+    categoryId?: string;
   };
   ShoppingList: undefined;
   BatchPurchase: { selectedItems?: string[] };
+  Payment: { userId?: string };
 };

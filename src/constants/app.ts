@@ -20,4 +20,5 @@ export const VALIDATION = {
   EXPENSE_DESCRIPTION_MAX_LENGTH: 200,
   SHOPPING_ITEM_NAME_MAX_LENGTH: 100,
   NOTES_MAX_LENGTH: 500,
+  EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
 } as const;

@@ -21,51 +21,274 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
 import { Card, Avatar, Button } from "../../components/UI";
 import { ShoppingListManager } from "../../components/Shopping";
+import TransactionListItem from "../../components/TransactionListItem";
 import { useAuth } from "../../context/AuthContext";
 import { useHouse } from "../../context/HouseContext";
 import { useShoppingSelection } from "../../context/ShoppingSelectionContext";
-import { COLORS, NAVIGATION_ROUTES } from "../../constants";
-import {
-  RootStackParamList,
-  MainTabParamList,
-  ShareCostStackParamList,
-} from "../../types/navigation";
+import { useUserTheme } from "../../hooks/useUserTheme";
+import { NAVIGATION_ROUTES } from "../../constants";
+import { RootStackParamList, MainTabParamList } from "../../types/navigation";
+import { ShareCostStackParamList } from "../../types/navigation";
 import { House } from "../../types/houses";
-import { Balance } from "../../types/expenses";
+import { UserBalance } from "../../types/expenses";
 import { ShoppingItem } from "../../types/shopping";
 import { houseService } from "../../services/houseService";
 import { balanceService } from "../../services/balanceService";
 import { shoppingService } from "../../services/shoppingService";
-import { expenseService } from "../../services/expenseService";
-import { paymentService } from "../../services/paymentService";
+import { transactionService } from "../../services/transactionService";
+import TransactionDetailModal from "../../components/TransactionDetailModal";
+import { Transaction } from "../../types/transactions";
 
 interface ActivityItem {
   id: string;
   type: "expense" | "payment" | "shopping";
   description: string;
   amount?: number;
+  userShare?: number; // For expenses: amount owed by current user
   user: string;
   time: string;
+  fromUser?: string; // For payments: who paid
+  toUser?: string; // For payments: who received
+  involvesMe: boolean; // Whether current user is involved in this transaction
+  amountColor: "red" | "green" | "white"; // Color for the amount display
+  transaction?: Transaction; // Reference to original transaction for detail modal
 }
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<MainTabParamList, "Home">,
-  StackNavigationProp<RootStackParamList>
+  StackNavigationProp<RootStackParamList & ShareCostStackParamList>
 >;
+
+const createDynamicStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.BACKGROUND,
+    },
+    header: {
+      paddingTop: 20,
+      paddingBottom: 30,
+      paddingHorizontal: 20,
+    },
+    headerContent: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    backButton: {
+      padding: 8,
+      marginRight: 12,
+    },
+    houseInfo: {
+      flexDirection: "row",
+      alignItems: "center",
+      flex: 1,
+    },
+    houseInfoWithBack: {
+      marginLeft: 0, // Reset margin when back button is present
+    },
+    houseDetails: {
+      marginLeft: 16,
+      flex: 1,
+    },
+    houseName: {
+      fontSize: 24,
+      fontWeight: "700",
+      color: colors.TEXT_WHITE,
+    },
+    memberCount: {
+      fontSize: 16,
+      color: colors.TEXT_WHITE + "90",
+      marginTop: 4,
+    },
+    settingsButton: {
+      padding: 8,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 16,
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 32,
+    },
+    emptyTitle: {
+      fontSize: 24,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      textAlign: "center",
+    },
+    emptySubtitle: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      textAlign: "center",
+      marginTop: 8,
+    },
+    emptyButton: {
+      marginTop: 24,
+      minWidth: 200,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 32,
+    },
+    loadingText: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      marginTop: 16,
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 32,
+    },
+    errorTitle: {
+      fontSize: 20,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      marginTop: 16,
+      textAlign: "center",
+    },
+    errorSubtitle: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      marginTop: 8,
+      textAlign: "center",
+    },
+    retryButton: {
+      marginTop: 24,
+      minWidth: 150,
+    },
+    emptyCardText: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      textAlign: "center",
+      fontStyle: "italic",
+    },
+    balanceEmptyState: {
+      alignItems: "center",
+      paddingVertical: 8,
+    },
+    emptyCardSubtext: {
+      fontSize: 14,
+      color: colors.TEXT_LIGHT,
+      textAlign: "center",
+      marginTop: 4,
+      marginBottom: 16,
+    },
+    addExpenseButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+      borderWidth: 1,
+      gap: 6,
+    },
+    addExpenseText: {
+      fontSize: 14,
+      fontWeight: "500",
+    },
+    balanceItem: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.BORDER_LIGHT,
+    },
+    balanceInfo: {
+      flex: 1,
+    },
+    balanceText: {
+      fontSize: 16,
+      color: colors.TEXT_PRIMARY,
+    },
+    balanceAmount: {
+      fontSize: 18,
+      fontWeight: "600",
+      marginTop: 4,
+    },
+    payButton: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 6,
+    },
+    payButtonText: {
+      color: colors.TEXT_WHITE,
+      fontWeight: "600",
+    },
+    viewAllButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 12,
+      marginTop: 8,
+      gap: 4,
+    },
+    viewAllText: {
+      fontSize: 16,
+      fontWeight: "600",
+    },
+    activityItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.BORDER_LIGHT,
+    },
+    activityIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.BACKGROUND,
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: 12,
+    },
+    activityDetails: {
+      flex: 1,
+    },
+    activityDescription: {
+      fontSize: 16,
+      color: colors.TEXT_PRIMARY,
+    },
+    activityMeta: {
+      fontSize: 14,
+      color: colors.TEXT_SECONDARY,
+      marginTop: 2,
+    },
+    activityAmount: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+    },
+  });
 
 export default function HomeScreen() {
   const { user } = useAuth();
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
   const { houses } = useHouse();
+  const { primaryColor } = useUserTheme();
   const { selectedShoppingItems, setSelectedShoppingItems } =
     useShoppingSelection();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentHouse, setCurrentHouse] = useState<House | null>(null);
-  const [balances, setBalances] = useState<Balance[]>([]);
+  const [userBalances, setUserBalances] = useState<UserBalance[]>([]);
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
-  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
+  const [recentActivity, setRecentActivity] = useState<Transaction[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -107,27 +330,20 @@ export default function HomeScreen() {
       console.log("Starting API calls for house:", house.name);
       const startTime = Date.now();
 
-      const [
-        houseDetailsData,
-        balancesData,
-        shoppingData,
-        expensesData,
-        paymentsData,
-      ] = await Promise.allSettled([
-        houseService.getHouseDetails(house.id),
-        balanceService.getBalancesByHouseId(house.id),
-        shoppingService.getShoppingItemsByHouseId(house.id),
-        expenseService.getExpensesByHouseId(house.id),
-        paymentService.getPaymentsByHouseId(house.id),
-      ]);
+      const [houseDetailsData, balancesData, shoppingData, transactionsData] =
+        await Promise.allSettled([
+          houseService.getHouseDetails(house.id),
+          balanceService.getUserBalancesByHouseId(house.id),
+          shoppingService.getShoppingItemsByHouseId(house.id),
+          transactionService.getTransactionsByHouseId(house.id),
+        ]);
 
       console.log("API calls completed in:", Date.now() - startTime, "ms");
       console.log("API results:", {
         houseDetails: houseDetailsData.status,
         balances: balancesData.status,
         shopping: shoppingData.status,
-        expenses: expensesData.status,
-        payments: paymentsData.status,
+        transactions: transactionsData.status,
       });
 
       // Set house details with full member information
@@ -140,12 +356,9 @@ export default function HomeScreen() {
         setCurrentHouse(house); // fallback to basic house data
       }
 
-      // Set balances
+      // Set user balances
       if (balancesData.status === "fulfilled") {
-        const filteredBalances = balancesData.value.filter(
-          (b) => b.fromUser.id === user.id || b.toUser.id === user.id
-        );
-        setBalances(filteredBalances);
+        setUserBalances(balancesData.value);
       }
 
       // Set shopping items (filter out purchased ones for the home screen)
@@ -156,40 +369,126 @@ export default function HomeScreen() {
         setShoppingItems(activeItems);
       }
 
-      // Generate recent activity from expenses and payments
+      // Generate recent activity from transactions
       const activity: ActivityItem[] = [];
 
-      if (expensesData.status === "fulfilled") {
-        expensesData.value.slice(0, 3).forEach((expense) => {
-          activity.push({
-            id: `expense-${expense.id}`,
-            type: "expense",
-            description: expense.description,
-            amount:
-              typeof expense.amount === "number" ? expense.amount : undefined,
-            user: expense.paidBy?.firstName || "Unknown",
-            time: formatRelativeTime(expense.createdAt),
+      if (transactionsData.status === "fulfilled") {
+        console.log(
+          "Transaction data:",
+          transactionsData.value.transactions.slice(0, 2)
+        );
+        transactionsData.value.transactions
+          .slice(0, 5)
+          .forEach((transaction) => {
+            if (transaction.type === "expense") {
+              // For expenses: show who it was split with
+              const createdByName =
+                transaction.createdBy?.displayName ||
+                transaction.createdBy?.firstName ||
+                "Unknown";
+              const iCreatedExpense = transaction.createdBy?.id === user?.id;
+              const createdByDisplayName = iCreatedExpense
+                ? "You"
+                : createdByName;
+              const iAmInvolved =
+                transaction.splitBetween?.some((u) => u.id === user?.id) ||
+                false;
+              const myShare = transaction.userShare || 0;
+
+              // Build list of people it was split with (excluding current user for display)
+              const otherParticipants =
+                transaction.splitBetween?.filter((u) => u.id !== user?.id) ||
+                [];
+              const otherNames = otherParticipants.map(
+                (u) => u.displayName || u.firstName || "Unknown"
+              );
+
+              let splitDescription = "";
+              if (otherNames.length === 0) {
+                // Only current user involved
+                splitDescription = iCreatedExpense
+                  ? "You recorded an expense for yourself"
+                  : "They recorded an expense for themselves";
+              } else if (otherNames.length === 1) {
+                splitDescription = otherNames[0];
+              } else if (otherNames.length === 2) {
+                splitDescription = `${otherNames[0]} and ${otherNames[1]}`;
+              } else if (otherNames.length === 3) {
+                splitDescription = `${otherNames[0]}, ${otherNames[1]} and ${otherNames[2]}`;
+              } else {
+                splitDescription = `${otherNames[0]}, ${otherNames[1]} and ${
+                  otherNames.length - 2
+                } others`;
+              }
+
+              console.log("otherParticipants:", otherNames);
+              console.log("splitDescription:", splitDescription);
+              console.log(
+                "Final user string:",
+                `${createdByDisplayName} split with ${splitDescription}`
+              );
+
+              const userDescription =
+                otherNames.length === 0
+                  ? splitDescription // Just the parenthetical message
+                  : `${createdByDisplayName} split with ${splitDescription}`;
+
+              activity.push({
+                id: `expense-${transaction.id}`,
+                type: "expense",
+                description: `Expense: ${transaction.description}`,
+                amount: transaction.amount,
+                userShare: myShare,
+                user: userDescription,
+                time: formatRelativeTime(transaction.date),
+                involvesMe: iAmInvolved,
+                amountColor: iAmInvolved ? "red" : "white",
+                transaction: transaction,
+              });
+            } else {
+              // For payments: show who paid who with memo
+              const fromName =
+                transaction.fromUser?.displayName ||
+                transaction.fromUser?.firstName ||
+                "Unknown";
+              const toName =
+                transaction.toUser?.displayName ||
+                transaction.toUser?.firstName ||
+                "Unknown";
+              const iAmReceiving = transaction.toUser?.id === user?.id;
+              const iAmPaying = transaction.fromUser?.id === user?.id;
+              const involvesMe = iAmReceiving || iAmPaying;
+
+              const displayFromName = iAmPaying ? "You" : fromName;
+              const displayToName = iAmReceiving ? "you" : toName;
+
+              activity.push({
+                id: `payment-${transaction.id}`,
+                type: "payment",
+                description: `${displayFromName} paid ${displayToName}: ${transaction.description}`,
+                amount: transaction.amount,
+                user: displayFromName,
+                time: formatRelativeTime(transaction.date),
+                fromUser: displayFromName,
+                toUser: displayToName,
+                involvesMe: involvesMe,
+                amountColor: iAmReceiving
+                  ? "green"
+                  : involvesMe
+                  ? "red"
+                  : "white",
+                transaction: transaction,
+              });
+            }
           });
-        });
       }
 
-      if (paymentsData.status === "fulfilled") {
-        paymentsData.value.slice(0, 2).forEach((payment) => {
-          activity.push({
-            id: `payment-${payment.id}`,
-            type: "payment",
-            description: payment.memo || "Payment",
-            amount:
-              typeof payment.amount === "number" ? payment.amount : undefined,
-            user: payment.fromUser?.firstName || "Unknown",
-            time: formatRelativeTime(payment.createdAt),
-          });
-        });
+      // Get recent transactions directly
+      let recentTransactions: Transaction[] = [];
+      if (transactionsData.status === "fulfilled") {
+        recentTransactions = transactionsData.value.transactions.slice(0, 5);
       }
-
-      // Sort by most recent and take top 5 (simple sort by creation order for now)
-      activity.reverse();
-      setRecentActivity(activity.slice(0, 5));
+      setRecentActivity(recentTransactions);
     } catch (err) {
       console.error("Error loading home screen data:", err);
       setError("Failed to load data. Please try refreshing.");
@@ -199,17 +498,31 @@ export default function HomeScreen() {
   };
 
   const formatRelativeTime = (dateString: string): string => {
-    const date = new Date(dateString);
+    let date: Date;
+
+    // Handle date-only strings (YYYY-MM-DD) as local dates to avoid timezone issues
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const [year, month, day] = dateString.split("-").map(Number);
+      date = new Date(year, month - 1, day); // month is 0-indexed
+    } else {
+      date = new Date(dateString);
+    }
+
     const now = new Date();
-    const diffInHours = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+
+    // For date-only comparisons, compare just the date parts
+    const dateOnly = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
     );
+    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    if (diffInHours < 1) return "Less than an hour ago";
-    if (diffInHours < 24)
-      return `${diffInHours} hour${diffInHours === 1 ? "" : "s"} ago`;
+    const diffInMs = nowOnly.getTime() - dateOnly.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays === 0) return "Today";
+    if (diffInDays === 1) return "Yesterday";
     return `${diffInDays} day${diffInDays === 1 ? "" : "s"} ago`;
   };
 
@@ -243,7 +556,7 @@ export default function HomeScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.PRIMARY} />
+          <ActivityIndicator size="large" color={primaryColor} />
           <Text style={styles.loadingText}>Loading your home...</Text>
         </View>
       </SafeAreaView>
@@ -357,38 +670,42 @@ export default function HomeScreen() {
       >
         {/* Balances Card */}
         <Card title="💰 Balances" headerColor={COLORS.BALANCE_HEADER}>
-          {balances.length === 0 ? (
+          {userBalances.length === 0 ? (
             <View style={styles.balanceEmptyState}>
               <Text style={styles.emptyCardText}>All settled up! 🎉</Text>
               <Text style={styles.emptyCardSubtext}>
                 Create expenses to track who owes what
               </Text>
               <TouchableOpacity
-                style={styles.addExpenseButton}
+                style={[styles.addExpenseButton, { borderColor: primaryColor }]}
                 onPress={() =>
-                  navigation.navigate(NAVIGATION_ROUTES.SHARE_COST, {})
+                  navigation.navigate(NAVIGATION_ROUTES.SHARE_COST, {
+                    screen: NAVIGATION_ROUTES.SHARE_COST_HOME,
+                  })
                 }
               >
-                <Ionicons name="add" size={16} color={COLORS.PRIMARY} />
-                <Text style={styles.addExpenseText}>Add Expense</Text>
+                <Ionicons name="add" size={16} color={primaryColor} />
+                <Text style={[styles.addExpenseText, { color: primaryColor }]}>
+                  Add Expense
+                </Text>
               </TouchableOpacity>
             </View>
           ) : (
             <>
-              {balances.map((balance) => (
+              {userBalances.map((balance) => (
                 <View key={balance.id} style={styles.balanceItem}>
                   <View style={styles.balanceInfo}>
                     <Text style={styles.balanceText}>
-                      {balance.fromUser.id === user?.id
-                        ? `You owe ${balance.toUser.firstName}`
-                        : `${balance.fromUser.firstName} owes you`}
+                      {balance.type === "owes"
+                        ? `You owe ${balance.otherUser.firstName}`
+                        : `${balance.otherUser.firstName} owes you`}
                     </Text>
                     <Text
                       style={[
                         styles.balanceAmount,
                         {
                           color:
-                            balance.fromUser.id === user?.id
+                            balance.type === "owes"
                               ? COLORS.ERROR
                               : COLORS.SUCCESS,
                         },
@@ -397,11 +714,22 @@ export default function HomeScreen() {
                       {formatAmount(balance.amount)}
                     </Text>
                   </View>
-                  <TouchableOpacity style={styles.payButton}>
-                    <Text style={styles.payButtonText}>
-                      {balance.fromUser.id === user?.id ? "Pay" : "Remind"}
-                    </Text>
-                  </TouchableOpacity>
+                  {balance.type === "owes" && (
+                    <TouchableOpacity
+                      style={[
+                        styles.payButton,
+                        { backgroundColor: primaryColor },
+                      ]}
+                      onPress={() =>
+                        navigation.navigate(NAVIGATION_ROUTES.SHARE_COST, {
+                          screen: NAVIGATION_ROUTES.PAYMENT,
+                          params: { userId: balance.otherUser.id },
+                        })
+                      }
+                    >
+                      <Text style={styles.payButtonText}>Pay</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               ))}
             </>
@@ -409,7 +737,23 @@ export default function HomeScreen() {
         </Card>
 
         {/* Shopping List Card */}
-        <Card title="🛒 Shopping List" headerColor={COLORS.SHOPPING_HEADER}>
+        <Card
+          title="🛒 Shopping List"
+          headerColor={COLORS.SHOPPING_HEADER}
+          headerRight={
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate(NAVIGATION_ROUTES.SHARE_COST, {
+                  screen: NAVIGATION_ROUTES.SHOPPING_LIST,
+                })
+              }
+              style={{ paddingHorizontal: 8, paddingVertical: 4 }}
+              accessibilityLabel="View full shopping list"
+            >
+              <Ionicons name="list" size={22} color={COLORS.TEXT_PRIMARY} />
+            </TouchableOpacity>
+          }
+        >
           <ShoppingListManager
             items={shoppingItems}
             onItemsChange={(items) => setShoppingItems(items)}
@@ -429,266 +773,61 @@ export default function HomeScreen() {
                 })
               }
             >
-              <Text style={styles.viewAllText}>
+              <Text style={[styles.viewAllText, { color: primaryColor }]}>
                 View all {shoppingItems.length} items
               </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={16}
-                color={COLORS.PRIMARY}
-              />
+              <Ionicons name="chevron-forward" size={16} color={primaryColor} />
             </TouchableOpacity>
           )}
         </Card>
 
         {/* Recent Activity Card */}
-        <Card title="📋 Recent Activity" headerColor={COLORS.ACTIVITY_HEADER}>
+        <Card
+          title="📋 Recent Activity"
+          headerColor={COLORS.ACTIVITY_HEADER}
+          headerRight={
+            recentActivity.length > 0 && (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate(NAVIGATION_ROUTES.TRANSACTION_HISTORY)
+                }
+                style={{ paddingHorizontal: 8, paddingVertical: 4 }}
+                accessibilityLabel="View all transactions"
+              >
+                <Ionicons name="list" size={22} color={COLORS.TEXT_PRIMARY} />
+              </TouchableOpacity>
+            )
+          }
+        >
           {recentActivity.length === 0 ? (
             <Text style={styles.emptyCardText}>No recent activity</Text>
           ) : (
             <>
-              {recentActivity.map((activity) => (
-                <View key={activity.id} style={styles.activityItem}>
-                  <View style={styles.activityIcon}>
-                    <Ionicons
-                      name={getActivityIcon(activity.type)}
-                      size={20}
-                      color={COLORS.TEXT_SECONDARY}
-                    />
-                  </View>
-                  <View style={styles.activityDetails}>
-                    <Text style={styles.activityDescription}>
-                      {activity.description}
-                    </Text>
-                    <Text style={styles.activityMeta}>
-                      {activity.user} • {activity.time}
-                    </Text>
-                  </View>
-                  {activity.amount && (
-                    <Text style={styles.activityAmount}>
-                      {formatAmount(activity.amount)}
-                    </Text>
-                  )}
-                </View>
+              {recentActivity.map((transaction) => (
+                <TransactionListItem
+                  key={transaction.id}
+                  transaction={transaction}
+                  currentUserId={user?.id}
+                  onPress={() => {
+                    setSelectedTransaction(transaction);
+                    setShowTransactionModal(true);
+                  }}
+                />
               ))}
             </>
           )}
         </Card>
       </ScrollView>
+
+      <TransactionDetailModal
+        visible={showTransactionModal}
+        transaction={selectedTransaction}
+        onClose={() => {
+          setShowTransactionModal(false);
+          setSelectedTransaction(null);
+        }}
+        currentUserId={user?.id}
+      />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  header: {
-    paddingTop: 20,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
-  },
-  headerContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  backButton: {
-    padding: 8,
-    marginRight: 12,
-  },
-  houseInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  houseInfoWithBack: {
-    marginLeft: 0, // Reset margin when back button is present
-  },
-  houseDetails: {
-    marginLeft: 16,
-    flex: 1,
-  },
-  houseName: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: COLORS.TEXT_WHITE,
-  },
-  memberCount: {
-    fontSize: 16,
-    color: COLORS.TEXT_WHITE + "90",
-    marginTop: 4,
-  },
-  settingsButton: {
-    padding: 8,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  emptyTitle: {
-    fontSize: 24,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: "center",
-  },
-  emptySubtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    marginTop: 8,
-  },
-  emptyButton: {
-    marginTop: 24,
-    minWidth: 200,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginTop: 16,
-    textAlign: "center",
-  },
-  errorSubtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 8,
-    textAlign: "center",
-  },
-  retryButton: {
-    marginTop: 24,
-    minWidth: 150,
-  },
-  emptyCardText: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    fontStyle: "italic",
-  },
-  balanceEmptyState: {
-    alignItems: "center",
-    paddingVertical: 8,
-  },
-  emptyCardSubtext: {
-    fontSize: 14,
-    color: COLORS.TEXT_LIGHT,
-    textAlign: "center",
-    marginTop: 4,
-    marginBottom: 16,
-  },
-  addExpenseButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.PRIMARY,
-    gap: 6,
-  },
-  addExpenseText: {
-    fontSize: 14,
-    color: COLORS.PRIMARY,
-    fontWeight: "500",
-  },
-  balanceItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
-  },
-  balanceInfo: {
-    flex: 1,
-  },
-  balanceText: {
-    fontSize: 16,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  balanceAmount: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginTop: 4,
-  },
-  payButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 6,
-  },
-  payButtonText: {
-    color: COLORS.TEXT_WHITE,
-    fontWeight: "600",
-  },
-  viewAllButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    marginTop: 8,
-    gap: 4,
-  },
-  viewAllText: {
-    fontSize: 16,
-    color: COLORS.PRIMARY,
-    fontWeight: "600",
-  },
-  activityItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
-  },
-  activityIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.BACKGROUND,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  activityDetails: {
-    flex: 1,
-  },
-  activityDescription: {
-    fontSize: 16,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  activityMeta: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 2,
-  },
-  activityAmount: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-  },
-});

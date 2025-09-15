@@ -8,7 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { COLORS } from "../../constants";
+import { useUserTheme } from "../../hooks/useUserTheme";
 import { CreateShoppingItemRequest } from "../../types/shopping";
 
 interface Props {
@@ -19,6 +19,119 @@ interface Props {
   autoFocus?: boolean;
 }
 
+const createDynamicStyles = (colors: any) =>
+  StyleSheet.create({
+    addButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 16,
+      paddingHorizontal: 4,
+      gap: 8,
+    },
+    addButtonText: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      fontStyle: "italic",
+    },
+    container: {
+      paddingHorizontal: 4,
+      backgroundColor: colors.CARD_BACKGROUND,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.BORDER_LIGHT,
+      marginVertical: 8,
+    },
+    inputRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 12,
+      gap: 8,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: colors.BORDER,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      backgroundColor: colors.BACKGROUND,
+      fontSize: 16,
+      color: colors.TEXT_PRIMARY,
+    },
+    nameInput: {
+      flex: 1,
+    },
+    quantityInput: {
+      width: 70,
+    },
+    notesInput: {
+      marginBottom: 12,
+      minHeight: 40,
+      textAlignVertical: "top",
+    },
+    actions: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      gap: 8,
+    },
+    actionButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+      gap: 4,
+    },
+    cancelButton: {
+      backgroundColor: colors.BACKGROUND,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
+    },
+    cancelText: {
+      fontSize: 14,
+      color: colors.TEXT_SECONDARY,
+      fontWeight: "500",
+    },
+    addText: {
+      fontSize: 14,
+      color: colors.TEXT_WHITE,
+      fontWeight: "500",
+    },
+    recurringSection: {
+      marginBottom: 12,
+    },
+    recurringToggle: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 8,
+    },
+    checkbox: {
+      marginRight: 8,
+    },
+    recurringLabel: {
+      fontSize: 14,
+      color: colors.TEXT_PRIMARY,
+      fontWeight: "500",
+    },
+    intervalContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginLeft: 28,
+      gap: 8,
+    },
+    intervalLabel: {
+      fontSize: 14,
+      color: colors.TEXT_SECONDARY,
+    },
+    intervalInput: {
+      width: 60,
+      height: 36,
+    },
+    intervalUnit: {
+      fontSize: 14,
+      color: colors.TEXT_SECONDARY,
+    },
+  });
+
 export default function AddShoppingItemForm({
   onAdd,
   onCancel,
@@ -26,6 +139,8 @@ export default function AddShoppingItemForm({
   showExpanded = false,
   autoFocus = false,
 }: Props) {
+  const { primaryColor, COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
   const [isExpanded, setIsExpanded] = useState(showExpanded);
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("1");
@@ -134,7 +249,7 @@ export default function AddShoppingItemForm({
         style={styles.addButton}
         onPress={() => setIsExpanded(true)}
       >
-        <Ionicons name="add" size={20} color={COLORS.PRIMARY} />
+        <Ionicons name="add" size={20} color={primaryColor} />
         <Text style={styles.addButtonText}>{placeholder}</Text>
       </TouchableOpacity>
     );
@@ -180,7 +295,7 @@ export default function AddShoppingItemForm({
         >
           <View style={styles.checkbox}>
             {isRecurring ? (
-              <Ionicons name="checkbox" size={20} color={COLORS.PRIMARY} />
+              <Ionicons name="checkbox" size={20} color={primaryColor} />
             ) : (
               <Ionicons
                 name="square-outline"
@@ -219,7 +334,7 @@ export default function AddShoppingItemForm({
         )}
 
         <TouchableOpacity
-          style={[styles.actionButton, styles.addButtonAction]}
+          style={[styles.actionButton, { backgroundColor: primaryColor }]}
           onPress={handleSubmit}
           disabled={loading || !name.trim()}
         >
@@ -230,119 +345,3 @@ export default function AddShoppingItemForm({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  addButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 4,
-    gap: 8,
-  },
-  addButtonText: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    fontStyle: "italic",
-  },
-  container: {
-    paddingVertical: 16,
-    paddingHorizontal: 4,
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER_LIGHT,
-    marginVertical: 8,
-  },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-    gap: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: COLORS.BACKGROUND,
-    fontSize: 16,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  nameInput: {
-    flex: 1,
-  },
-  quantityInput: {
-    width: 70,
-  },
-  notesInput: {
-    marginBottom: 12,
-    minHeight: 40,
-    textAlignVertical: "top",
-  },
-  actions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 8,
-  },
-  actionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    gap: 4,
-  },
-  cancelButton: {
-    backgroundColor: COLORS.BACKGROUND,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
-  },
-  addButtonAction: {
-    backgroundColor: COLORS.PRIMARY,
-  },
-  cancelText: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    fontWeight: "500",
-  },
-  addText: {
-    fontSize: 14,
-    color: COLORS.TEXT_WHITE,
-    fontWeight: "500",
-  },
-  recurringSection: {
-    marginBottom: 12,
-  },
-  recurringToggle: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  checkbox: {
-    marginRight: 8,
-  },
-  recurringLabel: {
-    fontSize: 14,
-    color: COLORS.TEXT_PRIMARY,
-    fontWeight: "500",
-  },
-  intervalContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: 28,
-    gap: 8,
-  },
-  intervalLabel: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  intervalInput: {
-    width: 60,
-    height: 36,
-  },
-  intervalUnit: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-  },
-});

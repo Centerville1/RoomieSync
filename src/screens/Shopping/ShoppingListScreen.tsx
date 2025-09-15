@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -15,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ShoppingListManager } from "../../components/Shopping";
 import { useHouse } from "../../context/HouseContext";
 import { useShoppingSelection } from "../../context/ShoppingSelectionContext";
-import { COLORS, NAVIGATION_ROUTES } from "../../constants";
+import { useUserTheme } from "../../hooks/useUserTheme";
 import { ShareCostStackParamList } from "../../types/navigation";
 import { ShoppingItem } from "../../types/shopping";
 import { shoppingService } from "../../services/shoppingService";
@@ -29,6 +28,120 @@ interface Props {
   navigation: ShoppingListScreenNavigationProp;
 }
 
+const createDynamicStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.BACKGROUND,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.BORDER_LIGHT,
+    },
+    backButton: {
+      padding: 8,
+      marginLeft: -8,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      flex: 1,
+      textAlign: "center",
+    },
+    headerRight: {
+      alignItems: "flex-end",
+    },
+    headerSpacer: {
+      width: 40,
+    },
+    itemCount: {
+      fontSize: 14,
+      color: colors.TEXT_SECONDARY,
+      fontWeight: "500",
+      marginRight: 12,
+    },
+    selectedCount: {
+      fontSize: 14,
+      color: colors.PRIMARY,
+      fontWeight: "600",
+      marginRight: 12,
+    },
+    toggleButton: {
+      padding: 4,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 16,
+      paddingTop: 8,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 32,
+    },
+    loadingText: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      marginTop: 16,
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 32,
+    },
+    errorTitle: {
+      fontSize: 20,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      marginTop: 16,
+      textAlign: "center",
+    },
+    errorSubtitle: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      marginTop: 8,
+      textAlign: "center",
+    },
+    retryButton: {
+      marginTop: 24,
+      paddingHorizontal: 24,
+      paddingVertical: 12,
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 8,
+    },
+    retryButtonText: {
+      color: colors.TEXT_WHITE,
+      fontWeight: "600",
+      fontSize: 16,
+    },
+    emptyState: {
+      alignItems: "center",
+      paddingVertical: 48,
+      paddingHorizontal: 32,
+    },
+    emptyTitle: {
+      fontSize: 20,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      textAlign: "center",
+      marginTop: 16,
+    },
+    emptySubtitle: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      textAlign: "center",
+      marginTop: 8,
+      lineHeight: 22,
+    },
+  });
+
 export default function ShoppingListScreen({ navigation }: Props) {
   const [items, setItems] = useState<ShoppingItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +151,8 @@ export default function ShoppingListScreen({ navigation }: Props) {
   const { currentHouse } = useHouse();
   const { selectedShoppingItems, setSelectedShoppingItems } =
     useShoppingSelection();
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
 
   // Refresh data when screen comes into focus
   useFocusEffect(
@@ -96,7 +211,9 @@ export default function ShoppingListScreen({ navigation }: Props) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: COLORS.BACKGROUND }]}
+      >
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -117,7 +234,9 @@ export default function ShoppingListScreen({ navigation }: Props) {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: COLORS.BACKGROUND }]}
+      >
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -141,7 +260,9 @@ export default function ShoppingListScreen({ navigation }: Props) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: COLORS.BACKGROUND }]}
+    >
       {items.length > 0 && (
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Shopping List</Text>
@@ -181,116 +302,3 @@ export default function ShoppingListScreen({ navigation }: Props) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
-  },
-  backButton: {
-    padding: 8,
-    marginLeft: -8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    flex: 1,
-    textAlign: "center",
-  },
-  headerRight: {
-    alignItems: "flex-end",
-  },
-  headerSpacer: {
-    width: 40,
-  },
-  itemCount: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    fontWeight: "500",
-    marginRight: 12,
-  },
-  selectedCount: {
-    fontSize: 14,
-    color: COLORS.PRIMARY,
-    fontWeight: "600",
-    marginRight: 12,
-  },
-  toggleButton: {
-    padding: 4,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 8,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginTop: 16,
-    textAlign: "center",
-  },
-  errorSubtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 8,
-    textAlign: "center",
-  },
-  retryButton: {
-    marginTop: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: COLORS.TEXT_WHITE,
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  emptyState: {
-    alignItems: "center",
-    paddingVertical: 48,
-    paddingHorizontal: 32,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: "center",
-    marginTop: 16,
-  },
-  emptySubtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    marginTop: 8,
-    lineHeight: 22,
-  },
-});

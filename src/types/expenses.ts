@@ -47,3 +47,11 @@ export interface Balance {
   toUser: User;
   house: House;
 }
+
+export interface UserBalance {
+  id: string;
+  amount: number;
+  type: 'owes' | 'owed_by';
+  updatedAt: string;
+  otherUser: User;
+}

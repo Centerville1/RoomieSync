@@ -5,21 +5,25 @@ import ShareCostHomeScreen from "../screens/ShareCost/ShareCostHomeScreen";
 import ShoppingCostSplitScreen from "../screens/ShareCost/ShoppingCostSplitScreen";
 import ManualExpenseScreen from "../screens/ShareCost/ManualExpenseScreen";
 import SplitPreviewScreen from "../screens/ShareCost/SplitPreviewScreen";
+import PaymentScreen from "../screens/ShareCost/PaymentScreen";
 import { ShoppingListScreen } from "../screens/Shopping";
 import { ShareCostStackParamList } from "../types/navigation";
 import { NAVIGATION_ROUTES } from "../constants";
+import { useUserTheme } from "../hooks/useUserTheme";
 
 const Stack = createStackNavigator<ShareCostStackParamList>();
 
 export default function ShareCostNavigator() {
+  const { COLORS } = useUserTheme();
+
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: true,
-        headerTintColor: "#000",
+        headerTintColor: COLORS.TEXT_PRIMARY,
         headerStyle: {
-          backgroundColor: "#fff",
-          shadowColor: "#000",
+          backgroundColor: COLORS.CARD_BACKGROUND,
+          shadowColor: COLORS.TEXT_PRIMARY,
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.1,
           shadowRadius: 2,
@@ -46,6 +50,11 @@ export default function ShareCostNavigator() {
         name={NAVIGATION_ROUTES.SPLIT_PREVIEW}
         component={SplitPreviewScreen}
         options={{ title: "Split Preview" }}
+      />
+      <Stack.Screen
+        name={NAVIGATION_ROUTES.PAYMENT}
+        component={PaymentScreen}
+        options={{ title: "Record Payment" }}
       />
       <Stack.Screen
         name={NAVIGATION_ROUTES.SHOPPING_LIST}

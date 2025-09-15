@@ -16,8 +16,8 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp, useFocusEffect } from "@react-navigation/native";
 
 import { Button, Avatar } from "../../components/UI";
-import { COLORS } from "../../constants";
 import { ShareCostStackParamList } from "../../types/navigation";
+import { useUserTheme } from "../../hooks/useUserTheme";
 import { useHouse } from "../../context/HouseContext";
 import { HouseMembership } from "../../types/auth";
 import { expenseService } from "../../services/expenseService";
@@ -44,8 +44,194 @@ interface SelectableMember extends HouseMembership {
   isSelected: boolean;
 }
 
+const createDynamicStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.BACKGROUND,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 20,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 32,
+    },
+    loadingText: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      marginTop: 16,
+    },
+    header: {
+      paddingVertical: 24,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: "700",
+      color: colors.TEXT_PRIMARY,
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      lineHeight: 22,
+    },
+    summaryCard: {
+      backgroundColor: colors.CARD_BACKGROUND,
+      borderRadius: 12,
+      padding: 20,
+      marginBottom: 24,
+    },
+    summaryTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      marginBottom: 16,
+    },
+    summaryRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 12,
+    },
+    summaryLabel: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+    },
+    summaryValue: {
+      fontSize: 16,
+      color: colors.TEXT_PRIMARY,
+      fontWeight: "500",
+    },
+    summaryAmount: {
+      fontSize: 18,
+      color: colors.PRIMARY,
+      fontWeight: "700",
+    },
+    membersSection: {
+      marginBottom: 24,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      marginBottom: 4,
+    },
+    sectionSubtitle: {
+      fontSize: 14,
+      color: colors.TEXT_SECONDARY,
+      marginBottom: 16,
+    },
+    memberCard: {
+      backgroundColor: colors.CARD_BACKGROUND,
+      borderRadius: 12,
+      marginBottom: 12,
+      overflow: "hidden",
+    },
+    memberRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: 16,
+    },
+    memberInfo: {
+      flexDirection: "row",
+      alignItems: "center",
+      flex: 1,
+    },
+    memberAvatar: {
+      marginRight: 12,
+    },
+    memberDetails: {
+      flex: 1,
+    },
+    memberName: {
+      fontSize: 16,
+      fontWeight: "500",
+      color: colors.TEXT_PRIMARY,
+    },
+    memberRole: {
+      fontSize: 14,
+      color: colors.TEXT_SECONDARY,
+      marginTop: 2,
+    },
+    checkbox: {
+      marginLeft: 12,
+    },
+    breakdownCard: {
+      backgroundColor: colors.CARD_BACKGROUND,
+      borderRadius: 12,
+      padding: 20,
+      marginBottom: 24,
+    },
+    breakdownTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+      marginBottom: 16,
+    },
+    breakdownRow: {
+      marginBottom: 8,
+    },
+    breakdownLabel: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+    },
+    breakdownDivider: {
+      height: 1,
+      backgroundColor: colors.BORDER,
+      marginVertical: 16,
+    },
+    breakdownResult: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: colors.PRIMARY,
+    },
+    individualBreakdown: {
+      marginTop: 16,
+    },
+    individualRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      backgroundColor: colors.BACKGROUND,
+      borderRadius: 8,
+      marginBottom: 8,
+    },
+    individualName: {
+      fontSize: 14,
+      color: colors.TEXT_PRIMARY,
+      fontWeight: "500",
+    },
+    individualAmount: {
+      fontSize: 14,
+      color: colors.PRIMARY,
+      fontWeight: "600",
+    },
+    actions: {
+      paddingBottom: 24,
+    },
+    submitButton: {
+      minHeight: 50,
+    },
+  });
+
 export default function SplitPreviewScreen({ navigation, route }: Props) {
-  const { type, amount, description, items, splitBetween } = route.params;
+  const {
+    type,
+    amount,
+    description,
+    items,
+    splitBetween,
+    categoryId: passedCategoryId,
+  } = route.params;
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
   const [members, setMembers] = useState<SelectableMember[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,37 +246,38 @@ export default function SplitPreviewScreen({ navigation, route }: Props) {
 
   const loadHouseData = async () => {
     if (!currentHouse?.members || !currentHouse?.id) {
-      console.log('Missing house data:', { 
-        hasMembers: !!currentHouse?.members, 
+      console.log("Missing house data:", {
+        hasMembers: !!currentHouse?.members,
         hasId: !!currentHouse?.id,
-        currentHouse 
+        currentHouse,
       });
       return;
     }
 
     try {
       setLoading(true);
-      console.log('Loading house data for house:', currentHouse.id);
-      
+      console.log("Loading house data for house:", currentHouse.id);
+
       // Convert house members to selectable format first
       const selectableMembers = currentHouse.members.map((member) => ({
         ...member,
-        isSelected: splitBetween.includes(member.user?.id || ''),
+        isSelected: splitBetween.includes(member.user?.id || ""),
       }));
       setMembers(selectableMembers);
-      
+
       // Load categories separately to avoid blocking the UI
       try {
-        console.log('Fetching categories...');
-        const categoriesData = await categoryService.getCategoriesByHouseId(currentHouse.id);
-        console.log('Categories loaded:', categoriesData);
+        console.log("Fetching categories...");
+        const categoriesData = await categoryService.getCategoriesByHouseId(
+          currentHouse.id
+        );
+        console.log("Categories loaded:", categoriesData);
         setCategories(categoriesData);
       } catch (categoryError) {
         console.error("Error loading categories:", categoryError);
         // Don't fail the whole screen if categories fail - we'll handle missing categories in expense creation
         setCategories([]);
       }
-      
     } catch (error) {
       console.error("Error loading house data:", error);
       Alert.alert("Error", "Failed to load house data. Please try again.");
@@ -122,19 +309,28 @@ export default function SplitPreviewScreen({ navigation, route }: Props) {
   const getAppropriateCategory = useCallback(() => {
     if (categories.length === 0) return null;
 
+    // If a specific categoryId was passed (for manual expenses), use that
+    if (passedCategoryId) {
+      const passedCategory = categories.find(
+        (cat) => cat.id === passedCategoryId
+      );
+      if (passedCategory) return passedCategory;
+    }
+
     if (type === "shopping") {
       // For shopping expenses, look for "Groceries" category first
-      const groceryCategory = categories.find(cat => 
-        cat.name.toLowerCase().includes('groceries') || 
-        cat.name.toLowerCase().includes('grocery')
+      const groceryCategory = categories.find(
+        (cat) =>
+          cat.name.toLowerCase().includes("groceries") ||
+          cat.name.toLowerCase().includes("grocery")
       );
       if (groceryCategory) return groceryCategory;
     }
 
     // Fallback to the first default category or just the first category
-    const defaultCategory = categories.find(cat => cat.isDefault);
+    const defaultCategory = categories.find((cat) => cat.isDefault);
     return defaultCategory || categories[0];
-  }, [categories, type]);
+  }, [categories, type, passedCategoryId]);
 
   const handleSubmitExpense = async () => {
     if (selectedMembers.length === 0) {
@@ -153,29 +349,37 @@ export default function SplitPreviewScreen({ navigation, route }: Props) {
     try {
       setSubmitting(true);
 
-      const splitBetweenIds = selectedMembers.map((member) => member.user?.id).filter(Boolean) as string[];
+      const splitBetweenIds = selectedMembers
+        .map((member) => member.user?.id)
+        .filter(Boolean) as string[];
       const selectedCategory = getAppropriateCategory();
-      
+
       if (!selectedCategory) {
-        Alert.alert("Error", "No expense categories found. Please contact support.");
+        Alert.alert(
+          "Error",
+          "No expense categories found. Please contact support."
+        );
         return;
       }
 
-      console.log('Creating expense with data:', {
+      console.log("Creating expense with data:", {
         description,
         amount,
-        expenseDate: new Date().toISOString().split('T')[0],
+        expenseDate: new Date().toISOString().split("T")[0],
         splitBetween: splitBetweenIds,
         categoryId: selectedCategory.id,
         categoryName: selectedCategory.name,
-        selectedMembers: selectedMembers.map(m => ({ id: m.user?.id, name: m.displayName }))
+        selectedMembers: selectedMembers.map((m) => ({
+          id: m.user?.id,
+          name: m.displayName,
+        })),
       });
 
       // Create expense data with the appropriate category
       const expenseData: CreateExpenseRequest = {
         description,
         amount,
-        expenseDate: new Date().toISOString().split('T')[0], // Today's date
+        expenseDate: new Date().toISOString().split("T")[0], // Today's date
         splitBetween: splitBetweenIds,
         categoryId: selectedCategory.id,
       };
@@ -185,7 +389,7 @@ export default function SplitPreviewScreen({ navigation, route }: Props) {
       // Mark shopping items as purchased if this is a shopping expense
       if (type === "shopping" && items) {
         try {
-          const itemIds = items.map(item => item.id);
+          const itemIds = items.map((item) => item.id);
           await shoppingService.batchPurchaseItems(currentHouse.id, itemIds);
         } catch (purchaseError) {
           console.error("Error marking items as purchased:", purchaseError);
@@ -213,7 +417,8 @@ export default function SplitPreviewScreen({ navigation, route }: Props) {
       console.error("Error creating expense:", error);
       Alert.alert(
         "Error",
-        error?.response?.data?.message || "Failed to create expense. Please try again."
+        error?.response?.data?.message ||
+          "Failed to create expense. Please try again."
       );
     } finally {
       setSubmitting(false);
@@ -255,12 +460,16 @@ export default function SplitPreviewScreen({ navigation, route }: Props) {
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Total Amount:</Text>
-              <Text style={styles.summaryAmount}>${(amount || 0).toFixed(2)}</Text>
+              <Text style={styles.summaryAmount}>
+                ${(amount || 0).toFixed(2)}
+              </Text>
             </View>
             {type === "shopping" && items && (
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Items:</Text>
-                <Text style={styles.summaryValue}>{items.length} selected items</Text>
+                <Text style={styles.summaryValue}>
+                  {items.length} selected items
+                </Text>
               </View>
             )}
           </View>
@@ -276,11 +485,14 @@ export default function SplitPreviewScreen({ navigation, route }: Props) {
               <View key={member.id} style={styles.memberCard}>
                 <TouchableOpacity
                   style={styles.memberRow}
-                  onPress={() => handleMemberToggle(member.user?.id || '')}
+                  onPress={() => handleMemberToggle(member.user?.id || "")}
                 >
                   <View style={styles.memberInfo}>
                     <Avatar
-                      name={member.user?.firstName + ' ' + member.user?.lastName || member.displayName}
+                      name={
+                        member.user?.firstName + " " + member.user?.lastName ||
+                        member.displayName
+                      }
                       imageUrl={member.user?.profileImageUrl}
                       color={member.user?.color}
                       size="medium"
@@ -327,7 +539,8 @@ export default function SplitPreviewScreen({ navigation, route }: Props) {
               </View>
               <View style={styles.breakdownRow}>
                 <Text style={styles.breakdownLabel}>
-                  Split {selectedMembers.length} way{selectedMembers.length > 1 ? "s" : ""}
+                  Split {selectedMembers.length} way
+                  {selectedMembers.length > 1 ? "s" : ""}
                 </Text>
               </View>
               <View style={styles.breakdownDivider} />
@@ -367,179 +580,3 @@ export default function SplitPreviewScreen({ navigation, route }: Props) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 16,
-  },
-  header: {
-    paddingVertical: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    lineHeight: 22,
-  },
-  summaryCard: {
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 24,
-  },
-  summaryTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: 16,
-  },
-  summaryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  summaryLabel: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  summaryValue: {
-    fontSize: 16,
-    color: COLORS.TEXT_PRIMARY,
-    fontWeight: "500",
-  },
-  summaryAmount: {
-    fontSize: 18,
-    color: COLORS.PRIMARY,
-    fontWeight: "700",
-  },
-  membersSection: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: 4,
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    marginBottom: 16,
-  },
-  memberCard: {
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: 12,
-    marginBottom: 12,
-    overflow: "hidden",
-  },
-  memberRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-  },
-  memberInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  memberAvatar: {
-    marginRight: 12,
-  },
-  memberDetails: {
-    flex: 1,
-  },
-  memberName: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: COLORS.TEXT_PRIMARY,
-  },
-  memberRole: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 2,
-  },
-  checkbox: {
-    marginLeft: 12,
-  },
-  breakdownCard: {
-    backgroundColor: COLORS.CARD_BACKGROUND,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 24,
-  },
-  breakdownTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: 16,
-  },
-  breakdownRow: {
-    marginBottom: 8,
-  },
-  breakdownLabel: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  breakdownDivider: {
-    height: 1,
-    backgroundColor: COLORS.BORDER,
-    marginVertical: 16,
-  },
-  breakdownResult: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: COLORS.PRIMARY,
-  },
-  individualBreakdown: {
-    marginTop: 16,
-  },
-  individualRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: COLORS.BACKGROUND,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  individualName: {
-    fontSize: 14,
-    color: COLORS.TEXT_PRIMARY,
-    fontWeight: "500",
-  },
-  individualAmount: {
-    fontSize: 14,
-    color: COLORS.PRIMARY,
-    fontWeight: "600",
-  },
-  actions: {
-    paddingBottom: 24,
-  },
-  submitButton: {
-    minHeight: 50,
-  },
-});

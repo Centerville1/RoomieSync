@@ -1,4 +1,4 @@
-export const COLORS = {
+export const LIGHT_COLORS = {
   // Primary brand colors
   PRIMARY: "#FF6B35", // Orange for Share Cost button
   SECONDARY: "#6366F1",
@@ -22,6 +22,7 @@ export const COLORS = {
   TEXT_SECONDARY: "#6B7280",
   TEXT_LIGHT: "#9CA3AF",
   TEXT_WHITE: "#FFFFFF",
+  TEXT_INACTIVE: "#9CA3AF",
 
   // Border colors
   BORDER: "#D1D5DB",
@@ -32,3 +33,42 @@ export const COLORS = {
   DEFAULT_USER_COLOR: "#6366F1",
   DEFAULT_HOUSE_COLOR: "#10B981",
 } as const;
+
+export const DARK_COLORS = {
+  // Primary brand colors
+  PRIMARY: "#FF6B35", // Keep the same orange for brand consistency
+  SECONDARY: "#818CF8", // Lighter purple for better contrast
+  SUCCESS: "#34D399", // Lighter green
+  WARNING: "#FBBF24", // Lighter yellow
+  ERROR: "#F87171", // Lighter red
+
+  // Card header colors (darker variants)
+  BALANCE_HEADER: "#b59520ff", // Dark yellow
+  SHOPPING_HEADER: "#109370ff", // Dark green
+  ACTIVITY_HEADER: "#3059c9ff", // Dark blue
+
+  // Background colors
+  BACKGROUND: "#111827",
+  BACKGROUND_LIGHT: "#1F2937",
+  CARD_BACKGROUND: "#374151",
+  OVERLAY: "rgba(0, 0, 0, 0.7)",
+
+  // Text colors
+  TEXT_PRIMARY: "#F9FAFB",
+  TEXT_SECONDARY: "#D1D5DB",
+  TEXT_LIGHT: "#9CA3AF",
+  TEXT_WHITE: "#FFFFFF",
+  TEXT_INACTIVE: "#9CA3AF",
+
+  // Border colors
+  BORDER: "#4B5563",
+  BORDER_LIGHT: "#374151",
+  BORDER_MEDIUM: "#4B5563",
+
+  // Default user/house colors
+  DEFAULT_USER_COLOR: "#818CF8",
+  DEFAULT_HOUSE_COLOR: "#34D399",
+} as const;
+
+// Default to light theme (for backwards compatibility)
+export const COLORS = LIGHT_COLORS;

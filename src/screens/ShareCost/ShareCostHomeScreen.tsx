@@ -3,10 +3,44 @@ import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../components/UI";
 import { useShoppingSelection } from "../../context/ShoppingSelectionContext";
-import { COLORS } from "../../constants";
+import { useUserTheme } from "../../hooks/useUserTheme";
+
+const createDynamicStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.BACKGROUND,
+    },
+    content: {
+      flex: 1,
+      padding: 24,
+      justifyContent: "center",
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "700",
+      color: colors.TEXT_PRIMARY,
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      textAlign: "center",
+      marginBottom: 48,
+    },
+    options: {
+      gap: 16,
+    },
+    optionButton: {
+      minHeight: 60,
+    },
+  });
 
 export default function ShareCostHomeScreen({ navigation }: any) {
   const { selectedShoppingItems } = useShoppingSelection();
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
 
   // No automatic redirects - let user choose their action
 
@@ -47,34 +81,3 @@ export default function ShareCostHomeScreen({ navigation }: any) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  content: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-    marginBottom: 48,
-  },
-  options: {
-    gap: 16,
-  },
-  optionButton: {
-    minHeight: 60,
-  },
-});

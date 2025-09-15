@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,38 +7,106 @@ import {
   Platform,
   Alert,
   TouchableOpacity,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StackNavigationProp } from '@react-navigation/stack';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StackNavigationProp } from "@react-navigation/stack";
 
-import { Button, Input } from '../../components/UI';
-import { useAuth } from '../../context/AuthContext';
-import { RootStackParamList } from '../../types/navigation';
-import { COLORS, NAVIGATION_ROUTES, VALIDATION } from '../../constants';
+import { Button, Input } from "../../components/UI";
+import { useAuth } from "../../context/AuthContext";
+import { useUserTheme } from "../../hooks/useUserTheme";
+import { RootStackParamList } from "../../types/navigation";
+import { NAVIGATION_ROUTES, VALIDATION } from "../../constants";
 
-type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+type LoginScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "Login"
+>;
 
 interface Props {
   navigation: LoginScreenNavigationProp;
 }
 
+const createDynamicStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.BACKGROUND,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 24,
+    },
+    header: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingBottom: 32,
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "700",
+      color: "#111827",
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: "#6B7280",
+      textAlign: "center",
+    },
+    form: {
+      flex: 2,
+    },
+    loginButton: {
+      marginTop: 24,
+    },
+    forgotPasswordContainer: {
+      alignItems: "center",
+      marginTop: 16,
+    },
+    forgotPasswordText: {
+      fontSize: 16,
+      color: "#FF6B35",
+      fontWeight: "600",
+    },
+    footer: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: 32,
+    },
+    footerText: {
+      fontSize: 16,
+      color: "#6B7280",
+    },
+    linkText: {
+      fontSize: 16,
+      color: "#FF6B35",
+      fontWeight: "600",
+    },
+  });
+
 export default function LoginScreen({ navigation }: Props) {
   const { login, isLoading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const { COLORS, primaryColor } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
 
     if (!email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = "Please enter a valid email";
     }
 
     if (!password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (password.length < VALIDATION.PASSWORD_MIN_LENGTH) {
       newErrors.password = `Password must be at least ${VALIDATION.PASSWORD_MIN_LENGTH} characters`;
     }
@@ -54,21 +122,27 @@ export default function LoginScreen({ navigation }: Props) {
       await login({ email: email.trim(), password });
     } catch (error: any) {
       Alert.alert(
-        'Login Failed',
-        error.response?.data?.message || 'An error occurred during login'
+        "Login Failed",
+        error.response?.data?.message || "An error occurred during login"
       );
     }
+  };
+
+  const handleForgotPassword = () => {
+    navigation.navigate(NAVIGATION_ROUTES.FORGOT_PASSWORD);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         style={styles.content}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <View style={styles.header}>
           <Text style={styles.title}>Welcome to RoomieSync</Text>
-          <Text style={styles.subtitle}>Sign in to manage your shared expenses</Text>
+          <Text style={styles.subtitle}>
+            Sign in to manage your shared expenses
+          </Text>
         </View>
 
         <View style={styles.form}>
@@ -99,9 +173,16 @@ export default function LoginScreen({ navigation }: Props) {
             style={styles.loginButton}
           />
 
+          <TouchableOpacity
+            onPress={handleForgotPassword}
+            style={styles.forgotPasswordContainer}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
+
           <View style={styles.footer}>
             <Text style={styles.footerText}>Don't have an account? </Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => navigation.navigate(NAVIGATION_ROUTES.REGISTER)}
             >
               <Text style={styles.linkText}>Sign Up</Text>
@@ -112,53 +193,3 @@ export default function LoginScreen({ navigation }: Props) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-  },
-  header: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingBottom: 32,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: 'center',
-  },
-  form: {
-    flex: 2,
-  },
-  loginButton: {
-    marginTop: 24,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 32,
-  },
-  footerText: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  linkText: {
-    fontSize: 16,
-    color: COLORS.PRIMARY,
-    fontWeight: '600',
-  },
-});

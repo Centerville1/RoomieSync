@@ -16,16 +16,115 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { Card, Avatar, Button } from "../../components/UI";
 import { useAuth } from "../../context/AuthContext";
 import { useHouse } from "../../context/HouseContext";
-import { COLORS, NAVIGATION_ROUTES } from "../../constants";
+import { useUserTheme } from "../../hooks/useUserTheme";
+import { NAVIGATION_ROUTES } from "../../constants";
 import { RootStackParamList } from "../../types/navigation";
+import Constants from "expo-constants";
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
+
+const createDynamicStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.BACKGROUND,
+    },
+    header: {
+      alignItems: "center",
+      paddingVertical: 32,
+      paddingHorizontal: 24,
+    },
+    userName: {
+      fontSize: 24,
+      fontWeight: "700",
+      color: colors.TEXT_PRIMARY,
+      marginTop: 16,
+    },
+    userEmail: {
+      fontSize: 16,
+      color: colors.TEXT_SECONDARY,
+      marginTop: 4,
+    },
+    editButton: {
+      marginTop: 16,
+      paddingHorizontal: 24,
+    },
+    profileItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.BORDER_LIGHT,
+    },
+    profileItemDisabled: {
+      opacity: 0.6,
+    },
+    itemLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      flex: 1,
+    },
+    iconContainer: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: 12,
+    },
+    itemContent: {
+      flex: 1,
+    },
+    itemTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.TEXT_PRIMARY,
+    },
+    itemSubtitle: {
+      fontSize: 14,
+      color: colors.TEXT_SECONDARY,
+      marginTop: 2,
+    },
+    addHouseContainer: {
+      flexDirection: "row",
+      gap: 12,
+      marginTop: 16,
+    },
+    houseButton: {
+      flex: 1,
+    },
+    signOutContainer: {
+      padding: 24,
+      paddingBottom: 40,
+    },
+    signOutButton: {
+      marginTop: 16,
+    },
+    noHousesContainer: {
+      paddingVertical: 20,
+      alignItems: "center",
+    },
+    noHousesText: {
+      fontSize: 14,
+      color: colors.TEXT_SECONDARY,
+      textAlign: "center",
+    },
+  });
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { houses, currentHouse, switchToHouse } = useHouse();
+  const {
+    primaryColor,
+    COLORS: themeColors,
+    isDarkMode,
+    toggleTheme,
+  } = useUserTheme();
   const navigation = useNavigation<NavigationProp>();
   const [switchingHouse, setSwitchingHouse] = useState<string | null>(null);
+  const { COLORS } = useUserTheme();
+  const styles = createDynamicStyles(COLORS);
 
   const handleHouseSwitch = async (houseId: string) => {
     if (houseId === currentHouse?.id) {
@@ -80,29 +179,55 @@ export default function ProfileScreen() {
     disabled?: boolean;
   }) => (
     <TouchableOpacity
-      style={[styles.profileItem, disabled && styles.profileItemDisabled]}
+      style={[
+        styles.profileItem,
+        { borderBottomColor: themeColors.BORDER_LIGHT },
+        disabled && styles.profileItemDisabled,
+      ]}
       onPress={disabled ? undefined : onPress}
       disabled={disabled}
     >
       <View style={styles.itemLeft}>
-        <View style={styles.iconContainer}>
-          <Ionicons name={icon as any} size={20} color={COLORS.PRIMARY} />
+        <View
+          style={[
+            styles.iconContainer,
+            { backgroundColor: primaryColor + "15" },
+          ]}
+        >
+          <Ionicons name={icon as any} size={20} color={primaryColor} />
         </View>
         <View style={styles.itemContent}>
-          <Text style={styles.itemTitle}>{title}</Text>
-          {subtitle && <Text style={styles.itemSubtitle}>{subtitle}</Text>}
+          <Text style={[styles.itemTitle, { color: themeColors.TEXT_PRIMARY }]}>
+            {title}
+          </Text>
+          {subtitle && (
+            <Text
+              style={[
+                styles.itemSubtitle,
+                { color: themeColors.TEXT_SECONDARY },
+              ]}
+            >
+              {subtitle}
+            </Text>
+          )}
         </View>
       </View>
       {rightComponent ? (
         rightComponent
       ) : showArrow ? (
-        <Ionicons name="chevron-forward" size={20} color={COLORS.TEXT_LIGHT} />
+        <Ionicons
+          name="chevron-forward"
+          size={20}
+          color={themeColors.TEXT_LIGHT}
+        />
       ) : null}
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: themeColors.BACKGROUND }]}
+    >
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Profile Header */}
         <View style={styles.header}>
@@ -112,12 +237,16 @@ export default function ProfileScreen() {
             color={user?.color}
             size="large"
           />
-          <Text style={styles.userName}>
+          <Text style={[styles.userName, { color: themeColors.TEXT_PRIMARY }]}>
             {user?.firstName && user?.lastName
               ? `${user.firstName} ${user.lastName}`
               : user?.email || "Loading..."}
           </Text>
-          <Text style={styles.userEmail}>{user?.email || ""}</Text>
+          <Text
+            style={[styles.userEmail, { color: themeColors.TEXT_SECONDARY }]}
+          >
+            {user?.email || ""}
+          </Text>
 
           <Button
             title="Edit Profile"
@@ -131,7 +260,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Houses Section */}
-        <Card title="🏠 Your Houses" headerColor={COLORS.BALANCE_HEADER}>
+        <Card title="🏠 Your Houses" headerColor={themeColors.BALANCE_HEADER}>
           {houses.length > 0 ? (
             houses.map((house) => {
               // Get the user's role from the house membership data
@@ -152,12 +281,12 @@ export default function ProfileScreen() {
                   showArrow={!isCurrentHouse && !isSwitching}
                   rightComponent={
                     isSwitching ? (
-                      <ActivityIndicator size="small" color={COLORS.PRIMARY} />
+                      <ActivityIndicator size="small" color={primaryColor} />
                     ) : isCurrentHouse ? (
                       <Ionicons
                         name="checkmark-circle"
                         size={20}
-                        color={COLORS.SUCCESS}
+                        color={themeColors.SUCCESS}
                       />
                     ) : undefined
                   }
@@ -167,7 +296,12 @@ export default function ProfileScreen() {
             })
           ) : (
             <View style={styles.noHousesContainer}>
-              <Text style={styles.noHousesText}>
+              <Text
+                style={[
+                  styles.noHousesText,
+                  { color: themeColors.TEXT_SECONDARY },
+                ]}
+              >
                 You haven't joined any houses yet
               </Text>
             </View>
@@ -196,66 +330,62 @@ export default function ProfileScreen() {
         </Card>
 
         {/* Account Settings */}
-        <Card title="⚙️ Account Settings" headerColor={COLORS.ACTIVITY_HEADER}>
+        <Card
+          title="⚙️ Account Settings"
+          headerColor={themeColors.ACTIVITY_HEADER}
+        >
           <ProfileItem
             icon="person-outline"
             title="Personal Information"
-            subtitle="Name, email, phone"
-            onPress={() => {}}
+            subtitle="Name, email, phone, app colors"
+            onPress={() => navigation.navigate(NAVIGATION_ROUTES.EDIT_PROFILE)}
           />
           <ProfileItem
             icon="notifications-outline"
             title="Notifications"
-            subtitle="Push notifications, email alerts"
+            subtitle="COMING SOON: Push notifications, email alerts"
+            disabled
             onPress={() => {}}
           />
           <ProfileItem
             icon="lock-closed-outline"
             title="Privacy & Security"
-            subtitle="Password, two-factor authentication"
-            onPress={() => {}}
+            subtitle="Change password"
+            onPress={() =>
+              navigation.navigate(NAVIGATION_ROUTES.FORGOT_PASSWORD as any)
+            }
           />
         </Card>
 
         {/* Preferences */}
-        <Card title="🎨 Preferences" headerColor={COLORS.SHOPPING_HEADER}>
+        <Card title="🎨 Preferences" headerColor={themeColors.SHOPPING_HEADER}>
           <ProfileItem
             icon="color-palette-outline"
             title="Theme"
-            subtitle="Light mode"
-            onPress={() => {}}
-          />
-          <ProfileItem
-            icon="language-outline"
-            title="Language"
-            subtitle="English"
-            onPress={() => {}}
-          />
-          <ProfileItem
-            icon="card-outline"
-            title="Currency"
-            subtitle="USD ($)"
-            onPress={() => {}}
+            subtitle={isDarkMode ? "Dark mode" : "Light mode"}
+            onPress={toggleTheme}
           />
         </Card>
 
         {/* Support */}
         <Card title="🆘 Support" headerColor="#FEE2E2">
           <ProfileItem
-            icon="help-circle-outline"
-            title="Help Center"
-            onPress={() => {}}
-          />
-          <ProfileItem
             icon="chatbubble-outline"
             title="Contact Support"
+            subtitle="COMING SOON: Get help with your account"
+            disabled
             onPress={() => {}}
           />
           <ProfileItem
             icon="information-circle-outline"
             title="About RoomieSync"
-            subtitle="Version 1.0.0"
+            subtitle={`Version ${Constants.expoConfig?.version}\nBuild ${
+              Constants.expoConfig?.android?.versionCode ||
+              Constants.expoConfig?.ios?.buildNumber ||
+              "N/A"
+            }`}
             onPress={() => {}}
+            showArrow={false}
           />
         </Card>
 
@@ -272,92 +402,3 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
-  },
-  header: {
-    alignItems: "center",
-    paddingVertical: 32,
-    paddingHorizontal: 24,
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: COLORS.TEXT_PRIMARY,
-    marginTop: 16,
-  },
-  userEmail: {
-    fontSize: 16,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 4,
-  },
-  editButton: {
-    marginTop: 16,
-    paddingHorizontal: 24,
-  },
-  profileItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.BORDER_LIGHT,
-  },
-  profileItemDisabled: {
-    opacity: 0.6,
-  },
-  itemLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.PRIMARY + "15",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  itemContent: {
-    flex: 1,
-  },
-  itemTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.TEXT_PRIMARY,
-  },
-  itemSubtitle: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    marginTop: 2,
-  },
-  addHouseContainer: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 16,
-  },
-  houseButton: {
-    flex: 1,
-  },
-  signOutContainer: {
-    padding: 24,
-    paddingBottom: 40,
-  },
-  signOutButton: {
-    marginTop: 16,
-  },
-  noHousesContainer: {
-    paddingVertical: 20,
-    alignItems: "center",
-  },
-  noHousesText: {
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: "center",
-  },
-});
